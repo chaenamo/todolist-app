@@ -225,9 +225,9 @@ flowchart LR
   3. 접속 문자열을 `backend/.env`(커밋 금지)에 `DATABASE_URL`, `TEST_DATABASE_URL`로 적는다(키 목록은 원칙 5장 예시).
 - **선결 결정**: U-09 실행 방식 — 잠정: 로컬 설치 우선, 없으면 Docker Compose DB 1개.
 - **완료 조건**:
-  - [ ] `psql "$DATABASE_URL" -c "select version()"` 출력이 `PostgreSQL 17.`로 시작한다
-  - [ ] `psql "$TEST_DATABASE_URL" -c "select 1"`이 성공한다
-  - [ ] `git status`에 `backend/.env`가 나타나지 않는다 (NFR-14)
+  - [x] `psql "$DATABASE_URL" -c "select version()"` 출력이 `PostgreSQL 17.`로 시작한다
+  - [x] `psql "$TEST_DATABASE_URL" -c "select 1"`이 성공한다
+  - [x] `git status`에 `backend/.env`가 나타나지 않는다 (NFR-14)
 
 ### DB-02 마이그레이션 SQL 작성·제약 검증
 
@@ -241,18 +241,18 @@ flowchart LR
   3. 빈 스크래치 DB에 001→004를 `psql -v ON_ERROR_STOP=1`로 적용하고 `verify.sql`을 실행한다(러너는 BE-03).
 - **선결 결정**: EQ-02 파일 구성 — **결정**(잠정 기본값 채택): 7-erd대로 테이블별 4개. 원칙 문서 6.2 트리도 001~004로 갱신됨(원칙 v0.4).
 - **완료 조건**:
-  - [ ] 001→004 순서로 빈 DB에 오류 없이 적용되고 `\d todos`에 IX-01~03, `\d categories`에 CN-06~08, `\d refresh_tokens`에 CN-16~18·IX-04가 보인다
-  - [ ] 중복 이메일 INSERT가 `uq_users_email` 위반(23505)으로 거부된다 (CN-02, BR-03)
-  - [ ] 같은 사용자 같은 카테고리 이름 INSERT가 `uq_categories_user_id_name`으로 거부된다 (CN-06, BR-07)
-  - [ ] 같은 사용자 두 번째 `is_default = true` INSERT가 `uq_categories_user_id_default`로 거부된다 (CN-08, BR-05)
-  - [ ] 이름 `' 업무'`(앞 공백) 카테고리가 `ck_categories_name_trimmed`로 거부된다 (CN-09)
-  - [ ] `end_date < start_date` 할일이 `ck_todos_date_range`로 거부된다 (CN-14, AC-02)
-  - [ ] 다른 사용자의 카테고리로 할일 INSERT가 `fk_todos_category_owner`(23503)로 거부된다 (CN-12, NFR-12)
-  - [ ] `is_completed = true, completed_at = NULL`이 `ck_todos_completed_at`으로 거부된다 (CN-15, BR-13)
-  - [ ] 공백 제목·공백 이름이 각각 CN-13, CN-03으로 거부된다
-  - [ ] 같은 `token_hash` 두 번째 INSERT가 `uq_refresh_tokens_token_hash`로 거부된다 (CN-18)
-  - [ ] 카테고리·할일이 없는 사용자를 삭제하면 그 사용자의 `refresh_tokens` 행도 함께 삭제된다 (CN-17 CASCADE)
-  - [ ] `verify.sql` 실행 후 모든 테이블 행 수가 0이다(ROLLBACK 확인)
+  - [x] 001→004 순서로 빈 DB에 오류 없이 적용되고 `\d todos`에 IX-01~03, `\d categories`에 CN-06~08, `\d refresh_tokens`에 CN-16~18·IX-04가 보인다
+  - [x] 중복 이메일 INSERT가 `uq_users_email` 위반(23505)으로 거부된다 (CN-02, BR-03)
+  - [x] 같은 사용자 같은 카테고리 이름 INSERT가 `uq_categories_user_id_name`으로 거부된다 (CN-06, BR-07)
+  - [x] 같은 사용자 두 번째 `is_default = true` INSERT가 `uq_categories_user_id_default`로 거부된다 (CN-08, BR-05)
+  - [x] 이름 `' 업무'`(앞 공백) 카테고리가 `ck_categories_name_trimmed`로 거부된다 (CN-09)
+  - [x] `end_date < start_date` 할일이 `ck_todos_date_range`로 거부된다 (CN-14, AC-02)
+  - [x] 다른 사용자의 카테고리로 할일 INSERT가 `fk_todos_category_owner`(23503)로 거부된다 (CN-12, NFR-12)
+  - [x] `is_completed = true, completed_at = NULL`이 `ck_todos_completed_at`으로 거부된다 (CN-15, BR-13)
+  - [x] 공백 제목·공백 이름이 각각 CN-13, CN-03으로 거부된다
+  - [x] 같은 `token_hash` 두 번째 INSERT가 `uq_refresh_tokens_token_hash`로 거부된다 (CN-18)
+  - [x] 카테고리·할일이 없는 사용자를 삭제하면 그 사용자의 `refresh_tokens` 행도 함께 삭제된다 (CN-17 CASCADE)
+  - [x] `verify.sql` 실행 후 모든 테이블 행 수가 0이다(ROLLBACK 확인)
 
 ### DB-03 개발용 시드·인덱스 사용 확인
 
@@ -266,11 +266,11 @@ flowchart LR
   3. `SET enable_seqscan = off`로 목록(필터 없음/카테고리 필터)·캘린더 기간 겹침 쿼리를 `EXPLAIN`한다(7-erd 4장).
 - **선결 결정**: 없음
 - **완료 조건**:
-  - [ ] 마이그레이션된 빈 개발 DB에 `seed.sql`이 오류 없이 적용된다
-  - [ ] seed 사용자 각각 `is_default = true` 카테고리가 정확히 1개다 (BR-05)
-  - [ ] `WHERE user_id = $1 ORDER BY end_date, created_at, id LIMIT 50` EXPLAIN에 `ix_todos_user_id_end_date`가 나오고 Sort 노드가 없다 (IX-01)
-  - [ ] `WHERE user_id = $1 AND category_id = $2 ORDER BY end_date, created_at, id` EXPLAIN에 `ix_todos_user_id_category_id`가 나온다 (IX-02)
-  - [ ] `WHERE user_id = $1 AND start_date <= $2 AND end_date >= $3` EXPLAIN에 `ix_todos_user_id_start_date`가 나온다 (IX-03)
+  - [x] 마이그레이션된 빈 개발 DB에 `seed.sql`이 오류 없이 적용된다
+  - [x] seed 사용자 각각 `is_default = true` 카테고리가 정확히 1개다 (BR-05)
+  - [x] `WHERE user_id = $1 ORDER BY end_date, created_at, id LIMIT 50` EXPLAIN에 `ix_todos_user_id_end_date`가 나오고 Sort 노드가 없다 (IX-01)
+  - [x] `WHERE user_id = $1 AND category_id = $2 ORDER BY end_date, created_at, id` EXPLAIN에 `ix_todos_user_id_category_id`가 나온다 (IX-02)
+  - [x] `WHERE user_id = $1 AND start_date <= $2 AND end_date >= $3` EXPLAIN에 `ix_todos_user_id_start_date`가 나온다 (IX-03)
 
 ## 4. 백엔드 Task
 
@@ -314,12 +314,12 @@ flowchart LR
 
 - **선결 결정**: U-04, AQ-05, AQ-06, AQ-09, AQ-10, EQ-01, G-05, PQ-02, PQ-03 (7장 잠정값 사용)
 - **완료 조건**:
-  - [ ] `docs/9-api-spec.md`에 위 19개 엔드포인트가 모두 있고 각각 요청·성공 응답·오류 코드가 적혀 있다
-  - [ ] 인증 절에 access token(JWT HS384, 15분, claims `sub`·`iat`·`exp`, Bearer)·refresh token(불투명 문자열, 14일, 회전 없음, body 전달)과 401 → refresh 1회 → 원 요청 1회 재시도 규칙이 적혀 있다 (PR-16, PR-37)
-  - [ ] User, Category, Todo, 목록 응답, 에러 응답의 JSON 예시가 있고 필드명이 camelCase다 (PR-20)
-  - [ ] `status` 필터 값이 `NOT_STARTED, IN_PROGRESS, COMPLETED, OVERDUE`로 적혀 있다 (원칙 3.1)
-  - [ ] 7장 결정 항목 U-04, AQ-05, AQ-06, AQ-09, AQ-10, EQ-01, G-05, PQ-02, PQ-03의 결정 값이 문서에 ID와 함께 있다
-  - [ ] 문서의 경로·메서드가 이 계획의 BE-05~BE-12 수행 작업과 일치한다(불일치 시 이 계획을 먼저 고침)
+  - [x] `docs/9-api-spec.md`에 위 19개 엔드포인트가 모두 있고 각각 요청·성공 응답·오류 코드가 적혀 있다
+  - [x] 인증 절에 access token(JWT HS384, 15분, claims `sub`·`iat`·`exp`, Bearer)·refresh token(불투명 문자열, 14일, 회전 없음, body 전달)과 401 → refresh 1회 → 원 요청 1회 재시도 규칙이 적혀 있다 (PR-16, PR-37)
+  - [x] User, Category, Todo, 목록 응답, 에러 응답의 JSON 예시가 있고 필드명이 camelCase다 (PR-20)
+  - [x] `status` 필터 값이 `NOT_STARTED, IN_PROGRESS, COMPLETED, OVERDUE`로 적혀 있다 (원칙 3.1)
+  - [x] 7장 결정 항목 U-04, AQ-05, AQ-06, AQ-09, AQ-10, EQ-01, G-05, PQ-02, PQ-03의 결정 값이 문서에 ID와 함께 있다
+  - [x] 문서의 경로·메서드가 이 계획의 BE-05~BE-12 수행 작업과 일치한다(불일치 시 이 계획을 먼저 고침)
 
 ### BE-02 백엔드 골격·설정·DB 풀·에러 처리·헬스체크
 
@@ -335,14 +335,14 @@ flowchart LR
   5. `src/routes/health.js`(`GET /health` 200/503), `src/app.js`(cors `CORS_ORIGIN` → json → requestLog → health → `/api` 라우터 자리 → 404 `NOT_FOUND` → error), `src/server.js`.
 - **선결 결정**: AQ-07 — 잠정: `db.checkConnection()` 호출을 헬스체크 예외로 허용. EQ-01 — 잠정: 23503은 409 `CONFLICT`(재시도 안내 문구), 잠금 미도입. PQ-03 — 잠정: bigint를 number로 파싱.
 - **완료 조건**:
-  - [ ] `npm test`에서 `test/health.test.js`: DB 정상 시 `GET /health` 200 `{ status: "ok" }`, 풀 접속 실패 시 503 통과 (PR-45)
-  - [ ] 미등록 경로 요청이 404 `{ error: { code: "NOT_FOUND" } }`를 반환한다 (PR-46)
-  - [ ] error 미들웨어 단위 테스트: AppError, 23505 `uq_users_email` → 409 `fields.email`, `uq_categories_user_id_name` → 409 `fields.name`, 매핑 없는 23505 → `fields` 없는 409, 23503 → 409, 기타 → 500 `INTERNAL`이고 응답에 스택·SQL 문구가 없다 (PR-20, PR-21, AQ-02)
-  - [ ] `JWT_ACCESS_SECRET` 없이, 또는 48바이트 미만 값으로 `node src/server.js` 실행 시 0이 아닌 코드로 종료한다 (PR-34, PR-37)
-  - [ ] `src/` 안에서 `process.env`를 읽는 파일이 `config.js` 하나뿐이다(`grep` 확인)
-  - [ ] `db.js` 단위 테스트: `date` 컬럼이 `'YYYY-MM-DD'` 문자열, `bigint`가 number로 온다 (PR-42, PQ-03)
-  - [ ] 요청 로그에 `Authorization` 헤더·본문(refresh token 포함)이 찍히지 않는다(테스트에서 로그 캡처) (PR-40)
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] `npm test`에서 `test/health.test.js`: DB 정상 시 `GET /health` 200 `{ status: "ok" }`, 풀 접속 실패 시 503 통과 (PR-45)
+  - [x] 미등록 경로 요청이 404 `{ error: { code: "NOT_FOUND" } }`를 반환한다 (PR-46)
+  - [x] error 미들웨어 단위 테스트: AppError, 23505 `uq_users_email` → 409 `fields.email`, `uq_categories_user_id_name` → 409 `fields.name`, 매핑 없는 23505 → `fields` 없는 409, 23503 → 409, 기타 → 500 `INTERNAL`이고 응답에 스택·SQL 문구가 없다 (PR-20, PR-21, AQ-02)
+  - [x] `JWT_ACCESS_SECRET` 없이, 또는 48바이트 미만 값으로 `node src/server.js` 실행 시 0이 아닌 코드로 종료한다 (PR-34, PR-37)
+  - [x] `src/` 안에서 `process.env`를 읽는 파일이 `config.js` 하나뿐이다(`grep` 확인)
+  - [x] `db.js` 단위 테스트: `date` 컬럼이 `'YYYY-MM-DD'` 문자열, `bigint`가 number로 온다 (PR-42, PQ-03)
+  - [x] 요청 로그에 `Authorization` 헤더·본문(refresh token 포함)이 찍히지 않는다(테스트에서 로그 캡처) (PR-40)
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-03 마이그레이션 러너·테스트 DB 헬퍼
 
@@ -356,12 +356,12 @@ flowchart LR
   3. `test` 스크립트를 `node --env-file=.env --test --test-concurrency=1 "test/**/*.test.js"`로 한다. 파일 간 DB 공유 때문에 **동시 실행 1**이 필수다. 테스트 실행 시 `DATABASE_URL` 대신 `TEST_DATABASE_URL`을 쓰도록 `config.js`에서 `NODE_ENV=test` 분기.
 - **선결 결정**: 없음
 - **완료 조건**:
-  - [ ] 빈 DB에 `npm run migrate` 1회 실행 시 4개 파일이 적용되고 `schema_migrations`에 4행이 생긴다
-  - [ ] 두 번째 실행은 아무 파일도 적용하지 않고 성공한다 (PR-44)
-  - [ ] 일부러 깨진 SQL 파일을 둔 테스트에서 그 파일은 롤백되고 기록되지 않으며 종료 코드가 0이 아니다
-  - [ ] `npm test`가 개발 DB(`DATABASE_URL`)에 쓰지 않는다(테스트 후 개발 DB 행 수 불변)
-  - [ ] `resetDb()` 후 네 테이블 행 수 0, 다음 INSERT id가 1부터 시작한다
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] 빈 DB에 `npm run migrate` 1회 실행 시 4개 파일이 적용되고 `schema_migrations`에 4행이 생긴다
+  - [x] 두 번째 실행은 아무 파일도 적용하지 않고 성공한다 (PR-44)
+  - [x] 일부러 깨진 SQL 파일을 둔 테스트에서 그 파일은 롤백되고 기록되지 않으며 종료 코드가 0이 아니다
+  - [x] `npm test`가 개발 DB(`DATABASE_URL`)에 쓰지 않는다(테스트 후 개발 DB 행 수 불변)
+  - [x] `resetDb()` 후 네 테이블 행 수 0, 다음 INSERT id가 1부터 시작한다
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-04 할일 상태 판정·공통 입력 검증
 

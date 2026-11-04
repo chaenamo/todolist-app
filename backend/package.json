@@ -1,0 +1,31 @@
+{
+  "name": "todolist-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --env-file=.env --watch src/server.js",
+    "start": "node --env-file=.env src/server.js",
+    "test": "node --env-file=.env --env-file=test/test.env --test --test-concurrency=1 \"test/**/*.test.js\"",
+    "test:coverage": "node --env-file=.env --env-file=test/test.env --test --test-concurrency=1 --experimental-test-coverage \"test/**/*.test.js\"",
+    "lint": "eslint . --max-warnings=0",
+    "migrate": "node --env-file=.env scripts/migrate.js",
+    "migrate:test": "node --env-file=.env scripts/migrate.js --test"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
+    "supertest": "^7.3.1"
+  }
+}

@@ -6,11 +6,13 @@
 # | 버전 | 일자       | 작성자   | 상태 | 비고      |
 # |------|------------|----------|------|-----------|
 # | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
+# | v0.2 | 2026-11-04 | chaenamo | 초안 | docs/9-api-spec.md 결정 반영 |
 #
 # 변경 이력
 # | 버전 | 일자       | 변경 범위 | 변경 내용                                                                                          | 변경자   |
 # |------|------------|-----------|----------------------------------------------------------------------------------------------------|----------|
 # | v0.1 | 2026-11-04 | 전체      | 8-plan BE-01 잠정 엔드포인트 19개, 공통 스키마(User/Category/Todo/목록/에러/토큰), bearerAuth(HS384) 최초 작성 | chaenamo |
+# | v0.2 | 2026-11-04 | updateMe, getHealth | PATCH /api/users/me의 name 외 필드 → 400 확정, /health 503 본문 `{ status: unavailable }` 확정 (docs/9-api-spec.md) | chaenamo |
 #
 # 기준 문서: docs/1-domain-definition.md (v0.3), docs/2-PRD.md (v0.4), docs/3-user-scenario.md (v0.5),
 #            docs/4-wireframe.md (v0.5), docs/5-project-principle.md (v0.4), docs/6-arch-diagram.md (v0.5),
@@ -25,7 +27,7 @@ openapi: 3.0.3
 
 info:
   title: TodoList API
-  version: 0.1.0
+  version: 0.2.0
   description: |
     개인별 할일·카테고리·캘린더 관리 API (MVP). 계약 근거는 `docs/8-plan.md` BE-01.
 
@@ -93,7 +95,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
         '503':
-          description: DB 연결 실패. 본문 형식은 문서에 정해지지 않음(잠정).
+          description: DB 연결 실패.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [unavailable]
 
   /api/auth/signup:
     post:
@@ -274,8 +285,7 @@ paths:
       summary: 이름 변경
       description: |
         이름만 변경한다(trim 후 저장). 이메일은 변경할 수 없다(A-06, BR-04).
-        본문의 `name` 외 필드(예: `email`)를 무시할지 400으로 거부할지는 문서 미확정(**잠정**, BE-11 "무시 또는 400, 계약대로").
-        어느 쪽이든 이메일은 바뀌지 않는다.
+        본문에 `name` 외 필드(예: `email`)가 있으면 400 `VALIDATION_ERROR`(docs/9-api-spec.md 결정). 이메일은 바뀌지 않는다.
         관련: UC-03, BR-04, SC-10-E2, SC-10-E3, G-05, BE-11.
       requestBody:
         required: true
@@ -1126,6 +1136,7 @@ components:
           description: 누락·문자열 아님 → 400 `VALIDATION_ERROR`
     UpdateMeRequest:
       type: object
+      additionalProperties: false
       required: [name]
       properties:
         name:
