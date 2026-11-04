@@ -6,6 +6,8 @@
 |------|------|--------|------|------|
 | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
 | v0.2 | 2026-11-04 | chaenamo | 초안 | 아키텍처 다이어그램 AQ-01~03 결정 반영 |
+| v0.3 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
+| v0.4 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 
 ## 변경 이력
 
@@ -13,8 +15,10 @@
 |------|------|-----------|-----------|--------|
 | v0.1 | 2026-11-04 | 전체 | 도메인 정의서 v0.3, PRD v0.3, 사용자 시나리오 v0.2, 와이어프레임 v0.2 기반 프로젝트 구조 설계 원칙 최초 작성 | chaenamo |
 | v0.2 | 2026-11-04 | 기준 문서, PR-14, PR-16, PR-20, PR-46 | AQ-01: 로그인·회원가입 요청의 401은 공통 401 처리에서 제외. AQ-02: 409 `CONFLICT`에 `fields`를 담고 unique 제약 이름으로 필드를 매핑. AQ-03: 쓰기는 낙관적 업데이트 없이 성공 후 즉시 재조회 | chaenamo |
+| v0.3 | 2026-11-04 | 기준 문서, PR-07, PR-11, PR-14, PR-16, PR-22, PR-29, PR-34, PR-37, PR-40, 5장 `.env.example`, 6.2, 6.3, 7(U-02) | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. PR-16에 401 → single-flight refresh → 원 요청 1회 재시도 추가, PR-37을 HS384·access 15분·`algorithms` 명시·refresh/logout API로 변경, 환경변수 `JWT_ACCESS_SECRET`·`ACCESS_TOKEN_TTL`·`REFRESH_TOKEN_TTL_DAYS`로 교체, `refreshTokenRepository.js` 추가, U-02 결정 처리 | chaenamo |
+| v0.4 | 2026-11-04 | 기준 문서, PR-36, 6.2 | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5로 갱신, 6.2 마이그레이션 트리를 `001_init.sql` 1개에서 ERD(`7-erd.md` 6장)·실행 계획의 테이블별 4개(001~004)로 변경(ERD EQ-02 결정), 실행 계획 Task 파일 `db/verify.sql`·`test/health.test.js`를 트리에 추가, PR-36 `password_hash` select 함수를 로그인용·비밀번호 변경용 각 1개로 명확화(실행 계획 BE-05·BE-11과 일치) | chaenamo |
 
-> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.3), `docs/3-user-scenario.md` (v0.3), `docs/4-wireframe.md` (v0.3).
+> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP)는 **참조만** 하며 재정의하지 않는다. 규칙 본문은 원 문서를 따른다.
 > 이 문서 고유 ID: 원칙 `PR-xx`, 미결 사항 `U-xx`. 삭제되어도 **재사용하거나 다시 매기지 않는다.**
 
@@ -42,7 +46,7 @@
 | PR-04 | **날짜는 date-only 문자열 `'YYYY-MM-DD'`로 FE↔BE↔DB 일관.** DB는 `date` 타입, API는 문자열, FE도 문자열로 다룬다. 시작일자·종료일자·'오늘'에 타임존 변환을 하지 않는다. 비교는 문자열 비교(사전순 = 날짜순)로 충분하다. 일시(완료일시·생성일시)만 `timestamptz`/ISO 8601이다. | A-01, TC-06, R-03 |
 | PR-05 | **'오늘'은 브라우저 로컬 날짜.** FE가 로컬 날짜로 `today`를 만들어 상태 판정이 필요한 조회(목록·캘린더)에 전달하고, BE는 이 값으로 판정·필터한다. 서버 시계로 '오늘'을 정하지 않는다(파라미터 이름·형식은 API 문서). | A-01, PRD 3.2, R-03, AC-03 |
 | PR-06 | **서버가 최종 검증자.** 모든 입력은 서버에서 검증한다. FE 검증은 UX 보조이며 서버 검증을 대신하지 않는다. | NFR-13, SC-00-E4 |
-| PR-07 | **보안 기본값은 "막힘".** 인증 미들웨어는 기본 적용하고 공개 경로(회원가입·로그인·헬스체크)만 예외로 연다. 소유권은 쿼리 조건으로 강제하고, 타인 리소스는 존재 여부를 숨긴 404로 응답한다. | BR-01, BR-02, NFR-10, NFR-12, R-04 |
+| PR-07 | **보안 기본값은 "막힘".** 인증 미들웨어는 기본 적용하고 공개 경로(회원가입·로그인·토큰 갱신 refresh·로그아웃·헬스체크)만 예외로 연다. refresh·로그아웃은 access token 대신 body의 refresh token으로 인증한다. 소유권은 쿼리 조건으로 강제하고, 타인 리소스는 존재 여부를 숨긴 404로 응답한다. | BR-01, BR-02, NFR-10, NFR-12, R-04 |
 | PR-08 | **하지 않는다.** 마이크로서비스, DI 컨테이너, 클린/헥사고날 아키텍처 풀세트, 모노레포 툴(nx·turbo·workspace 루트 `package.json`), ORM·쿼리 빌더(Prisma, Knex, Sequelize 등), GraphQL, SSR/Next.js, Redis 등 캐시 서버, 메시지 큐, i18n, 상태 저장 컬럼. | PR-01, TC-04, TC-05 |
 
 ## 2. 의존성 / 레이어 원칙
@@ -53,7 +57,7 @@
 |----|------|-------------|
 | PR-09 | BE는 **3개 레이어** `routes → services → repositories`이며 의존은 **한 방향**이다(역방향·건너뛰기 금지: routes가 repository나 `pg`를 직접 부르지 않는다). 순수 로직은 `domain/`(상태 판정)·`validators/`(입력 검증)에 두고 어느 레이어에서나 쓸 수 있다. 별도 `controllers/` 레이어는 **두지 않는다**: 리소스당 핸들러가 몇 개뿐이라 라우터 파일이 컨트롤러 역할을 겸한다. | PR-01, 파일 수 최소화 |
 | PR-10 | **소유권은 repository 함수 시그니처로 강제한다.** 할일·카테고리 repository 함수는 모두 `userId`를 첫 인자로 받고 SQL에 `WHERE user_id = $1`을 건다. `userId` 없이 id만으로 조회·수정·삭제하는 함수는 만들지 않는다. 결과 0건이면 service가 404(`NOT_FOUND`)를 던진다. 할일에 지정한 `categoryId`도 같은 사용자 소유인지 확인한다(타인 카테고리 연결 방지). | NFR-12, R-04, SC-00-E3 |
-| PR-11 | **트랜잭션은 service에서 연다.** 여러 쿼리가 한 단위인 경우(회원가입 + '기본' 카테고리 생성, 카테고리 삭제 + 할일 '기본' 이동)만 `db.js`의 `withTransaction(fn)`을 쓰고, repository 함수는 실행 대상(`db` = pool 또는 트랜잭션 client)을 인자로 받는다. | BR-05, BR-09 |
+| PR-11 | **트랜잭션은 service에서 연다.** 여러 쿼리가 한 단위인 경우(회원가입 + '기본' 카테고리 생성 + refresh token 저장, 카테고리 삭제 + 할일 '기본' 이동, 비밀번호 변경 + 전체 refresh token 삭제 + 새 refresh token 저장)만 `db.js`의 `withTransaction(fn)`을 쓰고, repository 함수는 실행 대상(`db` = pool 또는 트랜잭션 client)을 인자로 받는다. | BR-05, BR-09, NFR-10, G-06 |
 | PR-12 | Express **5**를 쓴다. async 핸들러의 reject가 에러 미들웨어로 바로 전달되므로 `asyncHandler` 래퍼를 만들지 않는다. | PR-01 |
 
 레이어별 책임 / 금지
@@ -70,9 +74,9 @@
 | ID | 규칙 | 이유 (근거) |
 |----|------|-------------|
 | PR-13 | FE는 `pages → hooks → api` 한 방향이다. 페이지·컴포넌트는 `fetch`를 직접 부르지 않고 `hooks/`의 TanStack Query 훅만 쓴다. `api/`는 HTTP 호출과 타입만 가지며 React를 import하지 않는다. `components/`는 props만 받는 표시용(데이터 조회 금지). | TC-02, TC-03, NFR-08 |
-| PR-14 | **Zustand와 TanStack Query 역할 분리.** 서버 데이터(할일·카테고리·내 정보)는 TanStack Query 캐시에만 둔다. Zustand에는 **인증 토큰**과 **UI 상태**(목록 필터·페이지, 캘린더 뷰·기준 날짜)만 둔다. 서버 응답을 Zustand에 복사하지 않는다. 쓰기 후에는 관련 쿼리를 `invalidateQueries`로 갱신한다. **낙관적 업데이트는 쓰지 않는다**: 요청 중 해당 컨트롤을 비활성화하고, 성공하면 즉시 재조회하며(필터와 안 맞게 된 항목은 바로 사라짐), 실패하면 캐시가 바뀌지 않았으므로 원 상태 그대로 오류만 표시한다(AQ-03 결정). | TC-03, NFR-08 |
+| PR-14 | **Zustand와 TanStack Query 역할 분리.** 서버 데이터(할일·카테고리·내 정보)는 TanStack Query 캐시에만 둔다. Zustand에는 **인증 토큰**(access token은 메모리만, refresh token만 `persist`로 localStorage, PR-37)과 **UI 상태**(목록 필터·페이지, 캘린더 뷰·기준 날짜)만 둔다. 서버 응답을 Zustand에 복사하지 않는다. 쓰기 후에는 관련 쿼리를 `invalidateQueries`로 갱신한다. **낙관적 업데이트는 쓰지 않는다**: 요청 중 해당 컨트롤을 비활성화하고, 성공하면 즉시 재조회하며(필터와 안 맞게 된 항목은 바로 사라짐), 실패하면 캐시가 바뀌지 않았으므로 원 상태 그대로 오류만 표시한다(AQ-03 결정). | TC-03, NFR-08 |
 | PR-15 | 필터·캘린더 위치를 Zustand에 두는 이유: 다른 화면에서의 변경이 반영돼야 하고(카테고리 삭제 시 필터 해제 G-08), 편집 후 진입 화면 복귀 시 위치가 유지돼야 한다(G-12). 그 외 화면 한정 상태(모달 열림, 폼 입력값)는 컴포넌트 `useState`에 둔다. | G-08, G-12 |
-| PR-16 | **401은 api client 한 곳에서 처리한다**: 토큰 폐기 → `queryClient.clear()` → 로그인 화면 이동. 로그아웃도 같은 함수를 쓴다(이전 사용자 데이터 캐시가 남지 않게). **단, 로그인·회원가입 요청(인증 엔드포인트)의 401은 이 공통 처리에서 제외**하고 호출한 화면이 폼 오류로 표시한다(입력 유지, SC-02-E1, AQ-01 결정). | SC-00-E2, NFR-10, A-14 |
+| PR-16 | **401은 api client 한 곳에서 처리한다**: 보호 API가 401이면 ① `POST /api/auth/refresh`를 **1회** 시도한다. 동시에 여러 요청이 401이면 refresh 요청은 하나만 보내고 나머지는 그 결과를 기다린다(single-flight, 진행 중 Promise 공유). ② 성공하면 새 access token으로 원 요청을 **1회만** 재시도한다(재시도의 401은 다시 refresh하지 않고 ③으로). ③ refresh도 401이면 토큰 둘 다 폐기 → `queryClient.clear()` → 로그인 화면 이동. 로그아웃은 `POST /api/auth/logout` 호출(실패해도 진행) 후 ③과 같은 폐기 함수를 쓴다(이전 사용자 데이터 캐시가 남지 않게). 앱 진입 시 메모리에 access token이 없고 refresh token이 있으면 refresh를 먼저 호출해 성공 시 보호 화면, 실패 시 로그인 화면(SC-02-A1). **단, 인증 엔드포인트(login, signup, refresh, logout)의 401은 이 공통 처리에서 제외**하고 호출한 쪽이 처리한다(로그인·가입은 폼 오류로 표시, 입력 유지, SC-02-E1, AQ-01 결정). | SC-00-E2, SC-02-A1, NFR-10, A-14 |
 
 ### 2.3 외부 패키지
 
@@ -117,7 +121,7 @@
 | PR-19 | **JS↔DB 케이스 변환은 repository 한 곳**, SQL 별칭으로 한다(`SELECT start_date AS "startDate"`). 변환 헬퍼·자동 변환 라이브러리를 두지 않는다. repository 밖으로 snake_case가 나가지 않는다. | PR-01, TC-05 |
 | PR-20 | **에러 응답 형식 통일**: `{ "error": { "code": "VALIDATION_ERROR", "message": "…", "fields": { "endDate": "…" } } }`. `fields`는 필드 오류일 때만. 코드↔상태: `VALIDATION_ERROR` 400, `UNAUTHORIZED` 401, `NOT_FOUND` 404, `CONFLICT` 409(이메일 중복 BR-03, 카테고리 이름 중복 BR-07. **`fields`에 충돌한 필드를 담는다**, 예: `{ "email": "이미 사용 중인 이메일입니다" }`, AQ-02 결정), `FORBIDDEN_OPERATION` 400('기본' 카테고리 변경 BR-06), `INTERNAL` 500. 성공 응답은 래핑 없이 데이터 그대로, 목록은 `{ items, page, limit, total }`. | NFR-13, CMP-03(필드 아래 오류 / 토스트 구분), SC-01-E1 |
 | PR-21 | 메시지는 사용자에게 보여 줄 한국어 문구로 서버가 만든다(CMP-03 "메시지 그대로 표시"). 500은 내부 정보 없이 일반 문구만. | CMP-03, NFR-14 |
-| PR-22 | **상수·매직넘버**: 페이지 크기(50/100), bcrypt cost(10), 토큰 만료(24h), 풀 크기(20) 같은 **가정 수치**는 `config.js`(환경별로 바뀔 값) 또는 각 모듈 상단 상수로 한 번만 정의한다. 코드 중간에 숫자를 직접 쓰지 않는다. | NFR-05, NFR-06, NFR-09, NFR-10 (모두 "가정" 표기, 부하 테스트로 조정) |
+| PR-22 | **상수·매직넘버**: 페이지 크기(50/100), bcrypt cost(10), 토큰 만료(access 15m, refresh 14일), 풀 크기(20) 같은 **가정 수치**는 `config.js`(환경별로 바뀔 값) 또는 각 모듈 상단 상수로 한 번만 정의한다. 코드 중간에 숫자를 직접 쓰지 않는다. | NFR-05, NFR-06, NFR-09, NFR-10 (모두 "가정" 표기, 부하 테스트로 조정) |
 | PR-23 | **주석**: 코드로 드러나지 않는 "왜"만 한 줄로 쓰고, 규칙 구현에는 근거 ID를 단다(`// BR-11: 같은 날 허용`). 일부러 단순화한 곳은 `// shortcut: <한계>, <바꿀 시점>` 형식. 주석 처리된 죽은 코드는 남기지 않는다. | PR-02 |
 | PR-24 | **FE 타입·스타일**: `tsconfig` `strict: true`, `any` 금지. API 응답 타입은 `api/types.ts`에 손으로 쓴다(코드 생성 도구 없음). 스타일은 CSS Modules(Vite 기본 지원)와 `styles/tokens.css` 변수만 쓰며 CSS 프레임워크는 도입하지 않는다. `dangerouslySetInnerHTML`은 쓰지 않는다. | TC-02, R-05, 스킬 '스타일 가이드' |
 | PR-25 | **BE 모듈**: ESM(`"type": "module"`), Node 22 LTS. JS이므로 타입 대신 `validators/`가 입력 형태를 보장한다. JSDoc은 공개 함수 시그니처가 모호할 때만. | TC-04 |
@@ -144,7 +148,9 @@
 | 상태 필터 경계, 카테고리 AND 상태 OR | BE API | AC-03, AC-04, BR-15 |
 | 캘린더 기간 겹침 조회 | BE API + FE 어댑터 | AC-05, AC-06, BR-16 |
 | 타 사용자 할일·카테고리 조회·수정·삭제 → 404, 타인 카테고리로 할일 등록 거부 | BE API | NFR-12, PR-10 |
-| 토큰 없음/잘못된 토큰 → 401 | BE API | NFR-10, BR-01 |
+| 토큰 없음/잘못된 토큰/HS384 외 알고리즘으로 서명한 토큰 → 401 | BE API | NFR-10, BR-01 |
+| refresh: 정상 → 새 access token, 없는·만료·로그아웃·비밀번호 변경으로 폐기된 refresh token → 401 | BE API | NFR-10, A-14, G-06 |
+| api client 401 → single-flight refresh → 원 요청 1회 재시도, refresh 401 → 폐기·로그인 이동 | FE 단위 | PR-16, SC-00-E2 |
 | 필수값 누락·잘못된 날짜 형식·공백 카테고리명·중복 이메일/카테고리명 | BE API | NFR-13, BR-03, BR-07, BR-10 |
 | '기본' 카테고리 변경·삭제 거부, 삭제 시 할일 '기본' 이동 (M-05 구현 시) | BE API | BR-06, BR-09 |
 
@@ -161,13 +167,13 @@
 | ID | 규칙 | 이유 (근거) |
 |----|------|-------------|
 | PR-33 | **환경변수**: 설정은 환경변수로만 주입한다. `.env`는 커밋하지 않고(`.gitignore`에 이미 있음), 키 목록과 더미 값을 담은 `.env.example`을 `backend/`·`frontend/`에 각각 커밋한다. BE는 `node --env-file=.env`로 읽는다. FE는 Vite 규칙상 `VITE_` 접두사 값만 번들에 들어가므로 **비밀을 넣지 않는다**(`VITE_API_BASE_URL`만). | NFR-14 |
-| PR-34 | **설정 로딩은 `backend/src/config.js` 한 곳.** 다른 파일은 `process.env`를 직접 읽지 않는다. 필수 값(`DATABASE_URL`, `JWT_SECRET`)이 없으면 기동 시 즉시 종료한다. | NFR-14, PR-22 |
+| PR-34 | **설정 로딩은 `backend/src/config.js` 한 곳.** 다른 파일은 `process.env`를 직접 읽지 않는다. 필수 값(`DATABASE_URL`, `JWT_ACCESS_SECRET`)이 없으면 기동 시 즉시 종료한다. `JWT_ACCESS_SECRET`이 48바이트 미만이어도 종료한다(HS384, PR-37). | NFR-14, PR-22 |
 | PR-35 | **CORS**: `cors` 미들웨어로 `CORS_ORIGIN`에 지정한 출처만 허용한다(`*` 금지). 개발 중에는 Vite 프록시(`/api` → BE)를 써서 CORS 없이도 동작하게 한다. | NFR-14 |
-| PR-36 | **비밀번호**: `bcrypt` cost `BCRYPT_COST`(기본 10)로 해시만 저장한다. 비교는 `bcrypt.compare`. 응답·로그에 해시도 내보내지 않는다(repository가 `password_hash`를 select하는 함수는 로그인·비밀번호 변경용 1개뿐). | NFR-09, BR-04 |
-| PR-37 | **JWT**: `jsonwebtoken` HS256, payload는 `{ sub: userId }`만, 만료 `JWT_EXPIRES_IN`(기본 24h), `Authorization: Bearer`. `middleware/auth.js`가 검증 후 `req.userId`만 설정한다. 로그아웃 API는 두지 않는다(클라이언트 폐기). | NFR-10, A-14, G-06 |
+| PR-36 | **비밀번호**: `bcrypt` cost `BCRYPT_COST`(기본 10)로 해시만 저장한다. 비교는 `bcrypt.compare`. 응답·로그에 해시도 내보내지 않는다(repository가 `password_hash`를 select하는 함수는 로그인용·비밀번호 변경용 각 1개뿐). | NFR-09, BR-04 |
+| PR-37 | **JWT + refresh token**: ① Access token은 `jsonwebtoken` **HS384**, 비밀키 `JWT_ACCESS_SECRET`(48바이트 이상 무작위), claims는 `sub`(userId)·`iat`·`exp`만, 만료 `ACCESS_TOKEN_TTL`(기본 15m), `Authorization: Bearer`로 전달. `middleware/auth.js`는 `jwt.verify(token, secret, { algorithms: ['HS384'] })`로 **알고리즘을 명시**해 검증하고(알고리즘 혼동 공격 방지) `req.userId`만 설정한다. FE는 access token을 메모리(Zustand, persist 안 함)에만 둔다. ② Refresh token은 JWT가 아닌 불투명 무작위 문자열(`crypto.randomBytes(32)` base64url)이다. 서버가 DB로 폐기 여부를 확인해야 하므로 JWT로 만들 이점이 없다. DB `refresh_tokens`에는 **SHA-256 해시만** 저장하고, 만료 `REFRESH_TOKEN_TTL_DAYS`(기본 14일), **회전 없음**(만료까지 같은 토큰 재사용). FE는 localStorage에 저장한다(R-05 감수). ③ API: 가입·로그인 응답 `{ accessToken, refreshToken, user }`(로그인 시 그 사용자의 만료된 refresh token 행 삭제), `POST /api/auth/refresh` body `{ refreshToken }` → 200 `{ accessToken }`(해시 조회 실패·만료 → 401 `UNAUTHORIZED`), `POST /api/auth/logout` body `{ refreshToken }` → 204(해당 행 삭제, 없어도 204, 멱등). refresh·logout은 공개 경로(PR-07). ④ 비밀번호 변경 성공 시 그 사용자의 모든 refresh token을 삭제하고 현재 세션용 새 refresh token을 발급해 응답한다(`{ refreshToken }`). 다른 기기는 access token 만료(최대 15분) 후 로그아웃된다(G-06). | NFR-10, R-05, A-14, G-06 |
 | PR-38 | **SQL**: 모든 쿼리는 `$n` 파라미터화. 동적 조건(필터·정렬)은 **화이트리스트 조각**을 조립하고 값은 항상 파라미터로 넘긴다. 사용자 입력을 SQL 문자열에 넣지 않는다. | NFR-11, BR-15 |
 | PR-39 | **입력 검증**: `validators/`가 타입·필수·`YYYY-MM-DD` 형식과 실제 날짜 여부·길이·페이지 범위를 검사하고 실패 시 `VALIDATION_ERROR` + `fields`를 던진다. 문자열 앞뒤 공백 정리(BR-07)도 여기서 한다. 길이 제한 값은 G-05 확정 전까지 상수 하나로 둔다. | NFR-13, BR-07, BR-10, BR-11, G-05 |
-| PR-40 | **로깅**: 요청 로그는 메서드·경로·상태·소요시간만 남긴다. 요청 본문, `Authorization` 헤더, 비밀번호, 토큰은 절대 로그에 남기지 않는다. 500 에러는 스택을 서버 로그에만 남긴다. 로깅 라이브러리 없이 `console`을 쓴다. | NFR-09, NFR-14 |
+| PR-40 | **로깅**: 요청 로그는 메서드·경로·상태·소요시간만 남긴다. 요청 본문, `Authorization` 헤더, 비밀번호, 토큰(access token, refresh token과 그 해시)은 절대 로그에 남기지 않는다. 500 에러는 스택을 서버 로그에만 남긴다. 로깅 라이브러리 없이 `console`을 쓴다. | NFR-09, NFR-14 |
 | PR-41 | **DB 풀**: `pg.Pool`은 `db.js`에서 **한 번만** 생성해 공유한다(`max` = `DB_POOL_MAX`, 기본 20). 요청마다 `Client`를 만들지 않는다. | NFR-05, R-02 |
 | PR-42 | **DATE 타입 파서**: `db.js`에서 `pg.types.setTypeParser(1082, v => v)`로 `date` 컬럼을 문자열 그대로 받는다. 기본값(JS `Date` 변환)은 서버 타임존에 따라 하루가 밀린다. | PR-04, A-01, R-03 |
 | PR-43 | **페이지네이션 상한**: 목록 `limit` 기본 50, 최대 100으로 서버에서 자른다. 캘린더 조회는 반드시 기간(`from`, `to`)을 받고 기간 겹침(`start_date <= to AND end_date >= from`)으로 제한한다. 기간 없는 전체 조회 API는 두지 않는다. | NFR-06, BR-16 |
@@ -182,8 +188,9 @@ PORT=3000
 DATABASE_URL=postgres://todo:todo@localhost:5432/todo
 TEST_DATABASE_URL=postgres://todo:todo@localhost:5432/todo_test
 DB_POOL_MAX=20
-JWT_SECRET=change-me
-JWT_EXPIRES_IN=24h
+JWT_ACCESS_SECRET=change-me-to-48-plus-random-bytes
+ACCESS_TOKEN_TTL=15m
+REFRESH_TOKEN_TTL_DAYS=14
 BCRYPT_COST=10
 CORS_ORIGIN=http://localhost:5173
 ```
@@ -225,17 +232,18 @@ backend/
 │   │   └── error.js        # 에러 → 통일 응답 (PR-46)
 │   ├── routes/             # HTTP 레이어 (컨트롤러 겸함, PR-09)
 │   │   ├── health.js       # GET /health
-│   │   ├── auth.js         # /api/auth/signup, /api/auth/login        (UC-01, UC-02)
+│   │   ├── auth.js         # /api/auth/signup, login, refresh, logout (UC-01, UC-02, PR-37)
 │   │   ├── users.js        # /api/users/me, /api/users/me/password    (UC-03)
 │   │   ├── categories.js   # /api/categories[/:id]                    (UC-04)
 │   │   └── todos.js        # /api/todos[/:id], 캘린더 기간 조회       (UC-05~10)
 │   ├── services/
-│   │   ├── authService.js      # 가입(+기본 카테고리 트랜잭션 BR-05), 로그인, 토큰 발급
-│   │   ├── userService.js      # 이름·비밀번호 변경 (BR-04)
+│   │   ├── authService.js      # 가입(+기본 카테고리 트랜잭션 BR-05), 로그인, 토큰 쌍 발급, refresh, 로그아웃 (PR-37)
+│   │   ├── userService.js      # 이름·비밀번호 변경 (BR-04), 변경 시 refresh token 전체 폐기 (G-06)
 │   │   ├── categoryService.js  # BR-06, BR-07, BR-09
 │   │   └── todoService.js      # BR-08, BR-10~13, BR-17, 상태 부착
 │   ├── repositories/
 │   │   ├── userRepository.js
+│   │   ├── refreshTokenRepository.js # refresh_tokens 해시 저장·조회·삭제 (PR-37)
 │   │   ├── categoryRepository.js
 │   │   └── todoRepository.js   # 필터·페이지네이션·기간 겹침 SQL (PR-38, PR-43)
 │   ├── validators/
@@ -246,8 +254,12 @@ backend/
 │   └── domain/
 │       └── todoStatus.js   # deriveStatus(todo, today), 상태별 SQL 조건 조각 (ST-01~04, PR-03)
 ├── db/
-│   ├── migrations/
-│   │   └── 001_init.sql    # users, categories, todos, 인덱스 (상세는 DB 설계 문서)
+│   ├── migrations/         # 테이블별 파일, 내용은 `docs/7-erd.md` 6장·`docs/schema.sql`
+│   │   ├── 001_create_users.sql
+│   │   ├── 002_create_categories.sql
+│   │   ├── 003_create_todos.sql          # 목록·캘린더 인덱스 포함
+│   │   └── 004_create_refresh_tokens.sql # 인증 인프라 테이블 (PR-37)
+│   ├── verify.sql          # 제약 위반 검증 스크립트, BEGIN … ROLLBACK
 │   └── seed.sql            # 개발용 샘플 데이터 (운영 DB에 실행 금지)
 ├── scripts/
 │   └── migrate.js          # 순번 SQL 적용기 (PR-44)
@@ -255,8 +267,9 @@ backend/
 │   └── todos.k6.js         # k6 시나리오 (M-04, PR-32)
 └── test/
     ├── helpers.js          # 테스트 DB 초기화, 사용자·토큰 생성
+    ├── health.test.js      # GET /health 200/503 (PR-45)
     ├── todoStatus.test.js  # ST-01~04 단위
-    ├── auth.test.js        # 가입·로그인·401
+    ├── auth.test.js        # 가입·로그인·refresh·로그아웃·401
     ├── categories.test.js
     ├── todos.test.js       # AC-01~04, 입력 검증
     ├── calendar.test.js    # AC-05, AC-06
@@ -267,8 +280,8 @@ backend/
 
 | 리소스 | 경로 예 | routes | services | repositories |
 |--------|---------|--------|----------|--------------|
-| auth | `/api/auth/signup`, `/api/auth/login` | `auth.js` | `authService.js` | `userRepository.js`, `categoryRepository.js` |
-| users/me | `/api/users/me`, `/api/users/me/password` | `users.js` | `userService.js` | `userRepository.js` |
+| auth | `/api/auth/signup`, `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` | `auth.js` | `authService.js` | `userRepository.js`, `categoryRepository.js`, `refreshTokenRepository.js` |
+| users/me | `/api/users/me`, `/api/users/me/password` | `users.js` | `userService.js` | `userRepository.js`, `refreshTokenRepository.js`(비밀번호 변경 시 폐기) |
 | categories | `/api/categories`, `/api/categories/:id` | `categories.js` | `categoryService.js` | `categoryRepository.js`, `todoRepository.js`(BR-09 이동) |
 | todos | `/api/todos`, `/api/todos/:id` (목록·캘린더 조회 방식은 API 문서) | `todos.js` | `todoService.js` | `todoRepository.js`, `categoryRepository.js`(소유 확인·기본 조회) |
 
@@ -284,20 +297,20 @@ frontend/
     ├── main.tsx            # QueryClientProvider, Router 마운트
     ├── App.tsx             # 라우트 정의, 인증 가드(SC-00-E1)
     ├── api/
-    │   ├── client.ts       # fetch 래퍼: Bearer 부착, 에러 형식 파싱, 401 처리 (PR-16)
+    │   ├── client.ts       # fetch 래퍼: Bearer 부착, 에러 형식 파싱, 401 → single-flight refresh → 재시도 (PR-16)
     │   ├── types.ts        # Todo, Category, User, ApiError 타입 (PR-24)
     │   ├── auth.ts
     │   ├── users.ts
     │   ├── categories.ts
     │   └── todos.ts
     ├── hooks/              # TanStack Query 훅, 쿼리 키는 각 파일에 상수로
-    │   ├── useAuth.ts      # 로그인·가입·로그아웃
+    │   ├── useAuth.ts      # 로그인·가입·로그아웃(서버 폐기)
     │   ├── useMe.ts
     │   ├── useCategories.ts
     │   ├── useTodos.ts     # 목록·상세·등록·수정·완료·삭제
     │   └── useCalendarTodos.ts
     ├── stores/
-    │   ├── authStore.ts    # 토큰 (저장 위치 미결 U-02)
+    │   ├── authStore.ts    # access token(메모리), refresh token(persist localStorage) (PR-37, U-02)
     │   └── uiStore.ts      # 목록 필터·페이지, 캘린더 뷰·기준 날짜 (PR-15)
     ├── pages/              # WF 화면 1:1
     │   ├── LoginPage.tsx
@@ -357,7 +370,7 @@ WF → 라우트·폴더 매핑
 | ID | 미결 사항 | 영향 | 이 문서의 잠정 처리 |
 |----|-----------|------|---------------------|
 | U-01 | 배포 환경(단일 서버에서 FE 정적 파일 + API 같은 출처 / FE·BE 분리 호스팅), HTTPS 종단 위치 | PR-35 CORS, `VITE_API_BASE_URL`, 정적 파일 서빙 여부 | FE·BE 분리 가정, CORS 화이트리스트 |
-| U-02 | 토큰 저장 위치(localStorage / sessionStorage / 메모리) | `authStore` 영속화, R-05 XSS 노출 범위, SC-02-A1 재방문 시 로그인 생략 | SC-02-A1 충족을 위해 localStorage(Zustand `persist`) 잠정, R-05 완화책(PR-24) 유지 |
+| U-02 | 토큰 저장 위치(localStorage / sessionStorage / 메모리) | `authStore` 영속화, R-05 XSS 노출 범위, SC-02-A1 재방문 시 로그인 생략 | **결정(2026-11-04)**: access token은 메모리(persist 안 함), refresh token은 localStorage(Zustand `persist`는 refresh token만). R-05 XSS 노출은 감수, 완화책(PR-24, PR-37) 유지 |
 | U-03 | 캘린더 라이브러리 선택(FullCalendar daygrid 등 / 직접 구현) | `components/calendar/` 내부, 번들 크기, 모바일 `+N`(NFR-16, G-14) 지원 여부 | 라이브러리 1개 허용, 어댑터로 격리(PR-18) |
 | U-04 | 목록·캘린더 API에 `today` 전달 방식과 상태 필터 파라미터 형식 | `validators/todo.js`, `domain/todoStatus.js` | 쿼리 파라미터로 전달(PR-05), 형식은 API 문서 |
 | U-05 | 입력 길이·비밀번호 규칙·이메일 대소문자(G-05) | `validators/` 상수, DB 컬럼 길이 | 상수 하나로 두고 확정 시 교체(PR-39) |

@@ -6,6 +6,9 @@
 |------|------|--------|------|------|
 | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
 | v0.2 | 2026-11-04 | chaenamo | 초안 | AQ-01~03 결정 반영 |
+| v0.3 | 2026-11-04 | chaenamo | 초안 | AD-04 ERD를 `7-erd.md`로 분리 |
+| v0.4 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
+| v0.5 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 
 ## 변경 이력
 
@@ -13,8 +16,11 @@
 |------|------|-----------|-----------|--------|
 | v0.1 | 2026-11-04 | 전체 | 도메인 정의서 v0.3, PRD v0.3, 사용자 시나리오 v0.2, 와이어프레임 v0.2, 프로젝트 구조 설계 원칙 v0.1 기반 아키텍처·시퀀스 다이어그램 최초 작성 | chaenamo |
 | v0.2 | 2026-11-04 | 기준 문서, AD-06, AD-07, AD-10, 4 | AQ-01(로그인 401 공통 처리 제외), AQ-02(409에 필드 포함), AQ-03(완료 토글 후 즉시 재조회) 결정을 다이어그램과 확인 필요 표에 반영 | chaenamo |
+| v0.3 | 2026-11-04 | 0, AD-04, AD-08, 3, 4 | AD-04의 erDiagram과 제약·인덱스 표를 삭제하고 `docs/7-erd.md`로 분리(본문은 요약·링크). AQ-08(`id` 보조 정렬)·AQ-12(bigint, 복합 FK) 결정을 7-erd.md 참조로 표기, AD-08 정렬에 `id` 추가, AQ-05·AQ-06에 데이터 모델 참조 추가 | chaenamo |
+| v0.4 | 2026-11-04 | 기준 문서, 0, AD-01~04, AD-06, AD-07, AD-13(신규), 3, 4 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. AD-03 HS256 → HS384(`algorithms` 명시), AD-02 authStore access 메모리·refresh localStorage·single-flight refresh, AD-06 가입 트랜잭션에 refresh_tokens INSERT 포함, AD-07 시퀀스 재작성(토큰 쌍 발급·refresh 재시도·로그아웃 서버 폐기), AD-13 앱 진입 refresh 추가, AQ-11을 AD-13 흐름으로 대체 | chaenamo |
+| v0.5 | 2026-11-04 | 기준 문서, AD-11, AD-12, 4.1(AQ-01, AQ-08, AQ-12) | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5, 원칙 v0.4로 갱신. AD-11 repository 함수명을 AD-09·실행 계획 BE-06/BE-12와 같게(`findCategoryById`, `findDefaultCategory`, `deleteCategory`), AD-12 정렬에 `id` 추가(실행 계획 BE-10과 일치). AQ-01에 refresh·logout까지 확장된 범위(PR-16) 표기, 결정된 AQ-08·AQ-12의 기존 질문 문구를 "(원 내용)"으로 구분 | chaenamo |
 
-> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.3), `docs/3-user-scenario.md` (v0.3), `docs/4-wireframe.md` (v0.3), `docs/5-project-principle.md` (v0.2).
+> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.4).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U)는 **참조만** 하며 재정의하지 않는다. 구조 결정은 `5-project-principle.md`를 따른다.
 > 이 문서 고유 ID: 다이어그램 `AD-xx`, 확인 필요 `AQ-xx`. 삭제되어도 **재사용하거나 다시 매기지 않는다.**
 
@@ -26,8 +32,8 @@
 
 | 구분 | 다이어그램 |
 |------|------------|
-| 1부 기술 아키텍처 | AD-01 시스템 구성, AD-02 FE 내부 구조, AD-03 BE 레이어, AD-04 데이터 모델, AD-05 배포 뷰(미정) |
-| 2부 시퀀스 | AD-06 회원가입, AD-07 로그인·인증·401, AD-08 목록 조회·필터, AD-09 할일 등록/수정, AD-10 완료 토글, AD-11 카테고리 삭제, AD-12 캘린더 조회 |
+| 1부 기술 아키텍처 | AD-01 시스템 구성, AD-02 FE 내부 구조, AD-03 BE 레이어, AD-04 데이터 모델(→ `7-erd.md`), AD-05 배포 뷰(미정) |
+| 2부 시퀀스 | AD-06 회원가입, AD-07 로그인·인증·401·refresh·로그아웃, AD-08 목록 조회·필터, AD-09 할일 등록/수정, AD-10 완료 토글, AD-11 카테고리 삭제, AD-12 캘린더 조회, AD-13 앱 진입 refresh |
 
 ---
 
@@ -49,23 +55,23 @@ flowchart LR
         API["Node.js 22 + Express 5<br/>JS ESM, REST /api, GET /health"]
     end
 
-    DB[("PostgreSQL 17<br/>users, categories, todos<br/>schema_migrations")]
-    ENV["환경변수 PR-33, PR-34<br/>DATABASE_URL, JWT_SECRET, CORS_ORIGIN 등"]
+    DB[("PostgreSQL 17<br/>users, categories, todos<br/>refresh_tokens, schema_migrations")]
+    ENV["환경변수 PR-33, PR-34<br/>DATABASE_URL, JWT_ACCESS_SECRET, CORS_ORIGIN 등"]
     K6["k6 부하 테스트<br/>backend/loadtest, M-04"]
 
     USER --> SPA
-    SPA -->|"HTTPS JSON NFR-14<br/>Authorization: Bearer JWT NFR-10<br/>HTTPS 종단 위치 미정 U-01"| API
+    SPA -->|"HTTPS JSON NFR-14<br/>Authorization: Bearer JWT HS384 NFR-10<br/>HTTPS 종단 위치 미정 U-01"| API
     API -->|"pg.Pool 단일, max 20 NFR-05<br/>파라미터화 SQL NFR-11"| DB
     ENV -.->|"기동 시 1회 로딩"| API
     K6 -.->|"가상 사용자 1,000, 피크 200 RPS<br/>NFR-01~04"| API
 ```
 
 - 개발 환경: Vite dev 서버 프록시 `/api` → BE로 CORS 없이 동작(PR-35). 운영은 FE·BE 분리 가정 + `CORS_ORIGIN` 화이트리스트(U-01 잠정).
-- 세션 저장소 없음(JWT 무상태, NFR-10). 서버 시계로 '오늘'을 정하지 않는다(PR-05).
+- 별도 세션 저장소(Redis 등) 없음. 보호 요청은 access token 서명만 검증하고(무상태), refresh token의 유효·폐기 여부만 DB `refresh_tokens`로 확인한다(NFR-10, PR-37). 서버 시계로 '오늘'을 정하지 않는다(PR-05).
 
 ## AD-02 프론트엔드 내부 구조
 
-`pages → hooks → api` 단방향(PR-13). 서버 데이터는 TanStack Query 캐시에만, Zustand는 토큰과 UI 상태만 가진다(PR-14).
+`pages → hooks → api` 단방향(PR-13). 서버 데이터는 TanStack Query 캐시에만, Zustand는 토큰(access 메모리, refresh localStorage)과 UI 상태만 가진다(PR-14, PR-37).
 
 ```mermaid
 flowchart TB
@@ -84,18 +90,18 @@ flowchart TB
     LIB["lib/date.ts<br/>todayString 브라우저 로컬 A-01<br/>월/주 범위, 일요일 시작 A-12"]
 
     subgraph STATE["상태"]
-        AUTHS["stores/authStore<br/>토큰만<br/>저장 위치 잠정 localStorage persist U-02"]
+        AUTHS["stores/authStore<br/>access token 메모리만, persist 안 함<br/>refresh token만 localStorage persist U-02 결정"]
         UIS["stores/uiStore<br/>목록 필터·페이지, 캘린더 뷰·기준 날짜<br/>PR-15, G-08, G-12"]
         QC[("QueryClient 캐시<br/>할일·카테고리·내 정보")]
     end
 
     HOOKS["hooks/ TanStack Query<br/>useAuth, useMe, useCategories<br/>useTodos, useCalendarTodos<br/>쓰기 후 invalidateQueries"]
     APIR["api/auth, users, categories, todos<br/>api/types.ts - React import 금지"]
-    CLIENT["api/client.ts<br/>fetch + Bearer 부착, PR-20 에러 파싱<br/>401: 토큰 폐기 → queryClient.clear → /login PR-16"]
+    CLIENT["api/client.ts<br/>fetch + Bearer 부착, PR-20 에러 파싱<br/>401: single-flight refresh 1회 → 원 요청 1회 재시도<br/>refresh 401: 토큰 둘 다 폐기 → queryClient.clear → /login PR-16"]
     BE["Express API AD-03"]
 
     APP --> LAYOUT --> PAGES
-    APP -.->|"토큰 유무"| AUTHS
+    APP -.->|"access 유무, 없으면 refresh AD-13"| AUTHS
     PAGES --> COMP
     PC --> CALAD
     PAGES <-->|"UI 상태"| UIS
@@ -109,7 +115,8 @@ flowchart TB
 ```
 
 - 금지: 페이지·컴포넌트의 직접 `fetch`, 서버 응답의 Zustand 복사, FE의 상태 판정(상태는 응답 값을 표시만, PR-03).
-- 로그아웃도 401 처리와 같은 함수(토큰 폐기 + `queryClient.clear()`)를 쓴다(PR-16, A-14). 로그아웃 API 없음(PR-37).
+- 로그아웃은 `POST /api/auth/logout`으로 서버의 refresh token을 폐기한 뒤 refresh 실패 처리와 같은 함수(토큰 폐기 + `queryClient.clear()`)를 쓴다(PR-16, PR-37, A-14).
+- 인증 엔드포인트(login, signup, refresh, logout)의 401은 공통 401 처리에서 제외한다(AQ-01 결정 확장).
 
 ## AD-03 백엔드 레이어 구조
 
@@ -123,12 +130,12 @@ flowchart TB
         CORS["cors<br/>CORS_ORIGIN만 허용 PR-35"]
         JSON["express.json"]
         LOG["requestLog<br/>메서드·경로·상태·시간만 PR-40"]
-        AUTH["auth.js<br/>Bearer JWT HS256 검증 → req.userId<br/>실패 401 UNAUTHORIZED PR-37"]
+        AUTH["auth.js<br/>Bearer JWT 검증 algorithms HS384 고정 → req.userId<br/>실패 401 UNAUTHORIZED PR-37"]
     end
 
     subgraph RT["routes/ - HTTP 레이어, 컨트롤러 겸함"]
         HEALTH["health.js<br/>GET /health 공개 PR-45"]
-        RAUTH["auth.js<br/>/api/auth/signup, login 공개"]
+        RAUTH["auth.js<br/>/api/auth/signup, login, refresh, logout 공개"]
         RPRIV["users.js, categories.js, todos.js<br/>인증 필요 PR-07"]
     end
 
@@ -138,7 +145,7 @@ flowchart TB
     end
 
     SVC["services/<br/>authService, userService, categoryService, todoService<br/>BR 판단, 트랜잭션 경계, AppError PR-11"]
-    REPO["repositories/<br/>user, category, todoRepository<br/>userId 첫 인자 + WHERE user_id PR-10<br/>$n 파라미터, AS camelCase PR-19, PR-38"]
+    REPO["repositories/<br/>user, category, todo, refreshTokenRepository<br/>userId 첫 인자 + WHERE user_id PR-10<br/>$n 파라미터, AS camelCase PR-19, PR-38"]
     DBJS["db.js<br/>pg.Pool 단일 인스턴스 PR-41<br/>setTypeParser 1082 문자열 PR-42<br/>withTransaction PR-11"]
     PG[("PostgreSQL 17")]
     NF404["미등록 경로<br/>404 NOT_FOUND"]
@@ -175,55 +182,7 @@ flowchart TB
 
 ## AD-04 데이터 모델
 
-도메인 4장 ER과 같은 엔티티·관계이며 테이블·컬럼명은 PR 3.1 네이밍(snake_case 복수형)을 따른다. 상태 컬럼은 두지 않는다(PR-03). 식별자 타입과 길이는 잠정이며 DDL은 후속 DB 설계 문서에서 확정한다.
-
-```mermaid
-erDiagram
-    users ||--|{ categories : "owns"
-    users ||--o{ todos : "owns"
-    categories ||--o{ todos : "classifies"
-
-    users {
-        bigint id PK "타입 잠정"
-        varchar email UK "BR-03, 대소문자 미정 G-05"
-        varchar password_hash "bcrypt 해시만 NFR-09"
-        varchar name "길이 미정 G-05"
-        timestamptz created_at
-    }
-    categories {
-        bigint id PK
-        bigint user_id FK "users.id"
-        varchar name "trim 후 저장 BR-07"
-        boolean is_default "BR-05, BR-06"
-    }
-    todos {
-        bigint id PK
-        bigint user_id FK "users.id"
-        bigint category_id FK "categories.id, NOT NULL"
-        varchar title "필수 BR-10"
-        text description "선택"
-        date start_date "필수, 문자열로 수신 PR-42"
-        date end_date "필수, CHECK end_date >= start_date BR-11"
-        boolean is_completed "기본 false"
-        timestamptz completed_at "완료 시 기록, 취소 시 NULL BR-13"
-        timestamptz created_at
-        timestamptz updated_at
-    }
-```
-
-주요 제약·인덱스 (모두 잠정, NFR-07 상세는 DB 설계 문서)
-
-| 대상 | 제약 / 인덱스 | 근거 |
-|------|---------------|------|
-| `users` | `UNIQUE (email)` → 위반 23505는 409 | BR-03, PR-46 |
-| `categories` | `UNIQUE (user_id, name)` | BR-07 |
-| `categories` | 부분 유니크 `(user_id) WHERE is_default` - 사용자당 '기본' 1개 | BR-05, 도메인 4.2 |
-| `todos` | `CHECK (end_date >= start_date)` - 서버 검증(validators)의 최후 방어선 | BR-11, PR-06 |
-| `todos.category_id` | FK `ON DELETE` 동작 없음(RESTRICT) - 삭제 전 '기본'으로 이동을 service가 보장 | BR-09, PR-11 |
-| `todos` | 인덱스 `(user_id, end_date, created_at)` - 목록 정렬 | Q-05, NFR-07 |
-| `todos` | 인덱스 `(user_id, category_id)` - 카테고리 필터·BR-09 이동 | BR-15, NFR-07 |
-| `todos` | 인덱스 `(user_id, start_date, end_date)` - 캘린더 기간 겹침 | BR-16, NFR-07 |
-| `schema_migrations` | 마이그레이션 적용 기록(ER 생략) | PR-44 |
+ERD는 `docs/7-erd.md`로 분리되었다(v0.3). 테이블 `users`, `categories`, `todos`(snake_case 복수형, 상태 컬럼 없음 PR-03)와 인증 인프라 테이블 `refresh_tokens`(해시만 저장, 사용자 삭제 시 CASCADE, 도메인 규칙과 무관), 식별자 `bigint identity`, 할일의 카테고리 소유자 일치는 복합 FK로 강제한다. 제약 이름(PR-46 매핑), 인덱스(NFR-07), 마이그레이션 파일은 [7-erd.md](7-erd.md)를 따른다.
 
 ## AD-05 배포 뷰 (미정, U-01)
 
@@ -257,7 +216,7 @@ flowchart LR
 
 ## AD-06 회원가입 + '기본' 카테고리 자동 생성
 
-bcrypt 해시는 트랜잭션 밖에서 먼저 계산해 커넥션 점유 시간을 줄이고, 사용자·'기본' 카테고리 INSERT만 한 트랜잭션으로 묶는다(BR-05, PR-11). 성공 시 토큰을 발급해 자동 로그인한다(G-01).
+bcrypt 해시는 트랜잭션 밖에서 먼저 계산해 커넥션 점유 시간을 줄이고, 사용자·'기본' 카테고리·refresh token INSERT를 한 트랜잭션으로 묶는다(BR-05, PR-11). refresh token 저장이 실패하면 가입 전체를 롤백해, 계정은 생겼는데 토큰이 없는 상태를 만들지 않는다. 성공 시 토큰 쌍을 발급해 자동 로그인한다(G-01, PR-37).
 
 ```mermaid
 sequenceDiagram
@@ -268,7 +227,7 @@ sequenceDiagram
     participant R as routes/auth
     participant V as validators/auth
     participant S as authService
-    participant Repo as user·categoryRepo
+    participant Repo as user·category·refreshTokenRepo
     participant DB as PostgreSQL
 
     U->>P: 이메일·비밀번호·이름 입력 후 가입하기
@@ -297,11 +256,14 @@ sequenceDiagram
                 DB-->>Repo: id
                 S->>Repo: insertCategory(client, userId, '기본', isDefault true) BR-05
                 Repo->>DB: INSERT INTO categories ...
+                S->>S: refreshToken = randomBytes 32 base64url, tokenHash = SHA-256
+                S->>Repo: insertRefreshToken(client, userId, tokenHash, now + 14일)
+                Repo->>DB: INSERT INTO refresh_tokens - 해시만 저장
                 Note over S,DB: COMMIT
-                S->>S: jwt.sign sub=userId, 24h PR-37
-                S-->>R: token, user (password_hash 제외)
-                R-->>H: 201 token, user
-                H->>H: authStore에 토큰 저장
+                S->>S: accessToken = jwt.sign sub=userId, HS384, 15m PR-37
+                S-->>R: accessToken, refreshToken, user (password_hash 제외)
+                R-->>H: 201 accessToken, refreshToken, user
+                H->>H: authStore - access 메모리, refresh localStorage
                 H-->>P: 성공
                 P-->>U: 빈 할일 목록 WF-04로 이동 G-01
             end
@@ -309,9 +271,9 @@ sequenceDiagram
     end
 ```
 
-## AD-07 로그인 + 인증 요청 처리 + 토큰 만료 401
+## AD-07 로그인 + 보호 요청 + access 만료 401 → refresh → 재시도 + 로그아웃
 
-로그인 성공 시 JWT를 받아 `authStore`에 두고, 이후 모든 보호 요청에 Bearer를 붙인다. 보호 요청의 401은 api client 한 곳에서 처리한다(PR-16, SC-00-E2, G-03).
+로그인 성공 시 access token(JWT HS384, 15분)과 refresh token(불투명 무작위 문자열, 14일, 회전 없음)을 받는다. access token은 `authStore` 메모리에만, refresh token은 localStorage(`persist`)에 둔다. 서버는 refresh token의 SHA-256 해시만 `refresh_tokens`에 저장한다(PR-37). 보호 요청의 401은 api client 한 곳에서 refresh 1회 시도(single-flight) → 원 요청 1회 재시도로 처리하고, refresh도 401이면 로그인 화면으로 보낸다(PR-16, SC-00-E2, G-03). 로그아웃은 서버에서 refresh token 행을 삭제한다(A-14). 앱 진입 시 refresh는 AD-13.
 
 ```mermaid
 sequenceDiagram
@@ -323,11 +285,11 @@ sequenceDiagram
     participant A as auth mw
     participant R as Route
     participant S as Service
-    participant Repo as userRepository
+    participant Repo as user·refreshTokenRepo
     participant DB as PostgreSQL
 
     rect rgb(245, 245, 245)
-        Note over U,DB: 1) 로그인 UC-02
+        Note over U,DB: 1) 로그인 UC-02 - 토큰 쌍 발급
         U->>P: 이메일·비밀번호 입력 후 로그인 WF-02
         P->>H: login mutation
         H->>R: POST /api/auth/login (공개, 경로 잠정)
@@ -341,41 +303,127 @@ sequenceDiagram
             Note over H: 인증 엔드포인트의 401은 공통 401 처리 제외 PR-16, AQ-01 결정
             H-->>P: 폼 상단 오류, 입력 유지 SC-02-E1
         else 일치
-            S->>S: jwt.sign sub=userId, JWT_EXPIRES_IN 24h
-            S-->>R: token, user
-            R-->>H: 200 token, user
-            H->>ST: setToken(token) - 저장 위치 잠정 U-02
+            S->>Repo: deleteExpiredByUser(db, userId)
+            Repo->>DB: DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at < now()
+            S->>S: accessToken = jwt.sign sub=userId, HS384, ACCESS_TOKEN_TTL 15m
+            S->>S: refreshToken = randomBytes 32 base64url, tokenHash = SHA-256
+            S->>Repo: insertRefreshToken(db, userId, tokenHash, now + 14일)
+            Repo->>DB: INSERT INTO refresh_tokens - 해시만 저장
+            S-->>R: accessToken, refreshToken, user
+            R-->>H: 200 accessToken, refreshToken, user
+            H->>ST: access는 메모리, refresh는 localStorage persist PR-37
             P-->>U: 할일 목록 WF-04
         end
     end
 
     rect rgb(235, 245, 255)
-        Note over U,DB: 2) 이후 보호 요청 BR-01, NFR-10
+        Note over U,DB: 2) 보호 요청 BR-01, NFR-10
         U->>P: 화면 조작
         P->>H: useQuery / useMutation
-        H->>ST: 토큰 읽기
+        H->>ST: access token 읽기
         H->>A: 요청 + Authorization Bearer
-        alt 토큰 없음·서명 불일치·만료
-            A-->>H: 401 UNAUTHORIZED
-            H->>ST: 토큰 폐기
+        A->>A: jwt.verify algorithms HS384 고정 → req.userId = sub
+        A->>R: next()
+        R->>S: userId 전달
+        S->>Repo: userId 첫 인자 PR-10
+        Repo->>DB: ... WHERE user_id = $1
+        DB-->>Repo: rows
+        Repo-->>S: camelCase 결과
+        S-->>R: 결과
+        R-->>H: 200 JSON
+        H-->>P: 캐시 갱신 후 렌더
+    end
+
+    rect rgb(255, 245, 235)
+        Note over U,DB: 3) access 만료 401 → refresh 1회 → 원 요청 1회 재시도 PR-16
+        H->>A: 요청 + Bearer - 만료·서명 불일치·HS384 아님·없음
+        A-->>H: 401 UNAUTHORIZED
+        Note over H: 동시에 401이 여러 개여도 refresh 요청은 1개 single-flight, 나머지는 결과 대기
+        H->>ST: refresh token 읽기
+        H->>R: POST /api/auth/refresh body refreshToken (공개, 경로 잠정)
+        R->>S: refresh(refreshToken)
+        S->>Repo: findValidByHash(db, SHA-256 해시)
+        Repo->>DB: SELECT user_id ... WHERE token_hash = $1 AND expires_at > now()
+        alt 유효한 행 있음
+            S->>S: jwt.sign sub=userId, HS384, 15m - refresh token은 그대로, 회전 없음
+            S-->>R: accessToken
+            R-->>H: 200 accessToken
+            H->>ST: access token 교체, 메모리
+            H->>A: 원 요청 1회 재시도 + 새 Bearer
+            A->>R: 검증 통과, 이후 2)와 같음
+            R-->>H: 200 JSON
+            H-->>P: 렌더, 사용자에게 보이지 않음
+        else 행 없음·만료 - 로그아웃·비밀번호 변경으로 폐기된 경우 포함
+            S-->>R: throw 401 UNAUTHORIZED
+            R-->>H: 401
+            Note over H: refresh의 401은 다시 refresh하지 않는다 AQ-01 확장
+            H->>ST: access·refresh 둘 다 폐기
             H->>H: queryClient.clear() PR-16
             H-->>P: /login 이동, 작성 중 입력 비보존 G-03
             P-->>U: 로그인 화면 SC-00-E2
-        else 유효
-            A->>A: jwt.verify → req.userId = sub
-            A->>R: next()
-            R->>S: userId 전달
-            S->>Repo: userId 첫 인자 PR-10
-            Repo->>DB: ... WHERE user_id = $1
-            DB-->>Repo: rows
-            Repo-->>S: camelCase 결과
-            S-->>R: 결과
-            R-->>H: 200 JSON
-            H-->>P: 캐시 갱신 후 렌더
         end
     end
 
-    Note over U,ST: 로그아웃 - API 호출 없이 같은 폐기 함수 실행 PR-16, PR-37
+    rect rgb(245, 255, 245)
+        Note over U,DB: 4) 로그아웃 A-14 - 서버 폐기
+        U->>P: 로그아웃 WF-01
+        P->>H: logout
+        H->>R: POST /api/auth/logout body refreshToken (공개, 경로 잠정)
+        R->>S: logout(refreshToken)
+        S->>Repo: deleteByHash(db, SHA-256 해시)
+        Repo->>DB: DELETE FROM refresh_tokens WHERE token_hash = $1
+        R-->>H: 204 - 행이 없어도 204, 멱등
+        Note over H: 네트워크 실패여도 클라이언트 폐기는 진행
+        H->>ST: access·refresh 둘 다 폐기
+        H->>H: queryClient.clear() PR-16
+        P-->>U: 로그인 화면 WF-02
+    end
+```
+
+- 비밀번호 변경(UC-03, 시퀀스 생략): 성공 시 같은 트랜잭션에서 그 사용자의 `refresh_tokens`를 모두 삭제하고 현재 세션용 새 refresh token을 저장해 `{ refreshToken }`으로 응답한다. FE는 저장된 refresh token을 교체한다. 다른 기기는 access token 만료(최대 15분) 후 3)의 refresh 401 분기로 로그인 화면에 간다(G-06, PR-37).
+
+## AD-13 앱 진입: refresh로 access token 확보 (SC-02-A1)
+
+access token은 메모리에만 있으므로 새로고침·재방문 시에는 없다. 인증 가드는 localStorage의 refresh token으로 refresh를 먼저 호출해 access token을 얻은 뒤 보호 화면을 렌더한다. 판정 중에는 보호 화면을 렌더하지 않으므로 만료 토큰으로 보호 화면이 잠깐 보이는 문제(AQ-11)가 없다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant APP as App.tsx 인증 가드
+    participant H as api client
+    participant ST as authStore
+    participant R as routes/auth
+    participant S as authService
+    participant Repo as refreshTokenRepo
+    participant DB as PostgreSQL
+
+    U->>APP: 앱 접속 / URL 직접 입력 / 새로고침
+    APP->>ST: 메모리 access token 확인
+    alt access token 있음 - 같은 탭에서 이미 발급
+        APP-->>U: 요청한 보호 화면
+    else access token 없음
+        APP->>ST: localStorage refresh token 확인
+        alt refresh token 없음
+            APP-->>U: /login WF-02 SC-00-E1
+        else refresh token 있음 SC-02-A1
+            Note over APP: 판정 중 로딩 표시, 보호 화면 렌더 안 함
+            APP->>H: refresh() - AD-07 3)과 같은 single-flight 함수
+            H->>R: POST /api/auth/refresh body refreshToken
+            R->>S: refresh(refreshToken)
+            S->>Repo: findValidByHash(db, SHA-256 해시)
+            Repo->>DB: SELECT user_id ... WHERE token_hash = $1 AND expires_at > now()
+            alt 유효
+                R-->>H: 200 accessToken
+                H->>ST: access token 저장, 메모리
+                APP-->>U: 보호 화면 진입, 로그인 생략 SC-02-A1
+            else 없음·만료·폐기
+                R-->>H: 401 UNAUTHORIZED
+                H->>ST: refresh token 폐기
+                APP-->>U: /login WF-02
+            end
+        end
+    end
 ```
 
 ## AD-08 할일 목록 조회: today 전달, 필터, 정렬, 페이지네이션, 상태 파생
@@ -414,7 +462,7 @@ sequenceDiagram
         S->>Repo: findTodosByUser(db, userId, filter, today, page, limit)
         Repo->>D: 선택된 상태별 SQL 조건 조각 요청
         D-->>Repo: 화이트리스트 조각, today는 파라미터 자리 PR-38
-        Note over Repo: WHERE user_id = $1<br/>[AND category_id = $n]<br/>[AND (조각1 OR 조각2 ...)]<br/>ORDER BY end_date, created_at Q-05<br/>LIMIT $n OFFSET $n
+        Note over Repo: WHERE user_id = $1<br/>[AND category_id = $n]<br/>[AND (조각1 OR 조각2 ...)]<br/>ORDER BY end_date, created_at, id Q-05, AQ-08<br/>LIMIT $n OFFSET $n
         Repo->>DB: SELECT ... AS camelCase + 같은 조건 total 집계
         DB-->>Repo: rows, date 컬럼은 'YYYY-MM-DD' 문자열 PR-42
         Repo-->>S: items, total
@@ -578,7 +626,7 @@ sequenceDiagram
     R->>S: deleteCategory(userId, id)
     rect rgb(235, 245, 255)
         Note over S,DB: withTransaction - BEGIN
-        S->>Repo: categoryRepository.findById(client, userId, id)
+        S->>Repo: categoryRepository.findCategoryById(client, userId, id)
         Repo->>DB: SELECT ... WHERE user_id = $1 AND id = $2
         alt 0건 - 타인·없는 카테고리
             Note over S,DB: ROLLBACK
@@ -589,11 +637,11 @@ sequenceDiagram
             S-->>R: throw 400 FORBIDDEN_OPERATION BR-06
             R-->>H: 400, 화면은 버튼 비노출 SC-03-E3
         else 사용자 카테고리
-            S->>Repo: categoryRepository.findDefault(client, userId)
+            S->>Repo: categoryRepository.findDefaultCategory(client, userId)
             Repo->>DB: SELECT id ... WHERE user_id = $1 AND is_default
             S->>Repo: todoRepository.moveCategory(client, userId, id, defaultId)
             Repo->>DB: UPDATE todos SET category_id = 기본 WHERE user_id = $1 AND category_id = 대상 BR-09
-            S->>Repo: categoryRepository.delete(client, userId, id)
+            S->>Repo: categoryRepository.deleteCategory(client, userId, id)
             Repo->>DB: DELETE FROM categories WHERE id = $2 AND user_id = $1 AND NOT is_default
             Note over S,DB: COMMIT, 중간 실패 시 ROLLBACK - 할일 유실 없음
             R-->>H: 204
@@ -639,7 +687,7 @@ sequenceDiagram
     else 통과
         R->>S: listCalendarTodos(userId, from, to, today)
         S->>Repo: findTodosInRange(db, userId, from, to)
-        Repo->>DB: SELECT ... WHERE user_id = $1 AND start_date ≤ $to AND end_date ≥ $from ORDER BY start_date BR-16, PR-43
+        Repo->>DB: SELECT ... WHERE user_id = $1 AND start_date ≤ $to AND end_date ≥ $from ORDER BY start_date, id BR-16, PR-43
         DB-->>Repo: 기간이 하루라도 겹치는 할일만, 페이지네이션 없음 NFR-06
         Repo-->>S: items
         loop 각 할일
@@ -665,18 +713,19 @@ AC 확인: AC-05 할일 10/30~11/02, 11월 월간 from 11/01 → `start_date 10/
 
 | AD | 제목 | PR | BR / ST / AC | NFR / TC | SC / WF / G |
 |----|------|----|--------------|----------|-------------|
-| AD-01 | 시스템 구성 | PR-05, PR-08, PR-32~35, PR-41 | - | NFR-01~05, NFR-10, NFR-11, NFR-14, TC-02~06 | U-01 |
-| AD-02 | FE 내부 구조 | PR-03, PR-13~16, PR-18, PR-24, PR-28 | A-01, A-12 | NFR-08, TC-02, TC-03 | WF-01~08, CMP-01~05, G-08, G-12, U-02, U-03 |
+| AD-01 | 시스템 구성 | PR-05, PR-08, PR-32~35, PR-37, PR-41 | - | NFR-01~05, NFR-10, NFR-11, NFR-14, TC-02~06 | U-01 |
+| AD-02 | FE 내부 구조 | PR-03, PR-13~16, PR-18, PR-24, PR-28, PR-37 | A-01, A-12 | NFR-08, NFR-10, TC-02, TC-03 | WF-01~08, CMP-01~05, G-08, G-12, U-02, U-03 |
 | AD-03 | BE 레이어 | PR-07, PR-09~12, PR-19, PR-20, PR-34~46 | BR-01, BR-02 | NFR-05, NFR-10~14, TC-04, TC-05 | SC-00-E1~E4 |
-| AD-04 | 데이터 모델 | PR-03, PR-04, PR-42, PR-44, 3.1 네이밍 | BR-03, BR-05~11, BR-13, 도메인 4장 | NFR-07, NFR-09, TC-06 | G-05, U-05 |
+| AD-04 | 데이터 모델 (분리 → `7-erd.md`) | PR-03, PR-04, PR-37, PR-42, PR-44, 3.1 네이밍 | BR-03, BR-05~11, BR-13, 도메인 4장 | NFR-07, NFR-09, NFR-10, TC-06 | G-05, U-05 |
 | AD-05 | 배포 뷰 | PR-35, PR-45 | - | NFR-14 | U-01, U-09 |
-| AD-06 | 회원가입 | PR-07, PR-11, PR-36, PR-37, PR-46 | BR-03, BR-05 | NFR-09, NFR-13 | SC-01, SC-01-E1·E2, WF-03, G-01, G-05 |
-| AD-07 | 로그인·401 | PR-10, PR-16, PR-36, PR-37 | BR-01 | NFR-03, NFR-10 | SC-02, SC-00-E1·E2, WF-02, G-03, G-04, U-02 |
+| AD-06 | 회원가입 | PR-07, PR-11, PR-36, PR-37, PR-46 | BR-03, BR-05 | NFR-09, NFR-10, NFR-13 | SC-01, SC-01-E1·E2, WF-03, G-01, G-05 |
+| AD-07 | 로그인·보호 요청·401 refresh 재시도·로그아웃 | PR-07, PR-10, PR-16, PR-36, PR-37 | BR-01, A-14 | NFR-02, NFR-03, NFR-10, R-05 | SC-02, SC-00-E1·E2, SC-10, WF-01, WF-02, G-03, G-04, G-06, U-02 |
 | AD-08 | 목록 조회 | PR-03, PR-05, PR-20, PR-38, PR-43 | BR-15, ST-01~04, A-01, Q-05, AC-03, AC-04 | NFR-06, NFR-08, NFR-12 | SC-05, WF-04, G-09, U-04 |
 | AD-09 | 할일 등록/수정 | PR-06, PR-10, PR-14, PR-39 | BR-08, BR-10~12, BR-17, AC-01, AC-02 | NFR-12, NFR-13 | SC-04, SC-07, WF-05, G-12 |
 | AD-10 | 완료 토글 | PR-03, PR-10, PR-14 | BR-13, ST-01~04 | NFR-12 | SC-06, SC-06-E1, WF-04, G-11 |
 | AD-11 | 카테고리 삭제 | PR-10, PR-11, PR-20 | BR-06, BR-09 | NFR-12 | SC-03-A2·E3, WF-08, CMP-01, G-07, G-08 |
 | AD-12 | 캘린더 조회 | PR-05, PR-18, PR-28, PR-43 | BR-16, A-12, Q-03, AC-05, AC-06 | NFR-06, NFR-16 | SC-09, WF-06, G-12~14, U-03 |
+| AD-13 | 앱 진입 refresh | PR-16, PR-37 | BR-01 | NFR-02, NFR-10 | SC-02-A1, SC-00-E1, WF-02, U-02, AQ-11 |
 
 ## 4. 확인 필요
 
@@ -684,29 +733,30 @@ AC 확인: AC-05 할일 10/30~11/02, 11월 월간 from 11/01 → `start_date 10/
 
 | ID | 내용 | 영향 다이어그램 | 관련 |
 |----|------|-----------------|------|
-| AQ-01 | **결정(2026-11-04)**: 로그인·회원가입 요청의 401은 공통 401 처리에서 제외하고 화면이 폼 오류로 표시한다. PR-16에 반영 | AD-07 | PR-16, PR-20, SC-02-E1, G-04 |
+| AQ-01 | **결정(2026-11-04)**: 로그인·회원가입 요청의 401은 공통 401 처리에서 제외하고 화면이 폼 오류로 표시한다. PR-16에 반영. v0.4에서 인증 엔드포인트 전체(login, signup, refresh, logout)로 확장(PR-16, AD-02) | AD-07 | PR-16, PR-20, SC-02-E1, G-04 |
 | AQ-02 | **결정(2026-11-04)**: 409 `CONFLICT` 응답에 `fields`로 충돌 필드를 담는다. error 미들웨어가 unique 제약 이름을 필드(`email`, `name`)와 한국어 문구로 매핑한다. PR-20, PR-46에 반영 | AD-06, AD-11 | PR-21, PR-46, SC-01-E1, SC-03-E2, CMP-03 |
 | AQ-03 | **결정(2026-11-04)**: 낙관적 업데이트 없이 성공 후 즉시 재조회한다. 필터와 안 맞게 된 항목은 바로 사라진다. PR-14, 시나리오 G-11·SC-06-A1, 와이어프레임 WF-04에 반영 | AD-10 | PR-14, G-11, SC-06-E1, WF-04 |
 | AQ-04 | FullCalendar는 이벤트 `end`뿐 아니라 뷰 표시 범위(`datesSet`)의 `end`도 배타적이다. PR-18은 이벤트 쪽만 언급한다. 또한 ±1일 계산은 PR-4장 체크리스트 "날짜를 `Date`로 변환하지 않는다"와 부딪히므로 `lib/date.ts` 또는 어댑터 안에서 UTC 기준 날짜 산술을 예외로 허용할지 명시 필요 | AD-02, AD-12 | PR-04, PR-18, PR-28, U-03 |
-| AQ-05 | 캘린더 조회는 기간 필수(PR-43)지만 기간 길이 상한이 없어 넓은 `from`~`to`로 사실상 전체 조회가 가능하다(NFR-06). 최대 기간 검증 여부, 엔드포인트 경로, 응답 형식(PR-20 목록 형식 `items, page, limit, total` 적용 여부) 확정 필요 | AD-12 | PR-20, PR-43, NFR-06, U-04 |
-| AQ-06 | 타인·없는 `categoryId`로 할일 등록·수정 시 응답 코드 미정(PR-10은 확인만, PR-29는 "거부"). 이 문서는 400 `VALIDATION_ERROR` + `fields.categoryId`로 잠정. 확인과 INSERT/UPDATE 사이에 카테고리가 삭제되면 FK 위반(23503)이 PR-46상 500이 되는 점도 처리 필요 | AD-09 | PR-10, PR-29, PR-46, NFR-12 |
+| AQ-05 | 캘린더 조회는 기간 필수(PR-43)지만 기간 길이 상한이 없어 넓은 `from`~`to`로 사실상 전체 조회가 가능하다(NFR-06). 최대 기간 검증 여부, 엔드포인트 경로, 응답 형식(PR-20 목록 형식 `items, page, limit, total` 적용 여부) 확정 필요. 기간 겹침 인덱스는 `7-erd.md` IX-03 | AD-12 | PR-20, PR-43, NFR-06, U-04 |
+| AQ-06 | 타인·없는 `categoryId`로 할일 등록·수정 시 응답 코드 미정(PR-10은 확인만, PR-29는 "거부"). 이 문서는 400 `VALIDATION_ERROR` + `fields.categoryId`로 잠정. 확인과 INSERT/UPDATE 사이에 카테고리가 삭제되면 FK 위반(23503)이 PR-46상 500이 되는 점도 처리 필요. DB는 복합 FK로 타인 카테고리를 거부하며 23503 처리는 `7-erd.md` EQ-01 | AD-09 | PR-10, PR-29, PR-46, NFR-12 |
 | AQ-07 | `GET /health`의 `SELECT 1`은 route가 DB에 직접 접근하는 형태라 PR-09(routes의 `pg` 직접 사용 금지)와 충돌한다. 헬스체크만 예외로 둘지, `db.js` 헬퍼 호출로 볼지 명시 필요 | AD-03 | PR-09, PR-45 |
-| AQ-08 | Q-05 정렬(종료일자, 생성일시)만으로는 동률이 생길 수 있어 OFFSET 페이지네이션에서 행이 중복·누락될 수 있다. `id` 보조 정렬 추가 여부, `total` 집계 방식(별도 COUNT / 윈도 함수) 확인 필요 | AD-08 | Q-05, NFR-02, NFR-06 |
+| AQ-08 | **결정: `7-erd.md` 7.1 참조** (`id` 보조 정렬 추가, total은 별도 COUNT 잠정). (원 내용) Q-05 정렬(종료일자, 생성일시)만으로는 동률이 생길 수 있어 OFFSET 페이지네이션에서 행이 중복·누락될 수 있다. `id` 보조 정렬 추가 여부, `total` 집계 방식(별도 COUNT / 윈도 함수) 확인 필요 | AD-08 | Q-05, NFR-02, NFR-06 |
 | AQ-09 | 쓰기 요청(등록·수정·토글)에는 `today`가 없어(PR-05는 조회만) 응답에 상태를 붙일 수 없다. 응답에서 상태를 빼고 재조회로 표시하는 것으로 잠정 | AD-09, AD-10 | PR-03, PR-05 |
 | AQ-10 | 할일 수정과 완료 토글의 API 형태 미정: 수정에서 `isCompleted` 변경 허용 여부(편집 화면에 토글 없음 G-16), 토글 전용 경로 vs 공용 PATCH, PUT/PATCH 선택 | AD-09, AD-10 | PR 3.1 API 경로, G-16, BR-13, BR-17 |
-| AQ-11 | FE 인증 가드는 토큰 유무만 알 수 있어, 만료 토큰으로 재방문하면 보호 화면이 잠깐 보인 뒤 첫 요청 401로 로그인 이동한다. SC-02-A1의 "유효한 토큰" 판정 방법(클라이언트 `exp` 확인 여부) 확인 필요 | AD-02, AD-07 | SC-02-A1, PR-16, U-02 |
-| AQ-12 | 식별자 타입(bigint identity / uuid), 할일의 카테고리가 같은 사용자 소유임을 DB 복합 FK로도 강제할지(현재는 service 확인만, PR-10) 후속 DB 설계 문서에서 확정 필요 | AD-04 | PR-10, NFR-07, NFR-12 |
+| AQ-11 | **결정(2026-11-04)**: FE의 JWT `exp` 확인 대신 AD-13 흐름으로 대체한다. access token은 메모리에만 있으므로 앱 진입 시 refresh token으로 refresh를 먼저 호출하고, 성공 시 보호 화면·실패 시 로그인 화면. 판정 중 보호 화면을 렌더하지 않는다. (원 내용) FE 인증 가드는 토큰 유무만 알 수 있어, 만료 토큰으로 재방문하면 보호 화면이 잠깐 보인 뒤 첫 요청 401로 로그인 이동한다. SC-02-A1의 "유효한 토큰" 판정 방법(클라이언트 `exp` 확인 여부) 확인 필요 | AD-02, AD-07, AD-13 | SC-02-A1, PR-16, U-02 |
+| AQ-12 | **결정: `7-erd.md` 7.1 참조** (`bigint identity`, 복합 FK로 소유자 일치 강제, service 확인 유지). (원 내용) 식별자 타입(bigint identity / uuid), 할일의 카테고리가 같은 사용자 소유임을 DB 복합 FK로도 강제할지(현재는 service 확인만, PR-10) 후속 DB 설계 문서에서 확정 필요 | AD-04 | PR-10, NFR-07, NFR-12 |
 
 ### 4.2 다이어그램에 반영한 기존 미결 사항 (재정의하지 않음)
 
 | 기존 ID | 다이어그램 표시 |
 |---------|------------------|
 | U-01 배포 환경·HTTPS 종단 | AD-01 "호스팅 미정", AD-05 후보 A(잠정)/B |
-| U-02 토큰 저장 위치 | AD-02 authStore "잠정 localStorage persist", AD-07 |
+| U-02 토큰 저장 위치 | **결정**: AD-02 authStore access 메모리·refresh localStorage, AD-07, AD-13 |
 | U-03 캘린더 라이브러리 | AD-02 어댑터, AD-12 "FullCalendar 계열 가정" |
 | U-04 today·상태 필터 파라미터 형식 | AD-08, AD-12 쿼리 파라미터 "형식 U-04" |
-| U-05 / G-05 길이·비밀번호 규칙·이메일 대소문자 | AD-04 컬럼 주석, AD-06 검증 분기 |
+| U-05 / G-05 길이·비밀번호 규칙·이메일 대소문자 | `7-erd.md` 컬럼 정의·CN-02, AD-06 검증 분기 |
 | U-09 실행 방식 | AD-05 주석 |
-| G-01 자동 로그인 | AD-06 가입 성공 시 토큰 발급 |
-| G-03 만료 시 입력 비보존 | AD-07 401 분기 |
+| G-01 자동 로그인 | AD-06 가입 성공 시 토큰 쌍 발급 |
+| G-03 만료 시 입력 비보존 | AD-07 3) refresh 401 분기 |
+| G-06 비밀번호 변경 후 토큰 | **결정**: AD-07 하단 비밀번호 변경 설명(전체 refresh 폐기 + 새 발급) |
 | G-11 필터 중 토글 | AD-10, AQ-03 |
