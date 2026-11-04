@@ -374,12 +374,12 @@ flowchart LR
   2. `src/validators/common.js`: `isDateString`(형식 + 실제 날짜, 예: `2026-02-30` 거부; 비교는 문자열), `trimmedString(value, { min, max })`, `parseId`, `parsePage/limit`(기본 50, 100 초과는 100으로 자름 PR-43), 길이 상수(G-05 잠정값, 한 곳), `ValidationError` 조립 헬퍼(`fields` 누적).
 - **선결 결정**: G-05/U-05 — 7장 잠정 길이 사용.
 - **완료 조건**:
-  - [ ] `test/todoStatus.test.js`: 5장 경계 예시(오늘 11/09 시작 전, 11/10·11/12 진행 중, 11/13 기한 초과), 하루짜리 할일, 완료 우선(기한 지난 완료 → COMPLETED) 통과 (ST-01~04, PR-29)
-  - [ ] 같은 테스트 데이터에 대해 `deriveStatus` 결과와 `statusSqlCondition` 조각으로 실제 테스트 DB에서 고른 결과가 4상태 모두 일치한다 (AD-08, AC-03)
-  - [ ] `statusSqlCondition`에 화이트리스트 밖 값을 주면 예외가 나고 조각 문자열에 사용자 입력이 들어가지 않는다 (PR-38, NFR-11)
-  - [ ] `isDateString`: `2026-11-13` 통과, `2026-2-1`·`2026-02-30`·`20261113`·빈값 거부
-  - [ ] `parsePage/limit`: 미지정 50, 101 → 100으로 자름, 0·음수·문자 → 400 (PR-43)
-  - [ ] `npm run lint` 경고 0, `domain/`·`validators/common.js` 커버리지 ≥ 90%
+  - [x] `test/todoStatus.test.js`: 5장 경계 예시(오늘 11/09 시작 전, 11/10·11/12 진행 중, 11/13 기한 초과), 하루짜리 할일, 완료 우선(기한 지난 완료 → COMPLETED) 통과 (ST-01~04, PR-29)
+  - [x] 같은 테스트 데이터에 대해 `deriveStatus` 결과와 `statusSqlCondition` 조각으로 실제 테스트 DB에서 고른 결과가 4상태 모두 일치한다 (AD-08, AC-03)
+  - [x] `statusSqlCondition`에 화이트리스트 밖 값을 주면 예외가 나고 조각 문자열에 사용자 입력이 들어가지 않는다 (PR-38, NFR-11)
+  - [x] `isDateString`: `2026-11-13` 통과, `2026-2-1`·`2026-02-30`·`20261113`·빈값 거부
+  - [x] `parsePage/limit`: 미지정 50, 101 → 100으로 자름, 0·음수·문자 → 400 (PR-43)
+  - [x] `npm run lint` 경고 0, `domain/`·`validators/common.js` 커버리지 ≥ 90%
 
 ### BE-05 회원가입·로그인·토큰 갱신·로그아웃·인증 미들웨어 API
 
