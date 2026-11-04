@@ -183,7 +183,7 @@ Todo (쓰기·단건 조회 응답, `status` 없음 — AQ-09)
 
 | ID | 결정 |
 |----|------|
-| U-04 | 목록 쿼리: `today=YYYY-MM-DD`(필수), `status=NOT_STARTED,IN_PROGRESS`(쉼표 구분, 상태 간 OR, 목록 밖 값 → 400), `categoryId`(단일, 상태와 AND), `page`(1부터, 기본 1), `limit`(기본 50, 100 초과는 100으로 절삭, 0·음수·숫자 아님 → 400). 타인 `categoryId` 필터는 빈 결과(`total = 0`) |
+| U-04 | 목록 쿼리: `today=YYYY-MM-DD`(필수), `status=NOT_STARTED,IN_PROGRESS`(쉼표 구분, 상태 간 OR, 목록 밖 값 → 400), `categoryId`(단일, 상태와 AND), `page`(1부터, 기본 1), `limit`(기본 50, 100 초과는 100으로 절삭, 0·음수·숫자 아님 → 400). 타인 `categoryId` 필터는 빈 결과(`total = 0`). `status=`(빈 값)은 필터 없음, `status`를 반복 키(`status=A&status=B`)로 보내면 400(쉼표 구분만 허용) |
 | AQ-05 | 캘린더: `GET /api/todos/calendar?from&to&today`, 양 끝 포함 기간 최대 42일, 응답 `{ items }`(페이지 없음), `/api/todos/:id`보다 먼저 매칭 |
 | AQ-06 | 타인·없는 `categoryId`로 할일 등록·수정 → 400 `VALIDATION_ERROR` + `fields.categoryId` "카테고리를 찾을 수 없습니다" |
 | AQ-09 | 쓰기(POST·PUT·PATCH)·단건 조회 응답에 `status` 없음. 클라이언트는 재조회로 상태를 표시 |

@@ -42,6 +42,13 @@ export function parseId(value) {
   return Number.isSafeInteger(number) && number > 0 ? number : null;
 }
 
+// 경로 :id. 숫자가 아니면 400 (BE-01 계약)
+export function validateIdParam(value) {
+  const id = parseId(value);
+  if (id === null) throw validationError({ id: '올바른 id가 아닙니다' });
+  return id;
+}
+
 function parsePositiveInt(value, fallback) {
   if (value === undefined) return { value: fallback };
   const number = parseId(value);

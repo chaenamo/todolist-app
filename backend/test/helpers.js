@@ -1,5 +1,6 @@
 import { config } from '../src/config.js';
 import { pool } from '../src/db.js';
+import { signup } from '../src/services/authService.js';
 
 export { pool };
 
@@ -9,4 +10,14 @@ export async function resetDb() {
   await pool.query('TRUNCATE refresh_tokens, todos, categories, users RESTART IDENTITY CASCADE');
 }
 
-// createUserAndToken()은 BE-05에서 추가한다
+let userSeq = 0;
+
+// 가입(+'기본' 카테고리)까지 마친 사용자와 토큰 쌍
+export async function createUserAndToken({ email, password = 'password1234', name = '테스터' } = {}) {
+  userSeq += 1;
+  return signup({ email: email ?? `user${userSeq}@test.example`, password, name });
+}
+
+export function bearer(accessToken) {
+  return { Authorization: `Bearer ${accessToken}` };
+}

@@ -21,7 +21,7 @@ test('PR-45: 풀 접속 실패 시 GET /health 503', async (t) => {
 });
 
 test('PR-46: 미등록 경로는 404 NOT_FOUND', async () => {
-  const res = await request(app).get('/api/nope');
+  const res = await request(app).get('/nope');
   assert.equal(res.status, 404);
   assert.equal(res.body.error.code, 'NOT_FOUND');
 });
@@ -40,6 +40,6 @@ test('PR-40: 요청 로그에 Authorization 헤더·본문이 없다', async (t)
     .set('Authorization', 'Bearer secret-access-token')
     .send({ refreshToken: 'secret-refresh-token' });
   const line = logs.join('\n');
-  assert.match(line, /POST \/api\/auth\/refresh 404 /);
+  assert.match(line, /POST \/api\/auth\/refresh \d{3} /);
   assert.doesNotMatch(line, /secret-access-token|secret-refresh-token|Bearer|x=1/);
 });

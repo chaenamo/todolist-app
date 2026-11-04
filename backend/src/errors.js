@@ -16,3 +16,8 @@ export class AppError extends Error {
     this.fields = fields;
   }
 }
+
+// NFR-12: 없음과 타인 소유를 구분하지 않는다
+export function notFoundError() {
+  return new AppError(404, ERROR_CODES.NOT_FOUND, '찾을 수 없습니다');
+}

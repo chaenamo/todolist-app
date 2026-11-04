@@ -7,6 +7,7 @@
 | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
 | v0.2 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
+| v0.4 | 2026-11-04 | chaenamo | 초안 | 이월 작업 추적(9장) 추가 |
 
 ## 변경 이력
 
@@ -15,6 +16,7 @@
 | v0.1 | 2026-11-04 | 전체 | 도메인 정의서~ERD·schema.sql 기반 DB/BE/FE/QA/OPS Task 분해, 의존성·크리티컬 패스, 착수 전 결정 목록, UC·AC 추적 표 최초 작성 | chaenamo |
 | v0.2 | 2026-11-04 | 기준 문서, 1, 2, BE-01, DB-02, BE-02, BE-03, BE-05, BE-11, FE-02, FE-04, FE-12, QA-01, QA-02, OPS-01, 7, 8.3 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. BE-05를 토큰 쌍 발급·refresh·logout·HS384로 확장(제목 변경), BE-01 계약에 refresh·logout 추가·비밀번호 변경 응답 200 `{ refreshToken }`, DB-02·BE-03·OPS-01 마이그레이션 4개(004 추가), BE-11 비밀번호 변경 시 전체 refresh 폐기, FE-02 access 메모리·refresh localStorage·single-flight refresh·앱 진입 refresh, FE-04 로그아웃 API 호출. 0.2 규칙에 따라 기존 체크박스 문장 변경: BE-01(엔드포인트 수 17→19), DB-02(001→004·refresh_tokens), BE-02(`JWT_ACCESS_SECRET`, 로그), BE-03(파일·테이블 수), BE-05(응답 필드, payload·만료), BE-11(G-06), FE-02(Bearer, 401, 가드), FE-04(토큰 저장, 로그아웃), FE-12(G-06), QA-02(NFR-02에 refresh), OPS-01(4행, 비밀키 이름). 7장 U-02·AQ-11·G-06·EQ-02 갱신, 예상 시간 BE-05 2→3h, BE-11 1→1.5h, FE-02 1.5→2.5h | chaenamo |
 | v0.3 | 2026-11-04 | 기준 문서, 2, DB-02, 7(EQ-02) | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5, 원칙 v0.4, 아키텍처 v0.5, ERD v0.3으로 갱신. 의존성 그래프에 1장 표의 QA-03 선행 FE-04 간선 추가. EQ-02를 결정(잠정 기본값 채택: 테이블별 4개)으로 표기하고 DB-02 선결 결정 문구 갱신(원칙 6.2 트리 갱신 완료). 체크박스 문장 변경 없음 | chaenamo |
+| v0.4 | 2026-11-04 | 0.2, BE-07, BE-08, BE-11, QA-01, QA-02, 7(PQ-04, PQ-05), 9(신규) | DB-01~BE-06 수행 중 미룬 작업을 기록: 0.2에 이월 규칙 추가, 대상 Task 절에 **이월 사항** 줄 추가, 9장 이월 작업 표 신설. 결정 필요 항목 PQ-04(로그인 응답 시간 차이), PQ-05(JSON 파싱 실패 요청 로그) 추가. 체크박스 문장 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/schema.sql`.
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ, T, CN, IX, EQ)는 **참조만** 하며 재정의하지 않는다.
@@ -41,6 +43,7 @@
 - 완료 조건의 체크박스를 **모두** 체크해야 Task 완료다. 일부만 충족하면 체크한 것만 남기고 미충족 항목을 보고한다(스킬 재시도 3회 규칙).
 - 스킬은 테스트·명령이 실제로 통과한 항목만 체크한다. 수동 확인 항목(DB, QA, OPS)은 수행자가 확인 후 체크한다.
 - 체크박스 문장은 바꾸지 않는다. 조건을 바꿔야 하면 변경 이력에 남기고 고친다.
+- **이월**: Task 수행 중 범위에서 미룬 작업(아직 쓰는 곳이 없는 함수, 다음 Task에서 지켜야 할 주의점, 재확인 항목)은 **9장 표**와 **대상 Task 절의 "이월 사항" 줄**에 함께 적는다(스킬은 자기 Task 절만 읽으므로 대상 절에도 있어야 한다). 대상 Task는 이월 사항도 완료 조건처럼 처리하고, 끝나면 9장 상태를 "완료"로 바꾼다. 결정이 필요한 항목은 7장에 `PQ-xx`로 올린다.
 - 선결 결정이 잠정값과 다르게 확정되면 해당 Task 절과 7장을 먼저 고친 뒤 착수한다(PR-02).
 
 ### 0.3 상태 표기
@@ -395,25 +398,25 @@ flowchart LR
   5. `test/helpers.js`의 `createUserAndToken()` 구현. `test/auth.test.js`.
 - **선결 결정**: G-05 비밀번호 규칙·이메일 대소문자(7장 잠정). G-01 자동 로그인(시나리오 가정 그대로). 토큰 설계는 PR-37 확정(HS384, access 15분, refresh 14일, 회전 없음, DB 해시만).
 - **완료 조건**:
-  - [ ] 가입 201 응답에 `accessToken`, `refreshToken`과 `user{id,email,name,createdAt}`가 있고 `passwordHash`/`password_hash`가 없다 (NFR-09, PR-36)
-  - [ ] 가입 직후 DB에 그 사용자의 `is_default = true` '기본' 카테고리가 정확히 1개다 (BR-05, UC-01)
-  - [ ] 카테고리 INSERT 실패를 주입하면 사용자 행도 남지 않는다(트랜잭션) (PR-11)
-  - [ ] refresh token INSERT 실패를 주입하면 사용자·'기본' 카테고리 행이 남지 않는다 (AD-06, PR-11)
-  - [ ] DB의 `password_hash`가 `$2b$10$`로 시작하고 평문과 다르다 (NFR-09)
-  - [ ] 중복 이메일 가입 → 409 `CONFLICT` `fields.email` (BR-03, SC-01-E1, AQ-02)
-  - [ ] 필수 누락·이메일 형식 오류·비밀번호 규칙 위반·공백 이름 → 400 `VALIDATION_ERROR` + 해당 `fields` (SC-01-E2, NFR-13)
-  - [ ] 로그인 성공 200 `{ accessToken, refreshToken, user }`, 미가입 이메일과 틀린 비밀번호가 같은 401 메시지 (UC-02, G-04)
-  - [ ] 보호 경로에 토큰 없음·서명 불일치·만료 토큰 → 401 `UNAUTHORIZED` (BR-01, NFR-10, SC-00-E2)
-  - [ ] access token 헤더 `alg`가 `HS384`이고 payload가 `sub`·`iat`·`exp`만 가지며 `exp - iat`가 900초(15분)다 (PR-37)
-  - [ ] 같은 비밀키로 HS256 서명한 토큰과 `alg: none` 토큰이 보호 경로에서 401이다 (PR-37, 알고리즘 혼동 방지)
-  - [ ] DB `refresh_tokens.token_hash`가 응답 `refreshToken`의 SHA-256 해시와 같고, refresh token 원문은 DB에 없다 (PR-37, R-05)
-  - [ ] 발급된 refresh token 행의 `expires_at`이 발급 시각 + 14일(±1분)이다 (NFR-10)
-  - [ ] `POST /api/auth/refresh` 유효 토큰 → 200 `{ accessToken }`(새 `refreshToken` 없음), 같은 refresh token으로 다시 호출해도 200이다(회전 없음) (PR-37)
-  - [ ] 없는 refresh token과 `expires_at`이 지난 refresh token → 401 `UNAUTHORIZED` (NFR-10, SC-00-E2)
-  - [ ] 로그아웃 204 후 같은 refresh token으로 refresh → 401, 같은 토큰으로 로그아웃을 다시 호출해도 204다 (A-14, 멱등)
-  - [ ] refresh·logout은 `Authorization` 헤더 없이 호출되고, `refreshToken` 누락·비문자열이면 400 `VALIDATION_ERROR`다 (PR-07, NFR-13)
-  - [ ] 로그인 시 그 사용자의 만료된 refresh 행만 삭제되고, 만료 전 행과 다른 사용자 행은 남는다 (PR-37)
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] 가입 201 응답에 `accessToken`, `refreshToken`과 `user{id,email,name,createdAt}`가 있고 `passwordHash`/`password_hash`가 없다 (NFR-09, PR-36)
+  - [x] 가입 직후 DB에 그 사용자의 `is_default = true` '기본' 카테고리가 정확히 1개다 (BR-05, UC-01)
+  - [x] 카테고리 INSERT 실패를 주입하면 사용자 행도 남지 않는다(트랜잭션) (PR-11)
+  - [x] refresh token INSERT 실패를 주입하면 사용자·'기본' 카테고리 행이 남지 않는다 (AD-06, PR-11)
+  - [x] DB의 `password_hash`가 `$2b$10$`로 시작하고 평문과 다르다 (NFR-09)
+  - [x] 중복 이메일 가입 → 409 `CONFLICT` `fields.email` (BR-03, SC-01-E1, AQ-02)
+  - [x] 필수 누락·이메일 형식 오류·비밀번호 규칙 위반·공백 이름 → 400 `VALIDATION_ERROR` + 해당 `fields` (SC-01-E2, NFR-13)
+  - [x] 로그인 성공 200 `{ accessToken, refreshToken, user }`, 미가입 이메일과 틀린 비밀번호가 같은 401 메시지 (UC-02, G-04)
+  - [x] 보호 경로에 토큰 없음·서명 불일치·만료 토큰 → 401 `UNAUTHORIZED` (BR-01, NFR-10, SC-00-E2)
+  - [x] access token 헤더 `alg`가 `HS384`이고 payload가 `sub`·`iat`·`exp`만 가지며 `exp - iat`가 900초(15분)다 (PR-37)
+  - [x] 같은 비밀키로 HS256 서명한 토큰과 `alg: none` 토큰이 보호 경로에서 401이다 (PR-37, 알고리즘 혼동 방지)
+  - [x] DB `refresh_tokens.token_hash`가 응답 `refreshToken`의 SHA-256 해시와 같고, refresh token 원문은 DB에 없다 (PR-37, R-05)
+  - [x] 발급된 refresh token 행의 `expires_at`이 발급 시각 + 14일(±1분)이다 (NFR-10)
+  - [x] `POST /api/auth/refresh` 유효 토큰 → 200 `{ accessToken }`(새 `refreshToken` 없음), 같은 refresh token으로 다시 호출해도 200이다(회전 없음) (PR-37)
+  - [x] 없는 refresh token과 `expires_at`이 지난 refresh token → 401 `UNAUTHORIZED` (NFR-10, SC-00-E2)
+  - [x] 로그아웃 204 후 같은 refresh token으로 refresh → 401, 같은 토큰으로 로그아웃을 다시 호출해도 204다 (A-14, 멱등)
+  - [x] refresh·logout은 `Authorization` 헤더 없이 호출되고, `refreshToken` 누락·비문자열이면 400 `VALIDATION_ERROR`다 (PR-07, NFR-13)
+  - [x] 로그인 시 그 사용자의 만료된 refresh 행만 삭제되고, 만료 전 행과 다른 사용자 행은 남는다 (PR-37)
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-06 카테고리 목록·등록 API
 
@@ -427,13 +430,13 @@ flowchart LR
   3. `src/services/categoryService.js`, `src/routes/categories.js`(`GET`, `POST`). `test/categories.test.js`.
 - **선결 결정**: G-05 카테고리 이름 길이(7장).
 - **완료 조건**:
-  - [ ] `GET /api/categories`가 본인 카테고리만 반환하고 첫 항목이 '기본'이다 (BR-02)
-  - [ ] `POST {name: "  업무  "}` → 201, 저장된 이름이 `"업무"` (BR-07)
-  - [ ] 공백만 이름 → 400 `fields.name` (SC-03-E1)
-  - [ ] `" 업무 "` 재등록과 `"기본"` 등록 → 409 `fields.name` (SC-03-E2, AQ-02)
-  - [ ] 다른 사용자는 같은 이름 `"업무"`를 등록할 수 있다 (CN-06 사용자 내 고유)
-  - [ ] 토큰 없이 두 경로 모두 401
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] `GET /api/categories`가 본인 카테고리만 반환하고 첫 항목이 '기본'이다 (BR-02)
+  - [x] `POST {name: "  업무  "}` → 201, 저장된 이름이 `"업무"` (BR-07)
+  - [x] 공백만 이름 → 400 `fields.name` (SC-03-E1)
+  - [x] `" 업무 "` 재등록과 `"기본"` 등록 → 409 `fields.name` (SC-03-E2, AQ-02)
+  - [x] 다른 사용자는 같은 이름 `"업무"`를 등록할 수 있다 (CN-06 사용자 내 고유)
+  - [x] 토큰 없이 두 경로 모두 401
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-07 할일 등록·상세·수정·삭제 API
 
@@ -447,20 +450,21 @@ flowchart LR
   3. `src/services/todoService.js`: 카테고리 미지정 → `findDefaultCategory`(BR-08), 지정 → `findCategoryById` 0건이면 400 `fields.categoryId`(AQ-06), 쓰기 0건이면 404.
   4. `src/routes/todos.js`: `POST /api/todos`, `GET/PUT/DELETE /api/todos/:id`. `test/todos.test.js`, `test/ownership.test.js`(할일·카테고리 소유권 케이스를 모으는 파일, 이후 Task도 추가).
 - **선결 결정**: AQ-06(400 `fields.categoryId`), AQ-09(쓰기 응답에 status 없음), AQ-10(PUT 수정에서 `isCompleted` 불가), EQ-01(경합 23503 → 409), EQ-03(제목 trim 저장) — 7장 잠정.
+- **이월 사항** (9장): `categoryRepository`의 `findCategoryById(db, userId, id)`, `findDefaultCategory(db, userId)`는 BE-06에서 쓰는 곳이 없어 이 Task에서 만든다(수행 작업 3의 소유 확인·'기본' 조회).
 - **완료 조건**:
-  - [ ] `categoryId` 없이 등록 → 201, 응답 `categoryId`가 본인 '기본' 카테고리 id (AC-01, BR-08)
-  - [ ] 시작일자 `2026-11-12`, 종료일자 `2026-11-10` 등록 → 400 `fields.endDate` (AC-02, BR-11)
-  - [ ] 같은 날짜(하루짜리)와 과거 날짜 등록 → 201 (BR-11, BR-12, SC-04-A2, SC-04-A3)
-  - [ ] 제목·시작일자·종료일자 각각 누락 → 400 해당 `fields` (BR-10, SC-04-E1)
-  - [ ] 잘못된 날짜 형식(`2026-13-01`) → 400 (NFR-13)
-  - [ ] 다른 사용자 카테고리 id로 등록·수정 → 400 `fields.categoryId`, DB에 행이 생기지 않는다 (PR-10, NFR-12)
-  - [ ] 수정 시 위 검증이 동일하게 적용되고, `categoryId` 비우면 '기본'으로 바뀐다 (BR-17, SC-07-A2)
-  - [ ] 완료된 할일을 PUT으로 수정해도 `isCompleted`·`completedAt`이 유지되고 `updatedAt`이 바뀐다 (SC-07-A1, A-15)
-  - [ ] PUT 본문에 `isCompleted`가 있으면 400 (AQ-10)
-  - [ ] 다른 사용자 할일 `GET`/`PUT`/`DELETE` → 404, 대상 행 변화 없음 (NFR-12, SC-00-E3, SC-07-E2)
-  - [ ] 삭제 → 204, 이후 같은 id `GET`·`DELETE` → 404 (BR-14, SC-08-E1)
-  - [ ] `:id`가 숫자가 아니면 400 (BE-01 계약)
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] `categoryId` 없이 등록 → 201, 응답 `categoryId`가 본인 '기본' 카테고리 id (AC-01, BR-08)
+  - [x] 시작일자 `2026-11-12`, 종료일자 `2026-11-10` 등록 → 400 `fields.endDate` (AC-02, BR-11)
+  - [x] 같은 날짜(하루짜리)와 과거 날짜 등록 → 201 (BR-11, BR-12, SC-04-A2, SC-04-A3)
+  - [x] 제목·시작일자·종료일자 각각 누락 → 400 해당 `fields` (BR-10, SC-04-E1)
+  - [x] 잘못된 날짜 형식(`2026-13-01`) → 400 (NFR-13)
+  - [x] 다른 사용자 카테고리 id로 등록·수정 → 400 `fields.categoryId`, DB에 행이 생기지 않는다 (PR-10, NFR-12)
+  - [x] 수정 시 위 검증이 동일하게 적용되고, `categoryId` 비우면 '기본'으로 바뀐다 (BR-17, SC-07-A2)
+  - [x] 완료된 할일을 PUT으로 수정해도 `isCompleted`·`completedAt`이 유지되고 `updatedAt`이 바뀐다 (SC-07-A1, A-15)
+  - [x] PUT 본문에 `isCompleted`가 있으면 400 (AQ-10)
+  - [x] 다른 사용자 할일 `GET`/`PUT`/`DELETE` → 404, 대상 행 변화 없음 (NFR-12, SC-00-E3, SC-07-E2)
+  - [x] 삭제 → 204, 이후 같은 id `GET`·`DELETE` → 404 (BR-14, SC-08-E1)
+  - [x] `:id`가 숫자가 아니면 400 (BE-01 계약)
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-08 할일 목록 조회·필터·페이지네이션 API
 
@@ -473,15 +477,16 @@ flowchart LR
   2. `todoRepository.findTodosByUser(db, userId, { categoryId, statuses, today, page, limit })`: 화이트리스트 조각 조립, `ORDER BY end_date, created_at, id`, `LIMIT/OFFSET`, 같은 WHERE로 `COUNT(*)`(AQ-08).
   3. `todoService.listTodos`: 각 항목에 `deriveStatus(todo, today)` 부착. `GET /api/todos` 라우트.
 - **선결 결정**: U-04 파라미터 형식(7장 잠정).
+- **이월 사항** (9장): `statusSqlCondition('COMPLETED', …)` 조각은 today 자리표시자를 쓰지 않는다. today 파라미터는 today를 쓰는 조각(NOT_STARTED, IN_PROGRESS, OVERDUE)이 하나라도 있을 때만 추가한다. 쓰지 않는 파라미터를 넘기면 PostgreSQL이 08P01(파라미터 개수 불일치)로 거부한다(BE-04에서 발견).
 - **완료 조건**:
-  - [ ] today `2026-11-13`, 할일(11/10~11/12, 미완료): `status=OVERDUE`에 포함, `status=IN_PROGRESS`에 미포함, 응답 `status`가 `OVERDUE` (AC-03)
-  - [ ] '업무' 카테고리 + `status=NOT_STARTED,IN_PROGRESS`: '업무'이면서 두 상태 중 하나인 할일만 나온다(다른 카테고리·완료·기한 초과 제외) (AC-04, BR-15)
-  - [ ] 필터 미지정 시 본인 할일 전체, 다른 사용자 할일은 절대 포함되지 않는다 (BR-15, NFR-12)
-  - [ ] 정렬이 종료일자 → 생성일시 → id 오름차순이다 (Q-05, AQ-08)
-  - [ ] 55건에서 `page=2&limit=50` → 5건, `total=55`, 페이지 간 중복·누락 없음 (NFR-06)
-  - [ ] `limit=101` → 응답 `limit=100` (PR-43), `today` 누락·`status=FOO` → 400 (PR-38)
-  - [ ] 다른 사용자 `categoryId`로 필터하면 빈 결과(`total=0`)이다 (NFR-12)
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] today `2026-11-13`, 할일(11/10~11/12, 미완료): `status=OVERDUE`에 포함, `status=IN_PROGRESS`에 미포함, 응답 `status`가 `OVERDUE` (AC-03)
+  - [x] '업무' 카테고리 + `status=NOT_STARTED,IN_PROGRESS`: '업무'이면서 두 상태 중 하나인 할일만 나온다(다른 카테고리·완료·기한 초과 제외) (AC-04, BR-15)
+  - [x] 필터 미지정 시 본인 할일 전체, 다른 사용자 할일은 절대 포함되지 않는다 (BR-15, NFR-12)
+  - [x] 정렬이 종료일자 → 생성일시 → id 오름차순이다 (Q-05, AQ-08)
+  - [x] 55건에서 `page=2&limit=50` → 5건, `total=55`, 페이지 간 중복·누락 없음 (NFR-06)
+  - [x] `limit=101` → 응답 `limit=100` (PR-43), `today` 누락·`status=FOO` → 400 (PR-38)
+  - [x] 다른 사용자 `categoryId`로 필터하면 빈 결과(`total=0`)이다 (NFR-12)
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-09 할일 완료 토글 API
 
@@ -495,12 +500,12 @@ flowchart LR
   3. `todoService.setCompleted`, `PATCH /api/todos/:id` 라우트.
 - **선결 결정**: AQ-10 토글 형태(`PATCH /api/todos/:id { isCompleted }`).
 - **완료 조건**:
-  - [ ] `isCompleted: true` → 200, `completedAt`이 ISO 일시다 (BR-13)
-  - [ ] `isCompleted: false` → 200, `completedAt`이 `null`이다 (BR-13)
-  - [ ] 종료일자가 지난 할일을 완료 취소 후 목록(today 이후)에서 `status`가 `OVERDUE`다 (SC-06-A2)
-  - [ ] 본문에 `isCompleted` 외 필드 또는 boolean이 아닌 값 → 400
-  - [ ] 다른 사용자 할일 PATCH → 404, 대상 행 변화 없음 (NFR-12)
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] `isCompleted: true` → 200, `completedAt`이 ISO 일시다 (BR-13)
+  - [x] `isCompleted: false` → 200, `completedAt`이 `null`이다 (BR-13)
+  - [x] 종료일자가 지난 할일을 완료 취소 후 목록(today 이후)에서 `status`가 `OVERDUE`다 (SC-06-A2)
+  - [x] 본문에 `isCompleted` 외 필드 또는 boolean이 아닌 값 → 400
+  - [x] 다른 사용자 할일 PATCH → 404, 대상 행 변화 없음 (NFR-12)
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-10 캘린더 기간 조회 API
 
@@ -533,6 +538,7 @@ flowchart LR
   2. `userRepository`: `updateUserName`, `findPasswordHashById`, `updatePasswordHash`.
   3. `src/services/userService.js`: 비밀번호 변경 = 현재 비밀번호 확인 → `withTransaction`(해시 갱신 + `refreshTokenRepository.deleteAllByUser` + 현재 세션용 새 refresh token 해시 INSERT) → 200 `{ refreshToken }`(PR-11, PR-37). `src/routes/users.js`(`GET/PATCH /api/users/me`, `PUT /api/users/me/password`).
 - **선결 결정**: PQ-02 현재 비밀번호 불일치 응답 = 400 `fields.currentPassword`(401이면 FE 공통 401 처리로 refresh 시도·로그아웃 흐름에 들어감). G-06 결정 = 그 사용자의 모든 refresh token 폐기 + 현재 세션용 새 발급, 다른 기기는 access 만료(최대 15분) 후 로그아웃.
+- **이월 사항** (9장): BE-05 수행 작업 2의 `userRepository.findUserById`와 `refreshTokenRepository.deleteAllByUser`는 BE-05에서 쓰는 곳이 없어 이 Task에서 만든다(`GET /api/users/me`, 비밀번호 변경 시 전체 폐기).
 - **완료 조건**:
   - [ ] `GET /api/users/me` → 200 `{id, email, name, createdAt}`, 해시 없음 (PR-36)
   - [ ] `PATCH {name: "  새이름 "}` → 200, 이름 `"새이름"`. 공백 이름 → 400 `fields.name` (SC-10-E2)
@@ -833,6 +839,7 @@ flowchart LR
   2. 브라우저 날짜를 2026-11-13으로 두고(OS 날짜 변경 또는 개발자도구 시간 재정의) SC-11 1~8단계를 수행한다.
   3. 결과와 발견 결함을 이 Task 아래 한 줄씩 기록하고 결함은 해당 Task로 되돌린다.
 - **선결 결정**: 없음
+- **이월 사항** (9장): `backend/swagger.yaml` v0.2 수정분의 YAML 문법 검증을 하지 못했다(BE-01, 파서 설치가 권한 확인에서 거부됨). Swagger UI나 YAML 파서로 열어 오류가 없는지 확인한다.
 - **완료 조건**:
   - [ ] SC-11 1단계: 가입 후 바로 빈 목록, 카테고리 화면에 '기본'이 있다 (UC-01, BR-05, G-01)
   - [ ] SC-11 3~5단계: A 기한 초과, B 진행 중, C '기본' 소속·시작 전으로 표시 (AC-01, ST-02~04)
@@ -858,6 +865,7 @@ flowchart LR
   2. 운영과 같은 설정(`NODE_ENV=production`, 풀 20)의 로컬 또는 스테이징 BE에 실행. 결과 요약은 이 Task 아래 표로 기록.
   3. 미달 시 순서: EXPLAIN 재확인(IX), 풀 크기, bcrypt 비용 영향(로그인만) 확인 → 원인과 조정값을 PRD "가정" 수치 갱신 요청으로 남김.
 - **선결 결정**: 부하 대상 환경 — 잠정: 로컬 운영 모드(배포 전). OPS-01 후 여유 시 배포 환경 재측정.
+- **이월 사항** (9장): DB-03 EXPLAIN에서 IX-02 쿼리(카테고리 필터 목록, `ORDER BY end_date, created_at, id`)가 `ix_todos_user_id_category_id`는 쓰지만 Bitmap Heap Scan + Sort 노드가 남았다(완료 조건은 인덱스 사용까지라 충족). 데이터를 늘린 상태에서 정렬까지 인덱스로 처리되는지 재확인하고, 아니면 원인을 기록한다. 또한 BE-08 목록은 COUNT와 페이지 조회가 별도 쿼리라 동시 쓰기 중 `total`이 어긋날 수 있다(`shortcut:` 주석). 부하 중 문제가 되면 같은 트랜잭션으로 묶는다.
 - **완료 조건**:
   - [ ] k6 10분 실행이 끝까지 돌고 `http_reqs` 평균 ≥ 190 RPS (NFR-01)
   - [ ] 조회(목록·캘린더·refresh) p95 ≤ 300ms, 쓰기 p95 ≤ 500ms threshold 통과 (NFR-02)
@@ -929,6 +937,8 @@ flowchart LR
 | PQ-01 | FE 테스트용 개발 의존성(원칙 허용 목록 밖) | `jsdom`, `@testing-library/react`, `@vitest/coverage-v8` 추가(훅 테스트·커버리지 측정에 필요, PR-17 사유 기록) | FE-01 |
 | PQ-02 | 현재 비밀번호 불일치 응답 코드 | 400 `VALIDATION_ERROR` + `fields.currentPassword`. 401을 쓰면 FE 공통 401 처리(PR-16)로 로그아웃된다 | BE-11, FE-12 |
 | PQ-03 | `bigint` id의 JSON 타입(`pg`는 int8을 문자열로 반환) | `db.js`에서 `setTypeParser(20, Number)`로 number 반환(id·COUNT 모두 2^53 미만 가정) | BE-01, BE-02, FE-02 |
+| PQ-04 | 로그인 응답 시간 차이(G-04): 문구는 같지만 미가입 이메일은 bcrypt 비교를 건너뛰어 응답이 빨라 가입 여부를 추측할 수 있다 | MVP 미적용(완료 조건·NFR 밖, U-10과 같은 범주). 적용 시 미가입 이메일에도 고정 더미 해시로 `bcrypt.compare` 1회 | BE-05 |
+| PQ-05 | JSON 파싱 실패 요청이 요청 로그에 남지 않는다(BE-02 순서 `json → requestLog`) | 그대로 둔다(계획 순서 유지). 운영 로그에 필요하면 `requestLog`를 `express.json()` 앞으로 옮긴다 | BE-02 |
 
 ## 8. 추적 표
 
@@ -980,3 +990,18 @@ flowchart LR
 | SC-02-A1 | FE-02(AD-13), QA-01 |
 | SC-00-E3 | BE-07, FE-09, QA-01 |
 | SC-00-E4 | BE-04~BE-11, FE-09 |
+
+## 9. 이월 작업
+
+Task 수행 중 미룬 작업의 추적 표(0.2 이월 규칙). 대상 Task 절의 "이월 사항" 줄과 함께 관리하고, 처리하면 상태를 "완료"로 바꾼다. 결정이 필요한 항목은 7장 PQ를 따른다.
+
+| 출처 | 내용 | 대상 | 상태 |
+|------|------|------|------|
+| BE-05 | `userRepository.findUserById`, `refreshTokenRepository.deleteAllByUser` 미작성(쓰는 곳 없음) | BE-11 | 대기 |
+| BE-06 | `categoryRepository.findCategoryById`, `findDefaultCategory` 미작성(쓰는 곳 없음) | BE-07 | 완료 |
+| BE-04 | `COMPLETED` 조각은 today를 쓰지 않음 → today 파라미터는 필요할 때만 추가(08P01 방지) | BE-08 | 완료 |
+| DB-03 | IX-02 쿼리 EXPLAIN에 Sort 노드 잔존 → 데이터를 늘려 재확인 | QA-02 | 대기 |
+| BE-08 | 목록 COUNT와 페이지 조회가 별도 쿼리라 동시 쓰기 시 `total`이 어긋날 수 있음(`todoRepository.findTodosByUser`의 `shortcut:` 주석) → 부하 중 불일치가 문제되면 같은 트랜잭션(REPEATABLE READ)으로 묶기 | QA-02 | 대기 |
+| BE-01 | `swagger.yaml` v0.2 수정분 YAML 문법 미검증 | QA-01 | 대기 |
+| BE-05 | 로그인 응답 시간 차이(G-04 계정 존재 추측) | PQ-04 결정 | 결정 대기 |
+| BE-02 | JSON 파싱 실패 요청 로그 누락 | PQ-05 결정 | 결정 대기 |

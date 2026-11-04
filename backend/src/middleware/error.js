@@ -1,4 +1,4 @@
-import { AppError, ERROR_CODES } from '../errors.js';
+import { AppError, ERROR_CODES, notFoundError } from '../errors.js';
 
 // PR-46, AQ-02: unique 제약 이름 → 응답 필드. 매핑 표는 여기 한 곳
 const UNIQUE_FIELD_MAP = {
@@ -10,8 +10,8 @@ function send(res, status, code, message, fields) {
   res.status(status).json({ error: fields ? { code, message, fields } : { code, message } });
 }
 
-export function notFound(req, res) {
-  send(res, 404, ERROR_CODES.NOT_FOUND, '찾을 수 없습니다');
+export function notFound() {
+  throw notFoundError();
 }
 
 // eslint-disable-next-line no-unused-vars -- Express는 인자 4개로 에러 미들웨어를 구분한다
