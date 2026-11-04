@@ -1,7 +1,20 @@
 import { Router } from 'express';
 import { validateIdParam } from '../validators/common.js';
-import { validateTodoInput, validateListQuery, validateCompletion } from '../validators/todo.js';
-import { listTodos, createTodo, getTodo, updateTodo, deleteTodo, setCompleted } from '../services/todoService.js';
+import {
+  validateTodoInput,
+  validateListQuery,
+  validateCalendarQuery,
+  validateCompletion,
+} from '../validators/todo.js';
+import {
+  listTodos,
+  listCalendarTodos,
+  createTodo,
+  getTodo,
+  updateTodo,
+  deleteTodo,
+  setCompleted,
+} from '../services/todoService.js';
 
 export const todosRouter = Router();
 
@@ -15,7 +28,11 @@ todosRouter.get('/', async (req, res) => {
   res.json(await listTodos(req.userId, validateListQuery(req.query)));
 });
 
-// BE-10의 /calendar는 /:id보다 먼저 등록해야 한다
+// AQ-05: /:id보다 먼저 등록해야 한다
+todosRouter.get('/calendar', async (req, res) => {
+  res.json(await listCalendarTodos(req.userId, validateCalendarQuery(req.query)));
+});
+
 todosRouter.get('/:id', async (req, res) => {
   res.json(await getTodo(req.userId, validateIdParam(req.params.id)));
 });

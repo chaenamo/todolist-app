@@ -7,6 +7,7 @@ import {
   insertTodo,
   findTodoById,
   findTodosByUser,
+  findTodosInRange,
   updateTodo as updateTodoRow,
   updateCompletion,
   deleteTodo as deleteTodoRow,
@@ -34,6 +35,12 @@ export async function listTodos(userId, query) {
     limit: query.limit,
     total,
   };
+}
+
+// UC-10, AQ-05: 페이지 없이 { items }
+export async function listCalendarTodos(userId, { from, to, today }) {
+  const items = await findTodosInRange(pool, userId, from, to);
+  return { items: items.map((todo) => ({ ...todo, status: deriveStatus(todo, today) })) };
 }
 
 export async function getTodo(userId, id) {

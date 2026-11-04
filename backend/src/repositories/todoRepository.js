@@ -49,6 +49,17 @@ export async function findTodosByUser(db, userId, { categoryId, statuses, today,
   return { items: pageResult.rows, total: Number(countResult.rows[0].total) };
 }
 
+// BR-16: 뷰 기간과 하루라도 겹치면 포함 (IX-03)
+export async function findTodosInRange(db, userId, from, to) {
+  const { rows } = await db.query(
+    `SELECT ${TODO_COLUMNS} FROM todos
+     WHERE user_id = $1 AND start_date <= $3 AND end_date >= $2
+     ORDER BY start_date, id`,
+    [userId, from, to],
+  );
+  return rows;
+}
+
 // 완료 필드는 바꾸지 않는다 (SC-07-A1, A-15). 0건이면 null
 export async function updateTodo(db, userId, id, { categoryId, title, description, startDate, endDate }) {
   const { rows } = await db.query(

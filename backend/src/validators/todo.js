@@ -72,6 +72,27 @@ export function validateListQuery(query = {}) {
   return result;
 }
 
+const CALENDAR_MAX_DAYS = 42; // AQ-05: 월간 6주 그리드, 양 끝 포함
+const DAY_MS = 86_400_000;
+
+// 캘린더 기간 쿼리. 기간 오류(from > to, 42일 초과)는 to에 붙인다
+export function validateCalendarQuery(query = {}) {
+  const errors = fieldErrors();
+  const result = {
+    from: errors.take('from', checkDate(query.from)),
+    to: errors.take('to', checkDate(query.to)),
+    today: errors.take('today', checkDate(query.today)),
+  };
+  if (result.from && result.to) {
+    if (result.to < result.from) errors.add('to', '종료일은 시작일 이후여야 합니다');
+    else if ((Date.parse(result.to) - Date.parse(result.from)) / DAY_MS + 1 > CALENDAR_MAX_DAYS) {
+      errors.add('to', `조회 기간은 최대 ${CALENDAR_MAX_DAYS}일입니다`);
+    }
+  }
+  errors.throwIfAny();
+  return result;
+}
+
 // AQ-10: 완료 토글은 { isCompleted: boolean }만 허용
 export function validateCompletion(body = {}) {
   const errors = fieldErrors();
