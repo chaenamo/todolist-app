@@ -8,6 +8,7 @@
 | v0.2 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 | v0.4 | 2026-11-04 | chaenamo | 초안 | 이월 작업 추적(9장) 추가 |
+| v0.5 | 2026-11-04 | chaenamo | 초안 | U-08 결정 반영 |
 
 ## 변경 이력
 
@@ -17,6 +18,7 @@
 | v0.2 | 2026-11-04 | 기준 문서, 1, 2, BE-01, DB-02, BE-02, BE-03, BE-05, BE-11, FE-02, FE-04, FE-12, QA-01, QA-02, OPS-01, 7, 8.3 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. BE-05를 토큰 쌍 발급·refresh·logout·HS384로 확장(제목 변경), BE-01 계약에 refresh·logout 추가·비밀번호 변경 응답 200 `{ refreshToken }`, DB-02·BE-03·OPS-01 마이그레이션 4개(004 추가), BE-11 비밀번호 변경 시 전체 refresh 폐기, FE-02 access 메모리·refresh localStorage·single-flight refresh·앱 진입 refresh, FE-04 로그아웃 API 호출. 0.2 규칙에 따라 기존 체크박스 문장 변경: BE-01(엔드포인트 수 17→19), DB-02(001→004·refresh_tokens), BE-02(`JWT_ACCESS_SECRET`, 로그), BE-03(파일·테이블 수), BE-05(응답 필드, payload·만료), BE-11(G-06), FE-02(Bearer, 401, 가드), FE-04(토큰 저장, 로그아웃), FE-12(G-06), QA-02(NFR-02에 refresh), OPS-01(4행, 비밀키 이름). 7장 U-02·AQ-11·G-06·EQ-02 갱신, 예상 시간 BE-05 2→3h, BE-11 1→1.5h, FE-02 1.5→2.5h | chaenamo |
 | v0.3 | 2026-11-04 | 기준 문서, 2, DB-02, 7(EQ-02) | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5, 원칙 v0.4, 아키텍처 v0.5, ERD v0.3으로 갱신. 의존성 그래프에 1장 표의 QA-03 선행 FE-04 간선 추가. EQ-02를 결정(잠정 기본값 채택: 테이블별 4개)으로 표기하고 DB-02 선결 결정 문구 갱신(원칙 6.2 트리 갱신 완료). 체크박스 문장 변경 없음 | chaenamo |
 | v0.4 | 2026-11-04 | 0.2, BE-07, BE-08, BE-11, QA-01, QA-02, 7(PQ-04, PQ-05), 9(신규) | DB-01~BE-06 수행 중 미룬 작업을 기록: 0.2에 이월 규칙 추가, 대상 Task 절에 **이월 사항** 줄 추가, 9장 이월 작업 표 신설. 결정 필요 항목 PQ-04(로그인 응답 시간 차이), PQ-05(JSON 파싱 실패 요청 로그) 추가. 체크박스 문장 변경 없음 | chaenamo |
+| v0.5 | 2026-11-04 | 0.1, 7(U-08) | U-08 결정: 두 개발 스킬의 계획 문서 경로를 `docs/8-plan.md`로 수정 완료. 0.1의 주의 문구를 결정 문구로 교체. 체크박스 문장 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/schema.sql`.
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ, T, CN, IX, EQ)는 **참조만** 하며 재정의하지 않는다.
@@ -34,7 +36,7 @@
 | DB, QA, OPS | 스킬 없음. 수행 작업의 명령을 직접 실행하고 결과로 체크 | - |
 
 - 스킬은 Task 제목 `### <ID> <Task명>`을 검색해 그 절의 **수행 작업·선결 결정·완료 조건**만 읽는다. 다른 Task 절의 내용을 전제로 쓰지 않는다(필요하면 ID로 참조).
-- **주의(U-08)**: 현재 두 스킬은 `docs/5-plan.md`를 읽도록 되어 있다. 이 문서는 `docs/8-plan.md`다. 스킬 실행 전에 스킬 경로를 `docs/8-plan.md`로 고치거나 이 파일을 그 경로로 복사(동기화)해야 한다. 7장 참조.
+- **U-08 결정(2026-11-04)**: 두 스킬(`develop-backend`, `develop-frontend`)이 `docs/8-plan.md`를 읽도록 경로를 수정했다. 7장 참조.
 - 스킬 커버리지 90%는 PR-30대로 그 Task가 바꾼 BE `services/`·`repositories/`·`validators/`·`domain/`, FE `lib/`·`hooks/`·`api/`·`stores/`에만 적용한다.
 - 선행 Task가 완료(체크박스 전부 체크)되지 않았으면 착수하지 않는다. FE Task의 "통합 확인"에 적힌 BE Task는 착수 조건이 아니다(FE는 BE-01 계약과 fetch 모킹으로 개발, 실제 연동은 QA-01).
 
@@ -914,7 +916,7 @@ flowchart LR
 
 | ID | 내용 | 잠정 기본값 | 영향 Task |
 |----|------|-------------|-----------|
-| U-08 | 스킬이 `docs/5-plan.md`를 읽는데 계획 문서는 `docs/8-plan.md` | 스킬 두 개의 경로를 `docs/8-plan.md`로 수정(가장 단순). 수정 전에는 스킬 실행 금지 | 모든 BE·FE Task |
+| U-08 | 스킬이 `docs/5-plan.md`를 읽는데 계획 문서는 `docs/8-plan.md` | **결정**(2026-11-04, 잠정 기본값 채택): 스킬 두 개의 경로를 `docs/8-plan.md`로 수정 완료 | 모든 BE·FE Task |
 | U-09 | PostgreSQL 실행 방식 | 로컬 설치 우선, 없으면 루트 `docker-compose.yml`(postgres:17 1개) | DB-01 |
 | EQ-02 | 마이그레이션 파일 1개 vs 테이블별 | **결정**(2026-11-04, 이 잠정 기본값 채택, 원칙 6.2 트리 갱신): 7-erd대로 4개(`001_create_users`, `002_create_categories`, `003_create_todos`, `004_create_refresh_tokens`) | DB-02, BE-03, OPS-01 |
 | EQ-01 | 23503 `fk_todos_category_owner` 처리 | 정상 경로는 service 확인으로 400 `fields.categoryId`, 경합 시 23503은 error 미들웨어에서 409 `CONFLICT`(fields 없음, 재시도 안내). 잠금 미도입(PR-01) | BE-02, BE-07, BE-12 |

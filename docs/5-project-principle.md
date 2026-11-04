@@ -8,6 +8,7 @@
 | v0.2 | 2026-11-04 | chaenamo | 초안 | 아키텍처 다이어그램 AQ-01~03 결정 반영 |
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.4 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
+| v0.5 | 2026-11-04 | chaenamo | 초안 | U-08 결정 반영 |
 
 ## 변경 이력
 
@@ -17,6 +18,7 @@
 | v0.2 | 2026-11-04 | 기준 문서, PR-14, PR-16, PR-20, PR-46 | AQ-01: 로그인·회원가입 요청의 401은 공통 401 처리에서 제외. AQ-02: 409 `CONFLICT`에 `fields`를 담고 unique 제약 이름으로 필드를 매핑. AQ-03: 쓰기는 낙관적 업데이트 없이 성공 후 즉시 재조회 | chaenamo |
 | v0.3 | 2026-11-04 | 기준 문서, PR-07, PR-11, PR-14, PR-16, PR-22, PR-29, PR-34, PR-37, PR-40, 5장 `.env.example`, 6.2, 6.3, 7(U-02) | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. PR-16에 401 → single-flight refresh → 원 요청 1회 재시도 추가, PR-37을 HS384·access 15분·`algorithms` 명시·refresh/logout API로 변경, 환경변수 `JWT_ACCESS_SECRET`·`ACCESS_TOKEN_TTL`·`REFRESH_TOKEN_TTL_DAYS`로 교체, `refreshTokenRepository.js` 추가, U-02 결정 처리 | chaenamo |
 | v0.4 | 2026-11-04 | 기준 문서, PR-36, 6.2 | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5로 갱신, 6.2 마이그레이션 트리를 `001_init.sql` 1개에서 ERD(`7-erd.md` 6장)·실행 계획의 테이블별 4개(001~004)로 변경(ERD EQ-02 결정), 실행 계획 Task 파일 `db/verify.sql`·`test/health.test.js`를 트리에 추가, PR-36 `password_hash` select 함수를 로그인용·비밀번호 변경용 각 1개로 명확화(실행 계획 BE-05·BE-11과 일치) | chaenamo |
+| v0.5 | 2026-11-04 | 0, 7(U-08) | U-08 결정: 실행 계획 문서는 `docs/8-plan.md`, 두 개발 스킬 경로를 그에 맞게 수정 완료. 0장 스킬 관계 표의 번호 충돌 행을 해결로 갱신 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP)는 **참조만** 하며 재정의하지 않는다. 규칙 본문은 원 문서를 따른다.
@@ -31,7 +33,7 @@
 | 스킬 관례 | 이 문서 | 처리 |
 |-----------|---------|------|
 | 코드 위치 `backend/`, `frontend/` 디렉토리 | 6장 루트 레이아웃과 동일 | 일치 |
-| 작업 단위 문서 `docs/5-plan.md`의 TASK 번호 | 이 문서도 `5-` 번호를 씀 | **번호 충돌**. 실행 계획 문서를 `docs/5-plan.md`로 만들면 `5-` 문서가 2개가 된다. 파일명은 스킬이 참조하므로 그대로 두고 번호 중복을 허용하거나, 계획 문서를 `6-plan.md`로 하고 스킬 경로를 고친다(미결 U-08) |
+| 작업 단위 문서의 TASK 번호 | 실행 계획 문서는 `docs/8-plan.md` | **해결**(U-08 결정): 스킬 경로를 `docs/8-plan.md`로 고쳐 번호 충돌 없음 |
 | 테스트 커버리지 **90% 이상** | 4장은 2일 일정상 **필수 최소 범위**를 정의 | **충돌**. 해결: 스킬로 작업할 때는 스킬 기준(90%)을 따르되, 측정 대상은 그 TASK가 바꾼 BE `services/`·`repositories/`·`validators/`·`domain/`과 FE `lib/`·`hooks/`로 한정한다(PR-30). 페이지·표시용 컴포넌트는 측정에서 뺀다. 시간이 모자라면 PR-29 필수 범위를 먼저 채우고, 미달분은 스킬 규칙대로 보고한다 |
 | UI 컴포넌트에 **스타일 가이드** 적용 | 스타일 가이드 문서 없음 | **공백**. 임시로 `frontend/src/styles/tokens.css`(색·간격·폰트 변수)를 스타일 가이드 원본으로 본다(PR-24). 정식 문서는 미결 U-07 |
 | 테스트 작성·구현을 서브에이전트로 병렬 수행 | 레이어·파일 경계를 명확히 둔다(2장, 6장) | 일치 (경계가 분명해야 병렬 작업 충돌이 적다) |
@@ -376,6 +378,6 @@ WF → 라우트·폴더 매핑
 | U-05 | 입력 길이·비밀번호 규칙·이메일 대소문자(G-05) | `validators/` 상수, DB 컬럼 길이 | 상수 하나로 두고 확정 시 교체(PR-39) |
 | U-06 | 날짜 피커: 네이티브 `<input type="date">` / 캘린더 라이브러리 / 별도 패키지 (와이어프레임 6.2) | FE 패키지 수 | 네이티브 `<input type="date">` 우선(값이 `YYYY-MM-DD` 문자열이라 PR-04와 맞음) |
 | U-07 | 스타일 가이드 문서 부재 (develop-frontend 스킬 요구) | 모든 UI 컴포넌트 | `styles/tokens.css`를 임시 원본으로 사용 |
-| U-08 | 실행 계획 문서 파일명(`docs/5-plan.md`, 스킬 참조)과 이 문서의 번호 중복 | 문서 번호 체계 | 스킬 경로를 따라 `5-plan.md` 사용, 번호 중복 허용 여부 확인 필요 |
+| U-08 | 실행 계획 문서 파일명(`docs/5-plan.md`, 스킬 참조)과 이 문서의 번호 중복 | 문서 번호 체계 | **결정(2026-11-04)**: 실행 계획은 `docs/8-plan.md`로 두고 두 개발 스킬의 경로를 그에 맞게 수정 완료 |
 | U-09 | Node.js·PostgreSQL 실행 방식(로컬 설치 / Docker Compose) | 루트에 `docker-compose.yml` 추가 여부 | 미정. 추가하더라도 DB 1개 서비스만 |
 | U-10 | 로그인 시도 제한(무차별 대입 방어) 필요 여부 | 미들웨어 추가, 패키지 추가 | MVP 제외, 문서 범위 밖 (NFR에 없음) |
