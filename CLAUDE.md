@@ -25,4 +25,5 @@
 | [docs/schema.sql](docs/schema.sql)                         | PostgreSQL DDL (7-erd 기준)                                        |
 | [docs/8-plan.md](docs/8-plan.md)                           | 실행 계획(WBS): DB/BE/FE/QA/OPS 작업과 완료 조건                   |
 | [docs/9-api-spec.md](docs/9-api-spec.md)                   | API 계약: 엔드포인트 19개, 인증, 에러 형식, 결정 사항(BE-01)       |
+| [docs/style-guide.md](docs/style-guide.md)                 | 스타일 가이드: 디자인 토큰, 공통 요소·캘린더 스타일 규칙(SG)       |
 | [backend/swagger.yaml](backend/swagger.yaml)               | API 명세 (OpenAPI 3.0.3)                                           |

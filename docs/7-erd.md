@@ -8,6 +8,7 @@
 | v0.2 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 | v0.4 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
+| v0.5 | 2026-11-05 | chaenamo | 초안 | 백엔드 구현 완료에 맞춰 결정 반영 |
 
 ## 변경 이력
 
@@ -17,6 +18,7 @@
 | v0.2 | 2026-11-04 | 기준 문서, 1, 2(T-04), 3(CN-16~18), 4(IX-04), 5, 6, 7.3(EQ-02) | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. 인증 인프라 테이블 T-04 `refresh_tokens`(해시만 저장, 사용자 삭제 시 CASCADE), 제약 CN-16~18, 인덱스 IX-04, 마이그레이션 `004_create_refresh_tokens.sql` 추가 | chaenamo |
 | v0.3 | 2026-11-04 | 기준 문서, 7.3(EQ-02) | 문서 간 정합성 검토 반영: 기준 원칙 v0.4, 아키텍처 v0.5로 갱신. EQ-02를 결정(잠정 기본값 채택: 테이블별 파일 001~004)으로 표기, 원칙 문서 6.2 트리 갱신 완료 | chaenamo |
 | v0.4 | 2026-11-05 | 기준 문서, 4 | 부하 테스트를 이번 범위에서 하지 않으므로 상태 필터 인덱스 가정의 확인 시점(M-04 부하 테스트) 문구를 "가정으로 남긴다"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6 | chaenamo |
+| v0.5 | 2026-11-05 | 1, CN-02, 3.1, 7.2, 7.3(EQ-01, EQ-03) | BE-01~12 완료 반영: G-05(길이 상수·이메일 대소문자 구분), AQ-05(42일), AQ-06, AQ-08(total 별도 COUNT), EQ-01(23503 → 409), EQ-03(제목 trim)을 결정으로 표기. 스키마 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/5-project-principle.md` (v0.6), `docs/6-arch-diagram.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ)는 **참조만** 하며 재정의하지 않는다. 도메인 4.2의 개념 ER은 개념 모델로 유지하고, 이 문서는 그 물리(PostgreSQL 17) 구현이다.
@@ -27,7 +29,7 @@
 ## 1. 논리 ERD
 
 - 식별자: `bigint GENERATED ALWAYS AS IDENTITY`. 근거: DB 1개·단일 API(AD-01)라 분산 생성이 필요 없고, 8바이트 순번이 인덱스·정렬 보조키(AQ-08)에 유리하다. 추측 가능성은 소유권 조건 + 404(NFR-12, PR-10)로 막으므로 uuid의 이점이 없다(AQ-12 결정).
-- 문자열은 `text`. 길이 제한은 G-05 미정이므로 `validators/` 상수로 검사하고(PR-39) DB에 길이를 두지 않는다. G-05 확정 시 마이그레이션이 필요 없다(U-05의 "DB 컬럼 길이" 영향 제거, 잠정).
+- 문자열은 `text`. 길이 제한은 `validators/` 상수(`LIMITS`, G-05 결정)로 검사하고(PR-39) DB에 길이를 두지 않는다. 규칙이 바뀌어도 마이그레이션이 필요 없다.
 - 상태 컬럼은 없다(5장, PR-03). 날짜는 `date`(TC-06, A-01), 일시는 `timestamptz`(PR-04).
 
 ```mermaid
@@ -39,7 +41,7 @@ erDiagram
 
     users {
         bigint id PK "T-01, identity"
-        text email UK "BR-03, 대소문자 G-05 잠정"
+        text email UK "BR-03, 대소문자 구분 G-05"
         text password_hash "bcrypt 해시만 NFR-09"
         text name "BR-04 변경 가능"
         timestamptz created_at "가입일시"
@@ -130,7 +132,7 @@ erDiagram
 | ID | 이름 | 테이블 | 종류 | 정의 | 근거 |
 |----|------|--------|------|------|------|
 | CN-01 | `pk_users` | users | PK | `(id)` | - |
-| CN-02 | `uq_users_email` | users | UNIQUE | `(email)`. 23505 → 409, **PR-46 매핑 `email`**. 대소문자: G-05 미정. 잠정으로 입력값 그대로 저장·비교(구분함). 구분하지 않기로 하면 validators에서 소문자로 정규화해 이 제약을 그대로 쓴다 | BR-03, PR-46, G-05 |
+| CN-02 | `uq_users_email` | users | UNIQUE | `(email)`. 23505 → 409, **PR-46 매핑 `email`**. 대소문자: **결정**(G-05) 입력값 그대로 저장·비교(구분함). 구분하지 않기로 하면 validators에서 소문자로 정규화해 이 제약을 그대로 쓴다 | BR-03, PR-46, G-05 |
 | CN-03 | `ck_users_name_not_blank` | users | CHECK | `btrim(name) <> ''` | SC-10-E2, NFR-13 |
 | CN-04 | `pk_categories` | categories | PK | `(id)` | - |
 | CN-05 | `fk_categories_user_id` | categories | FK | `(user_id) → users(id) ON DELETE RESTRICT`. 회원 탈퇴 미정(Q-01). 결정 시 새 마이그레이션으로 변경 | BR-02, Q-01 |
@@ -155,9 +157,9 @@ erDiagram
 **결정: 강제한다.** `todos.(category_id, user_id) → categories.(id, user_id)`.
 
 - 근거: NFR-12/BR-02 위반(타인 카테고리에 할일 연결)은 데이터 오염이며 service 확인(PR-10)이 한 곳만 빠져도 생긴다(R-04). 비용은 CN-07 유니크 인덱스 1개뿐이다.
-- service 확인(PR-10, AD-09)은 **유지한다**: 정상 경로에서 400 `fields.categoryId`(AQ-06 잠정)를 주는 것은 service이고, 복합 FK는 누락·경합 시의 안전망이다.
+- service 확인(PR-10, AD-09)은 **유지한다**: 정상 경로에서 400 `fields.categoryId`(AQ-06 결정)를 주는 것은 service이고, 복합 FK는 누락·경합 시의 안전망이다.
 - `ON DELETE RESTRICT`: BR-09에 따라 service가 같은 트랜잭션에서 할일을 '기본'으로 옮긴 뒤 삭제한다(AD-11, PR-11). 옮기지 않은 할일이 남으면 삭제가 실패해 할일 유실을 막는다. `CASCADE`·`SET NULL`은 BR-09·도메인 4.2(반드시 하나의 카테고리)와 맞지 않아 쓰지 않는다.
-- 경합 시 동작(AQ-06): 할일 등록·수정의 확인과 INSERT/UPDATE 사이에 카테고리가 삭제되거나, 카테고리 삭제 트랜잭션의 이동과 DELETE 사이에 할일이 들어오면 23503(`fk_todos_category_owner`)이 난다. 현재 PR-46은 23503을 500으로 처리한다 → EQ-01.
+- 경합 시 동작(AQ-06): 할일 등록·수정의 확인과 INSERT/UPDATE 사이에 카테고리가 삭제되거나, 카테고리 삭제 트랜잭션의 이동과 DELETE 사이에 할일이 들어오면 23503(`fk_todos_category_owner`)이 난다. error 미들웨어가 409 `CONFLICT`로 바꾼다(EQ-01 결정, PR-46).
 
 핵심 스니펫 (전체 DDL은 마이그레이션 파일에서 작성):
 
@@ -212,7 +214,7 @@ PK·UNIQUE가 만드는 인덱스(CN-01·02·04·06·07·08·10·16·18)는 별�
 
 | 기존 ID | 결정 |
 |---------|------|
-| AQ-08 | 목록 정렬에 `id` 보조 정렬을 추가한다: `ORDER BY end_date, created_at, id` (IX-01·02가 이 순서를 포함). `total`은 같은 WHERE로 별도 `COUNT(*)` 잠정(윈도 함수는 마지막 페이지 밖에서 0행이면 total을 못 얻음). 최종 확정은 API 문서 |
+| AQ-08 | 목록 정렬에 `id` 보조 정렬을 추가한다: `ORDER BY end_date, created_at, id` (IX-01·02가 이 순서를 포함). `total`은 같은 WHERE로 별도 `COUNT(*)`로 결정(BE-08, 윈도 함수는 마지막 페이지 밖에서 0행이면 total을 못 얻음). 동시 쓰기 시 어긋날 수 있는 한계는 `8-plan.md` 9장 BE-08 이월 항목 |
 | AQ-12 | ID 타입 `bigint identity`(1장). 소유자 일치는 복합 FK CN-12로 DB에서도 강제(3.1). service 확인(PR-10)은 유지 |
 
 ### 7.2 반영한 기존 미결 (재정의하지 않음)
@@ -220,14 +222,14 @@ PK·UNIQUE가 만드는 인덱스(CN-01·02·04·06·07·08·10·16·18)는 별�
 | 기존 ID | 이 문서의 처리 |
 |---------|----------------|
 | Q-01 회원 탈퇴 | CN-05, CN-11 `ON DELETE RESTRICT` 잠정 |
-| G-05 / U-05 길이·이메일 대소문자 | 컬럼 `text`, 길이는 validators(PR-39). CN-02 대소문자 구분 잠정 |
-| AQ-05 캘린더 기간 상한 | IX-03으로 인덱스는 지원. 기간 상한·경로·응답 형식은 AQ-05 그대로 미정 |
+| G-05 / U-05 길이·이메일 대소문자 | **결정**: 컬럼 `text`, 길이는 validators `LIMITS`(PR-39). CN-02 대소문자 구분 |
+| AQ-05 캘린더 기간 상한 | **결정**: 최대 42일, IX-03으로 기간 겹침 조회(BE-10) |
 | AQ-06 타인 카테고리 응답 코드 | DB는 CN-12로 거부. 응답 코드와 경합 시 23503 처리는 EQ-01 |
 
 ### 7.3 새로 발견한 사항
 
 | ID | 내용 | 관련 |
 |----|------|------|
-| EQ-01 | 23503(FK 위반)이 PR-46상 500이 된다. `fk_todos_category_owner` 위반을 할일 등록·수정에서는 400 `VALIDATION_ERROR` `fields.categoryId`로, 카테고리 삭제에서는 재시도 가능한 409로 매핑할지, 또는 경합 자체를 막기 위해 카테고리 삭제 트랜잭션에서 대상 카테고리를 `FOR UPDATE`, 할일 쓰기에서 `FOR SHARE`로 잠글지 결정 필요. 결정 시 PR-46 갱신 | CN-12, AQ-06, PR-46, NFR-04 |
+| EQ-01 | **결정(2026-11-05, BE-02·BE-07)**: 정상 경로는 service 확인으로 400 `fields.categoryId`, 경합 시 23503은 409 `CONFLICT`(`fields` 없음, 재시도 안내). 잠금 미도입. PR-46 반영. (원 내용) 23503(FK 위반)이 PR-46상 500이 된다. `fk_todos_category_owner` 위반을 할일 등록·수정에서는 400 `VALIDATION_ERROR` `fields.categoryId`로, 카테고리 삭제에서는 재시도 가능한 409로 매핑할지, 또는 경합 자체를 막기 위해 카테고리 삭제 트랜잭션에서 대상 카테고리를 `FOR UPDATE`, 할일 쓰기에서 `FOR SHARE`로 잠글지 결정 필요. 결정 시 PR-46 갱신 | CN-12, AQ-06, PR-46, NFR-04 |
 | EQ-02 | **결정(2026-11-04, 실행 계획의 잠정 기본값 채택)**: 테이블별 파일 4개(001~004, 6장). 원칙 문서 6.2 트리를 v0.4에서 이에 맞춰 갱신했다. (원 내용) 마이그레이션 파일 구성: 원칙 문서 6.2 트리는 `001_init.sql` 1개로 예시했으나 이 문서는 테이블별 4개(v0.2에서 `004_create_refresh_tokens.sql` 추가)로 나눴다(6장). 원칙 문서 트리를 갱신할지 확인 필요 | PR-44, 5-project-principle 6.2 |
-| EQ-03 | 할일 제목의 공백만 입력 처리: CN-13은 `btrim(title) <> ''`로 거부한다. 제목도 카테고리 이름처럼 trim 후 저장할지(BR-07은 카테고리만 규정) 확인 필요 | BR-10, PR-39, G-05 |
+| EQ-03 | **결정(2026-11-05, BE-07)**: 제목도 trim 후 저장, 빈값 400 `fields.title`. (원 내용) 할일 제목의 공백만 입력 처리: CN-13은 `btrim(title) <> ''`로 거부한다. 제목도 카테고리 이름처럼 trim 후 저장할지(BR-07은 카테고리만 규정) 확인 필요 | BR-10, PR-39, G-05 |

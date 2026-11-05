@@ -12,11 +12,21 @@
 | v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트(QA-02)·배포(OPS-01) 범위 제외 |
 | v0.7 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
 | v0.8 | 2026-11-05 | chaenamo | 초안 | 개발 환경도 CORS 방식으로 변경 |
+| v0.9 | 2026-11-05 | chaenamo | 초안 | U-07 결정(스타일 가이드 문서), `tokens.css` 동기화 FE-03 이월 |
+| v1.0 | 2026-11-05 | chaenamo | 초안 | 백엔드(DB·BE Task) 전체 완료 반영 |
+| v1.1 | 2026-11-05 | chaenamo | 초안 | AQ-04 결정(FE-05) |
+| v1.2 | 2026-11-05 | chaenamo | 초안 | U-03·U-06 결정(FE-09, FE-10) |
+| v1.3 | 2026-11-05 | chaenamo | 초안 | 프론트엔드 Task(FE-01~13) 전체 완료 반영 |
 
 ## 변경 이력
 
 | 버전 | 일자 | 변경 섹션 | 변경 내용 | 변경자 |
 |------|------|-----------|-----------|--------|
+| v1.3 | 2026-11-05 | FE-04, FE-10 | FE-03~FE-13 완료(체크박스는 각 Task 수행 시 체크). FE-04·FE-10 선결 결정 줄의 "잠정" 표기를 결정으로 정리. 남은 Task: QA-01, QA-03. 체크박스 문장 변경 없음 | chaenamo |
+| v1.2 | 2026-11-05 | 1, FE-09, FE-10, 7(U-03, U-06) | U-06(네이티브 날짜 입력, FE-09)·U-03(FullCalendar 6.1.22 고정, FE-10)을 결정 표기, 진행 현황 갱신. 체크박스 문장 변경 없음 | chaenamo |
+| v1.1 | 2026-11-05 | 1, FE-05, 7(AQ-04) | FE-05 완료로 AQ-04(날짜 산술은 `lib/date.ts` 안 UTC만)를 결정 표기, 진행 현황 갱신. 체크박스 문장 변경 없음 | chaenamo |
+| v1.0 | 2026-11-05 | 1, 7 | DB-01~03·BE-01~12 완료에 맞춰 1장에 진행 현황 추가, 7장의 BE 관련 잠정값(U-09, EQ-01, AQ-06, EQ-03, G-05/U-05, U-04, AQ-05, AQ-10, AQ-09, AQ-07, PQ-02, PQ-03)을 구현 값으로 **결정** 표기. 값 변경 없음. 체크박스 문장 변경 없음 | chaenamo |
+| v0.9 | 2026-11-05 | FE 공통, FE-01, FE-03, 7(U-07), 9 | U-07 결정: 스타일 가이드 `docs/style-guide.md` v0.1. FE 공통 문구·FE-01 선결 결정의 스타일 가이드 참조 수정, `tokens.css`를 가이드 2장 값으로 맞추는 작업을 FE-03 이월 사항·9장에 기록. 체크박스 문장 변경 없음 | chaenamo |
 | v0.8 | 2026-11-05 | FE-01 | 개발 환경도 CORS 방식(원칙 v0.8 PR-35): FE-01 작업 3의 dev 프록시를 `frontend/.env.development`(`VITE_API_BASE_URL=http://localhost:3000`)로 교체. 체크박스 문장 변경 없음 | chaenamo |
 | v0.7 | 2026-11-05 | BE-01, BE-02, QA-01, 9 | 9장 BE-01 이월(swagger YAML 검증)을 개발 환경 Swagger UI 추가와 `test/apiDocs.test.js`로 처리 완료. 사용자 요청으로 `GET /health` 응답에 DB 연결 상태 `db` 추가. 0.2 규칙에 따라 BE-02 체크박스 문장 변경(200 본문에 `db: "connected"`, 503 본문 명시). 코드·테스트 반영 후 재확인해 체크 유지 | chaenamo |
 | v0.6 | 2026-11-05 | 기준 문서, 0.1, 1, 2, DB-03, 6, 7(U-01, EQ-02), 8.3, 9 | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로 QA-02(k6 부하 테스트·튜닝)·OPS-01(배포) Task를 삭제(ID 재사용 금지). 요약표·의존성 그래프·크리티컬 패스(약 13h → 11.5h)·Must 합계(41.5h → 38.5h)에서 제거. U-01은 범위 밖, NFR-01~04는 미검증으로 표기. QA-02로 이월된 2건(IX-02 Sort, 목록 total 불일치)은 "제외"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6, ERD v0.4 | chaenamo |
@@ -63,6 +73,8 @@
 BE: `npm run lint` 경고 0, `npm test` 전체 통과, PR-30 대상 폴더 커버리지 ≥ 90%. FE: `npm run lint`, `npm test`, `npm run build`(타입 오류 0) 통과, PR-30 대상 폴더 커버리지 ≥ 90%.
 
 ## 1. Task 요약
+
+> **진행 현황(2026-11-05)**: DB-01~03, BE-01~12 **완료**(백엔드 테스트 151개 통과, 사용자 시나리오 SC-00~SC-11 흐름 테스트 포함). FE-01~13 완료, QA-01·QA-03 대기.
 
 예상 시간은 스킬 1회 실행 + 결과 검토 기준이다.
 
@@ -572,7 +584,7 @@ flowchart LR
 
 ## 5. 프론트엔드 Task
 
-모든 FE Task는 원칙 6.3 디렉토리 구조, `pages → hooks → api`(PR-13), Zustand(토큰·UI 상태)/TanStack Query(서버 데이터) 분리(PR-14), 낙관적 업데이트 금지(AQ-03), CSS Modules + `styles/tokens.css`(스킬의 스타일 가이드, U-07), `vitest`를 따른다. API 호출 테스트는 `fetch`를 모킹한다.
+모든 FE Task는 원칙 6.3 디렉토리 구조, `pages → hooks → api`(PR-13), Zustand(토큰·UI 상태)/TanStack Query(서버 데이터) 분리(PR-14), 낙관적 업데이트 금지(AQ-03), CSS Modules + `styles/tokens.css`(스킬의 스타일 가이드 = `docs/style-guide.md`의 구현, U-07), `vitest`를 따른다. API 호출 테스트는 `fetch`를 모킹한다.
 
 ### FE-01 프론트엔드 골격·스타일 토큰·테스트 환경
 
@@ -586,7 +598,7 @@ flowchart LR
   3. `vite.config.ts`: vitest `environment: jsdom`(프록시 없음, PR-35). `.env.example`(`VITE_API_BASE_URL`), 개발 값 `.env.development`(`VITE_API_BASE_URL=http://localhost:3000`).
   4. `src/styles/tokens.css`(색: 상태 4종·오류·성공, 간격, 폰트, 브레이크포인트 360/768/1024 주석), `global.css`.
   5. `src/main.tsx`(QueryClientProvider, 기본 `staleTime` 상수), `src/App.tsx`(라우트 자리 + `*` → `NotFoundPage` 임시).
-- **선결 결정**: PQ-01 테스트 개발 의존성 추가. U-07 스타일 가이드 = `tokens.css`.
+- **선결 결정**: PQ-01 테스트 개발 의존성 추가. U-07 스타일 가이드 = `tokens.css`(v0.9에서 `docs/style-guide.md`로 결정).
 - **완료 조건**:
   - [x] `npm run build`가 타입 오류 없이 성공한다
   - [x] `npm test`에서 샘플 테스트 1개가 jsdom 환경으로 통과한다
@@ -630,15 +642,16 @@ flowchart LR
 - **수행 작업**:
   1. `src/components/Layout.tsx`: 데스크톱 상단 내비(목록·캘린더·카테고리·내 정보·로그아웃), 모바일 햄버거 드롭다운(로그아웃 맨 아래). 로그아웃은 prop 콜백.
   2. `ConfirmModal.tsx`(삭제·이탈 공용, 제목·문구·확인/취소 props, CMP-01·02), `Toast.tsx`(+ 표시용 작은 Zustand 또는 context: 성공 3초 자동 닫힘, 실패 수동 닫기), `StatusBadge.tsx`(상태 코드 → 한국어 라벨·토큰 색), `pages/NotFoundPage.tsx`(CMP-04, 목록으로 버튼).
-  3. 모든 스타일은 CSS Modules + `tokens.css` 변수.
+  3. 모든 스타일은 CSS Modules + `tokens.css` 변수, 규칙은 `docs/style-guide.md`(SG-10~SG-21).
 - **선결 결정**: 없음
+- **이월 사항** (9장, 완료): `tokens.css`를 `docs/style-guide.md` 2장 토큰 이름·값으로 맞춘다(주색·상태 바 색·크기·레이어 토큰 추가). 기존 `NotFoundPage`·`PlaceholderPage`·`App` CSS가 쓰는 토큰 이름은 유지된다.
 - **완료 조건**:
-  - [ ] `StatusBadge` 테스트: 4개 코드가 각각 '시작 전'·'진행 중'·'완료'·'기한 초과'로 표시된다 (CMP-05, ST-01~04)
-  - [ ] `ConfirmModal` 테스트: 확인·취소 클릭이 각각 해당 콜백만 호출한다 (CMP-01, CMP-02)
-  - [ ] `Toast` 테스트: 성공은 3초 후 사라지고 실패는 닫기 전까지 남는다 (CMP-03)
-  - [ ] 컴포넌트 CSS에 색·간격 리터럴(`#`, `px` 직접값) 대신 `var(--…)`만 쓴다(`grep`, 브레이크포인트 미디어쿼리 제외) (U-07)
-  - [ ] 360px 폭 렌더에서 Layout이 햄버거 메뉴로 바뀐다(테스트 또는 수동 확인) (WF-01, NFR-16)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과
+  - [x] `StatusBadge` 테스트: 4개 코드가 각각 '시작 전'·'진행 중'·'완료'·'기한 초과'로 표시된다 (CMP-05, ST-01~04)
+  - [x] `ConfirmModal` 테스트: 확인·취소 클릭이 각각 해당 콜백만 호출한다 (CMP-01, CMP-02)
+  - [x] `Toast` 테스트: 성공은 3초 후 사라지고 실패는 닫기 전까지 남는다 (CMP-03)
+  - [x] 컴포넌트 CSS에 색·간격 리터럴(`#`, `px` 직접값) 대신 `var(--…)`만 쓴다(`grep`, 브레이크포인트 미디어쿼리 제외) (U-07)
+  - [x] 360px 폭 렌더에서 Layout이 햄버거 메뉴로 바뀐다(테스트 또는 수동 확인) (WF-01, NFR-16)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과
 
 ### FE-04 로그인·회원가입·로그아웃 화면
 
@@ -650,15 +663,15 @@ flowchart LR
   1. `src/api/auth.ts`, `src/hooks/useAuth.ts`(signup·login mutation → access token(메모리)·refresh token(localStorage) 저장 → `/todos` 이동, logout = `POST /api/auth/logout { refreshToken }` 호출 후 성공·실패와 관계없이 FE-02 공용 폐기 함수).
   2. `pages/LoginPage.tsx`(폼 상단 일반 오류 1개, 입력 유지), `pages/SignupPage.tsx`(이메일·비밀번호·이름, 필드 아래 오류, 409 `fields.email` 표시, 규칙 안내 문구 자리).
   3. Layout 로그아웃 버튼 연결. FE 검증은 필수값만(PR-06).
-- **선결 결정**: G-05 규칙 안내 문구(7장 잠정값).
+- **선결 결정**: G-05 규칙 안내 문구 — **결정**(BE-04 구현값): 비밀번호 "8~72자로 입력하세요".
 - **완료 조건**:
-  - [ ] `useAuth` 테스트: 가입·로그인 성공 시 access token과 refresh token이 `authStore`에 저장된다 (G-01, PR-37)
-  - [ ] 로그인 401 시 폼 상단에 서버 메시지가 표시되고 입력값이 유지된다 (SC-02-E1, G-04)
-  - [ ] 가입 409 `fields.email` 시 이메일 필드 아래에 메시지가 표시되고 입력값이 유지된다 (SC-01-E1)
-  - [ ] 가입 400 `fields`가 각 필드 아래에 표시된다 (SC-01-E2)
-  - [ ] 로그아웃 시 저장된 refresh token으로 `POST /api/auth/logout`이 호출되고, 토큰 둘 다 null, 쿼리 캐시가 비워지고 `/login`으로 이동한다 (A-14, PR-16, PR-37)
-  - [ ] 로그아웃 API가 네트워크 오류·5xx여도 클라이언트 토큰 폐기와 `/login` 이동은 진행된다 (A-14)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
+  - [x] `useAuth` 테스트: 가입·로그인 성공 시 access token과 refresh token이 `authStore`에 저장된다 (G-01, PR-37)
+  - [x] 로그인 401 시 폼 상단에 서버 메시지가 표시되고 입력값이 유지된다 (SC-02-E1, G-04)
+  - [x] 가입 409 `fields.email` 시 이메일 필드 아래에 메시지가 표시되고 입력값이 유지된다 (SC-01-E1)
+  - [x] 가입 400 `fields`가 각 필드 아래에 표시된다 (SC-01-E2)
+  - [x] 로그아웃 시 저장된 refresh token으로 `POST /api/auth/logout`이 호출되고, 토큰 둘 다 null, 쿼리 캐시가 비워지고 `/login`으로 이동한다 (A-14, PR-16, PR-37)
+  - [x] 로그아웃 API가 네트워크 오류·5xx여도 클라이언트 토큰 폐기와 `/login` 이동은 진행된다 (A-14)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
 
 ### FE-05 날짜 유틸 (`lib/date.ts`)
 
@@ -669,13 +682,13 @@ flowchart LR
 - **수행 작업**:
   1. `src/lib/date.ts`: `todayString()`(로컬 연·월·일로 조립, `toISOString` 금지), `addDays(s, n)`(UTC 기준 산술, AQ-04 예외는 이 파일 안으로 한정), `monthRange(s)`(그 달 1일~말일), `monthGridRange(s)`(일요일 시작 6주 = 42일), `weekRange(s)`(일~토), `diffDays`.
   2. `src/lib/date.test.ts`.
-- **선결 결정**: AQ-04 — 잠정: `Date` 산술은 `lib/date.ts` 안에서 UTC로만 허용.
+- **선결 결정**: AQ-04 — **결정**(2026-11-05): `Date` 산술은 `lib/date.ts` 안에서 UTC로만 허용.
 - **완료 조건**:
-  - [ ] `todayString()`이 시스템 TZ를 `Asia/Seoul`·`America/Los_Angeles`로 바꿔도 각 로컬 날짜를 반환한다(`vi.setSystemTime`) (A-01, R-03)
-  - [ ] `weekRange('2026-11-11')` = `2026-11-08`~`2026-11-14` (A-12, AC-06)
-  - [ ] `monthRange('2026-11-13')` = `2026-11-01`~`2026-11-30`, `monthGridRange` 길이 42일·일요일 시작 (AC-05)
-  - [ ] `addDays('2026-11-02', 1)` = `2026-11-03`, 월말·윤년(`2028-02-28`+1 = `2028-02-29`)·연말 경계 통과
-  - [ ] `lib/` 커버리지 ≥ 90%, `npm run lint`, `npm test`, `npm run build` 통과
+  - [x] `todayString()`이 시스템 TZ를 `Asia/Seoul`·`America/Los_Angeles`로 바꿔도 각 로컬 날짜를 반환한다(`vi.setSystemTime`) (A-01, R-03)
+  - [x] `weekRange('2026-11-11')` = `2026-11-08`~`2026-11-14` (A-12, AC-06)
+  - [x] `monthRange('2026-11-13')` = `2026-11-01`~`2026-11-30`, `monthGridRange` 길이 42일·일요일 시작 (AC-05)
+  - [x] `addDays('2026-11-02', 1)` = `2026-11-03`, 월말·윤년(`2028-02-28`+1 = `2028-02-29`)·연말 경계 통과
+  - [x] `lib/` 커버리지 ≥ 90%, `npm run lint`, `npm test`, `npm run build` 통과
 
 ### FE-06 카테고리 훅·카테고리 관리 화면(등록)
 
@@ -688,11 +701,11 @@ flowchart LR
   2. `pages/CategoryPage.tsx`: 등록 입력(trim 후 빈값 FE 거부), 오류는 입력란 아래, 목록, '기본' 행은 "변경·삭제 불가" 표시만. 이름 변경·삭제 버튼은 FE-13.
 - **선결 결정**: 없음
 - **완료 조건**:
-  - [ ] `useCategories` 테스트: 등록 성공 후 카테고리 쿼리가 무효화되어 재조회된다 (PR-14, AQ-03)
-  - [ ] 공백만 입력 시 요청 없이 "이름을 입력하세요"가 표시된다 (SC-03-E1)
-  - [ ] 서버 409 `fields.name` 메시지가 입력란 아래 표시된다 (SC-03-E2)
-  - [ ] '기본' 행에 변경·삭제 버튼이 없다 (BR-06, SC-03-E3)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
+  - [x] `useCategories` 테스트: 등록 성공 후 카테고리 쿼리가 무효화되어 재조회된다 (PR-14, AQ-03)
+  - [x] 공백만 입력 시 요청 없이 "이름을 입력하세요"가 표시된다 (SC-03-E1)
+  - [x] 서버 409 `fields.name` 메시지가 입력란 아래 표시된다 (SC-03-E2)
+  - [x] '기본' 행에 변경·삭제 버튼이 없다 (BR-06, SC-03-E3)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
 
 ### FE-07 할일 목록 화면: 조회·필터·페이지네이션
 
@@ -706,12 +719,12 @@ flowchart LR
   3. `pages/TodoListPage.tsx`: uiStore 필터 사용, 카테고리명은 `useCategories` 캐시로 매핑, 빈 상태 8a/8b 구분, '+ 새 할일' → `/todos/new`. `/` → `/todos`.
 - **선결 결정**: 없음 (U-04는 BE-01에서 확정)
 - **완료 조건**:
-  - [ ] `useTodoList` 테스트: 요청 URL에 `today`(로컬 날짜), `categoryId`, `status=A,B`, `page`가 들어간다 (PR-05, U-04)
-  - [ ] 상태 체크박스 2개 선택 시 `status`에 두 값이 쉼표로 들어가고 page가 1로 돌아간다 (BR-15, G-09)
-  - [ ] 응답 `status`가 `StatusBadge`로 표시되며 FE에서 상태를 계산하지 않는다(`deriveStatus` 등 판정 코드 없음, `grep`) (PR-03)
-  - [ ] 할일 0건이면 8a 문구, 필터 결과 0건이면 8b 문구와 초기화 버튼 (SC-05-A3)
-  - [ ] `total ≤ limit`이면 페이지네이션이 숨겨진다 (WF-04 7)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
+  - [x] `useTodoList` 테스트: 요청 URL에 `today`(로컬 날짜), `categoryId`, `status=A,B`, `page`가 들어간다 (PR-05, U-04)
+  - [x] 상태 체크박스 2개 선택 시 `status`에 두 값이 쉼표로 들어가고 page가 1로 돌아간다 (BR-15, G-09)
+  - [x] 응답 `status`가 `StatusBadge`로 표시되며 FE에서 상태를 계산하지 않는다(`deriveStatus` 등 판정 코드 없음, `grep`) (PR-03)
+  - [x] 할일 0건이면 8a 문구, 필터 결과 0건이면 8b 문구와 초기화 버튼 (SC-05-A3)
+  - [x] `total ≤ limit`이면 페이지네이션이 숨겨진다 (WF-04 7)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
 
 ### FE-08 할일 목록 행 동작: 완료 토글·삭제
 
@@ -724,11 +737,11 @@ flowchart LR
   2. `TodoRow`: 토글(요청 중 disabled), 삭제 → `ConfirmModal` → 삭제. 실패 시 Toast, 404면 "찾을 수 없음" 후 목록 재조회.
 - **선결 결정**: 없음
 - **완료 조건**:
-  - [ ] 토글 요청 중 체크박스가 disabled이고, 성공 후 목록 쿼리가 무효화된다 (AQ-03, G-11)
-  - [ ] 토글 실패(500) 시 캐시가 바뀌지 않아 체크 상태가 원래대로이고 실패 토스트가 뜬다 (SC-06-E1)
-  - [ ] 삭제 버튼은 확인 모달을 열고, 취소 시 요청이 가지 않는다 (CMP-01, SC-08-A1)
-  - [ ] 삭제 404 시 "찾을 수 없음" 토스트 후 목록이 재조회된다 (SC-08-E1)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
+  - [x] 토글 요청 중 체크박스가 disabled이고, 성공 후 목록 쿼리가 무효화된다 (AQ-03, G-11)
+  - [x] 토글 실패(500) 시 캐시가 바뀌지 않아 체크 상태가 원래대로이고 실패 토스트가 뜬다 (SC-06-E1)
+  - [x] 삭제 버튼은 확인 모달을 열고, 취소 시 요청이 가지 않는다 (CMP-01, SC-08-A1)
+  - [x] 삭제 404 시 "찾을 수 없음" 토스트 후 목록이 재조회된다 (SC-08-E1)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
 
 ### FE-09 할일 편집 화면 (등록/수정)
 
@@ -740,16 +753,16 @@ flowchart LR
   1. `api/todos.ts`·`useTodos.ts`에 `useTodo(id)`, `useCreateTodo`, `useUpdateTodo`(성공 시 목록·캘린더 invalidate).
   2. `components/todo/TodoForm.tsx`: 제목·설명·카테고리(기본 선택 '기본')·시작일자·종료일자(`<input type="date">`, U-06), 저장 시 FE 검증(필수, 종료 ≥ 시작), 서버 `fields`를 필드 아래 표시.
   3. `pages/TodoEditPage.tsx`: `/todos/new`, `/todos/:id/edit`. 진입 화면은 `location.state.from`(`/todos` 또는 `/calendar`, 기본 `/todos`)으로 복귀(G-12). 변경이 있을 때 취소 → `ConfirmModal`(G-02). 404 → `NotFoundPage`. 완료 토글·삭제 없음(G-16).
-- **선결 결정**: U-06 네이티브 날짜 입력(원칙 잠정).
+- **선결 결정**: U-06 네이티브 날짜 입력 — **결정**(2026-11-05, FE-09 구현).
 - **완료 조건**:
-  - [ ] 종료일자 < 시작일자로 저장 시 요청 없이 종료일자 아래 "종료일자는 시작일자 이후여야 합니다"가 표시된다 (AC-02, SC-04-E2)
-  - [ ] 서버 400 `fields.endDate`도 같은 위치에 표시된다 (PR-06, SC-00-E4)
-  - [ ] 카테고리를 바꾸지 않고 등록하면 요청 본문의 `categoryId`가 '기본' id이거나 생략된다 (AC-01, BR-08)
-  - [ ] 수정 진입 시 기존 값이 채워지고 저장 요청이 `PUT`이며 `isCompleted`를 보내지 않는다 (BR-17, AQ-10)
-  - [ ] 저장·취소 후 `state.from`이 `/calendar`면 캘린더로, 없으면 목록으로 돌아간다 (G-12)
-  - [ ] 변경 후 취소 → 이탈 확인 모달, 변경 없이 취소 → 즉시 복귀 (G-02, CMP-02)
-  - [ ] 수정 대상 404 → CMP-04 화면 (SC-07-E2, SC-07-E3)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
+  - [x] 종료일자 < 시작일자로 저장 시 요청 없이 종료일자 아래 "종료일자는 시작일자 이후여야 합니다"가 표시된다 (AC-02, SC-04-E2)
+  - [x] 서버 400 `fields.endDate`도 같은 위치에 표시된다 (PR-06, SC-00-E4)
+  - [x] 카테고리를 바꾸지 않고 등록하면 요청 본문의 `categoryId`가 '기본' id이거나 생략된다 (AC-01, BR-08)
+  - [x] 수정 진입 시 기존 값이 채워지고 저장 요청이 `PUT`이며 `isCompleted`를 보내지 않는다 (BR-17, AQ-10)
+  - [x] 저장·취소 후 `state.from`이 `/calendar`면 캘린더로, 없으면 목록으로 돌아간다 (G-12)
+  - [x] 변경 후 취소 → 이탈 확인 모달, 변경 없이 취소 → 즉시 복귀 (G-02, CMP-02)
+  - [x] 수정 대상 404 → CMP-04 화면 (SC-07-E2, SC-07-E3)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
 
 ### FE-10 캘린더 어댑터·월간 뷰
 
@@ -758,19 +771,19 @@ flowchart LR
 - **우선순위·마일스톤**: Must · M-03
 - **관련 ID**: UC-10, FR-08, WF-06, BR-16, AC-05, AC-06, Q-03, PR-18, AD-12, U-03, AQ-04, AQ-05, G-12, G-13, R-01
 - **수행 작업**:
-  1. 캘린더 라이브러리 추가(U-03 잠정: `@fullcalendar/react` + `@fullcalendar/daygrid`, React 19 호환 버전 확인, 커밋 메시지에 사유).
+  1. 캘린더 라이브러리 추가(U-03 **결정**: 6.1.22 고정 — `@fullcalendar/react` + `@fullcalendar/daygrid`, React 19 호환 버전 확인, 커밋 메시지에 사유).
   2. `src/api/todos.ts`·`src/hooks/useCalendarTodos.ts`(`from`, `to`, `today` 쿼리 키).
   3. `components/calendar/adapter.ts`: `toEvents(items)`(`start = startDate`, `end = addDays(endDate, 1)`, 완료면 취소선 클래스), `fromViewRange(start, endExclusive)`(→ 포함 범위 `from`/`to`, AQ-04). 라이브러리 import는 `components/calendar/` 안에서만.
   4. `components/calendar/CalendarView.tsx`, `pages/CalendarPage.tsx`: 오늘 포함 월간으로 시작(G-13), 이전·다음·오늘, uiStore에 뷰·기준 날짜, 바 클릭 → `/todos/:id/edit`(`state.from = '/calendar'`).
-- **선결 결정**: U-03 라이브러리, AQ-04 범위 배타 처리, AQ-05 기간 ≤ 42일.
+- **선결 결정**: U-03 라이브러리, AQ-04 범위 배타 처리, AQ-05 기간 ≤ 42일 — 모두 **결정**(7장).
 - **완료 조건**:
-  - [ ] 어댑터 테스트: 할일(2026-10-30~11-02) → 이벤트 `end = 2026-11-03` (AC-05, PR-18)
-  - [ ] 어댑터 테스트: 할일(2026-11-14~11-16) → `start = 2026-11-14`, `end = 2026-11-17` (AC-06)
-  - [ ] `fromViewRange('2026-11-01', '2026-12-13')` → `from = 2026-11-01`, `to = 2026-12-12` (AQ-04)
-  - [ ] 완료 할일 이벤트에 취소선 클래스가 붙는다 (Q-03)
-  - [ ] `useCalendarTodos`가 `from`·`to`·`today`를 쿼리에 넣고 기간이 42일 이하다 (AQ-05)
-  - [ ] 라이브러리 import가 `components/calendar/` 밖에 없다(`grep`) (PR-18)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`lib/`·어댑터 커버리지 ≥ 90%
+  - [x] 어댑터 테스트: 할일(2026-10-30~11-02) → 이벤트 `end = 2026-11-03` (AC-05, PR-18)
+  - [x] 어댑터 테스트: 할일(2026-11-14~11-16) → `start = 2026-11-14`, `end = 2026-11-17` (AC-06)
+  - [x] `fromViewRange('2026-11-01', '2026-12-13')` → `from = 2026-11-01`, `to = 2026-12-12` (AQ-04)
+  - [x] 완료 할일 이벤트에 취소선 클래스가 붙는다 (Q-03)
+  - [x] `useCalendarTodos`가 `from`·`to`·`today`를 쿼리에 넣고 기간이 42일 이하다 (AQ-05)
+  - [x] 라이브러리 import가 `components/calendar/` 밖에 없다(`grep`) (PR-18)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`lib/`·어댑터 커버리지 ≥ 90%
 
 ### FE-11 캘린더 주간·일간 뷰·모바일 +N
 
@@ -784,12 +797,12 @@ flowchart LR
   3. 모바일 폭: 칸당 2줄 + `+N`(`dayMaxEvents`), `+N` 또는 월간 날짜 번호 선택 → 해당 날짜 일간 뷰(G-14, WF-06 가정).
 - **선결 결정**: 없음
 - **완료 조건**:
-  - [ ] 뷰 전환 시 uiStore의 기준 날짜가 유지되고 조회 범위가 월(42일 그리드)/주(일~토)/일(1일)로 바뀐다 (A-12, BR-16)
-  - [ ] 주간 뷰 `2026-11-08` 기준 요청이 `from=2026-11-08&to=2026-11-14`다 (AC-06)
-  - [ ] 일간 뷰 0건이면 안내 문구가 표시된다 (SC-09-A4)
-  - [ ] 날짜 번호/`+N` 선택 핸들러가 uiStore를 `view='day', date=<그 날짜>`로 바꾼다 (G-14)
-  - [ ] 360px 폭에서 월간 뷰 가로 스크롤이 없다(수동, 개발자도구 기기 모드) (NFR-16)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과
+  - [x] 뷰 전환 시 uiStore의 기준 날짜가 유지되고 조회 범위가 월(42일 그리드)/주(일~토)/일(1일)로 바뀐다 (A-12, BR-16)
+  - [x] 주간 뷰 `2026-11-08` 기준 요청이 `from=2026-11-08&to=2026-11-14`다 (AC-06)
+  - [x] 일간 뷰 0건이면 안내 문구가 표시된다 (SC-09-A4)
+  - [x] 날짜 번호/`+N` 선택 핸들러가 uiStore를 `view='day', date=<그 날짜>`로 바꾼다 (G-14)
+  - [x] 360px 폭에서 월간 뷰 가로 스크롤이 없다(수동, 개발자도구 기기 모드) (NFR-16)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과
 
 ### FE-12 내 정보 화면
 
@@ -802,11 +815,11 @@ flowchart LR
   2. `pages/MyInfoPage.tsx`: 이메일 텍스트 표시, 이름 저장·비밀번호 변경 별도 버튼·별도 요청, 성공 토스트, 비밀번호 성공 시 입력란 비움, 응답의 `refreshToken`으로 `authStore` refresh token 교체, 로그아웃 없음(G-06).
 - **선결 결정**: PQ-02(불일치 400 `fields.currentPassword`).
 - **완료 조건**:
-  - [ ] 이메일이 입력 요소가 아닌 텍스트로 표시된다 (A-06, SC-10-E3)
-  - [ ] 이름 저장 성공 시 `me` 쿼리가 무효화되고 성공 토스트가 뜬다 (SC-10)
-  - [ ] 비밀번호 변경 400 `fields.currentPassword`가 현재 비밀번호 아래 표시되고 로그아웃되지 않는다 (SC-10-E1, PQ-02)
-  - [ ] 비밀번호 변경 성공 시 입력란이 비워지고 `authStore`의 refresh token이 응답 값으로 교체되며 로그아웃되지 않는다 (G-06)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
+  - [x] 이메일이 입력 요소가 아닌 텍스트로 표시된다 (A-06, SC-10-E3)
+  - [x] 이름 저장 성공 시 `me` 쿼리가 무효화되고 성공 토스트가 뜬다 (SC-10)
+  - [x] 비밀번호 변경 400 `fields.currentPassword`가 현재 비밀번호 아래 표시되고 로그아웃되지 않는다 (SC-10-E1, PQ-02)
+  - [x] 비밀번호 변경 성공 시 입력란이 비워지고 `authStore`의 refresh token이 응답 값으로 교체되며 로그아웃되지 않는다 (G-06)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/`·`api/` 커버리지 ≥ 90%
 
 ### FE-13 카테고리 이름 변경·삭제 화면
 
@@ -819,11 +832,11 @@ flowchart LR
   2. `CategoryPage`: 사용자 카테고리 행에 이름 변경(인라인 편집, 오류는 행 아래)·삭제(`ConfirmModal` 카테고리용 문구). 삭제한 카테고리가 uiStore 필터면 해제(G-08).
 - **선결 결정**: 없음
 - **완료 조건**:
-  - [ ] 이름 변경 409 `fields.name`이 행 아래 표시된다 (BR-07)
-  - [ ] 삭제는 확인 모달을 거치고, 성공 후 카테고리·할일 목록 쿼리가 무효화된다 (SC-03-A2, BR-09)
-  - [ ] 필터 중인 카테고리 삭제 시 uiStore `categoryId`가 해제된다 (G-08)
-  - [ ] '기본' 행에는 변경·삭제 컨트롤이 없다 (BR-06)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/` 커버리지 ≥ 90%
+  - [x] 이름 변경 409 `fields.name`이 행 아래 표시된다 (BR-07)
+  - [x] 삭제는 확인 모달을 거치고, 성공 후 카테고리·할일 목록 쿼리가 무효화된다 (SC-03-A2, BR-09)
+  - [x] 필터 중인 카테고리 삭제 시 uiStore `categoryId`가 해제된다 (G-08)
+  - [x] '기본' 행에는 변경·삭제 컨트롤이 없다 (BR-06)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/` 커버리지 ≥ 90%
 
 ## 6. 통합·품질 Task
 
@@ -873,33 +886,33 @@ flowchart LR
 
 ## 7. 착수 전 결정 필요 목록
 
-잠정 기본값은 기존 문서의 잠정 처리와 모순되지 않게 정했다. 확정되면 관련 원 문서와 이 계획을 함께 고친다.
+잠정 기본값은 기존 문서의 잠정 처리와 모순되지 않게 정했다. 확정되면 관련 원 문서와 이 계획을 함께 고친다. BE Task(BE-01~12)가 모두 완료되어 BE에 걸린 항목은 구현 값으로 확정했다(API 계약은 `9-api-spec.md` 4장). 남은 결정 대기는 PQ-04·PQ-05(9장)다.
 
 | ID | 내용 | 잠정 기본값 | 영향 Task |
 |----|------|-------------|-----------|
 | U-08 | 스킬이 `docs/5-plan.md`를 읽는데 계획 문서는 `docs/8-plan.md` | **결정**(2026-11-04, 잠정 기본값 채택): 스킬 두 개의 경로를 `docs/8-plan.md`로 수정 완료 | 모든 BE·FE Task |
-| U-09 | PostgreSQL 실행 방식 | 로컬 설치 우선, 없으면 루트 `docker-compose.yml`(postgres:17 1개) | DB-01 |
+| U-09 | PostgreSQL 실행 방식 | **결정**(2026-11-05, DB-01): 로컬 설치 PostgreSQL 17 사용. `docker-compose.yml`은 추가하지 않음 | DB-01 |
 | EQ-02 | 마이그레이션 파일 1개 vs 테이블별 | **결정**(2026-11-04, 이 잠정 기본값 채택, 원칙 6.2 트리 갱신): 7-erd대로 4개(`001_create_users`, `002_create_categories`, `003_create_todos`, `004_create_refresh_tokens`) | DB-02, BE-03 |
-| EQ-01 | 23503 `fk_todos_category_owner` 처리 | 정상 경로는 service 확인으로 400 `fields.categoryId`, 경합 시 23503은 error 미들웨어에서 409 `CONFLICT`(fields 없음, 재시도 안내). 잠금 미도입(PR-01) | BE-02, BE-07, BE-12 |
-| AQ-06 | 타인·없는 `categoryId` 응답 | 400 `VALIDATION_ERROR` + `fields.categoryId` (아키텍처 잠정 그대로) | BE-07, FE-09 |
-| EQ-03 | 할일 제목 trim | trim 후 저장, 빈값 400 | BE-07 |
-| G-05 / U-05 | 길이·비밀번호 규칙·이메일 대소문자 | 이메일 ≤ 254자·형식 검사·대소문자 구분(7-erd CN-02 잠정 유지), 비밀번호 8~72자(bcrypt 72바이트 한계), 이름 1~50자, 카테고리 이름 1~30자, 제목 1~100자, 설명 ≤ 1,000자. 상수 한 곳(PR-39) | BE-04, BE-05, BE-06, BE-07, BE-11, FE-04, FE-12 |
-| U-04 | `today`·상태 필터 파라미터 | 쿼리 `today=YYYY-MM-DD`, `status=NOT_STARTED,IN_PROGRESS`(쉼표), `categoryId`, `page`(1부터), `limit` | BE-01, BE-08, FE-07 |
-| AQ-05 | 캘린더 경로·상한·응답 | `GET /api/todos/calendar?from&to&today`, 기간 ≤ 42일(월간 6주 그리드), 응답 `{ items }`(페이지 없음) | BE-01, BE-10, FE-10 |
-| AQ-10 | 수정·토글 API 형태 | 수정 `PUT /api/todos/:id`(`isCompleted` 불가), 토글 `PATCH /api/todos/:id { isCompleted }`만 | BE-01, BE-07, BE-09, FE-08, FE-09 |
-| AQ-09 | 쓰기 응답의 상태 | 쓰기·단건 조회 응답에 `status` 없음, 재조회로 표시 | BE-07, BE-09 |
-| AQ-07 | 헬스체크의 DB 접근 | `db.js`의 `checkConnection()`만 호출하는 예외 허용 | BE-02 |
-| AQ-04 | 날짜 ±1일 산술과 PR-04 | `lib/date.ts` 안에서만 UTC 기준 `Date` 산술 허용, 어댑터는 이 함수를 사용 | FE-05, FE-10 |
+| EQ-01 | 23503 `fk_todos_category_owner` 처리 | **결정**(2026-11-05, BE 구현·테스트로 확정): 정상 경로는 service 확인으로 400 `fields.categoryId`, 경합 시 23503은 error 미들웨어에서 409 `CONFLICT`(fields 없음, 재시도 안내). 잠금 미도입(PR-01) | BE-02, BE-07, BE-12 |
+| AQ-06 | 타인·없는 `categoryId` 응답 | **결정**(2026-11-05, BE 구현·테스트로 확정): 400 `VALIDATION_ERROR` + `fields.categoryId` (아키텍처 잠정 그대로) | BE-07, FE-09 |
+| EQ-03 | 할일 제목 trim | **결정**(2026-11-05, BE 구현·테스트로 확정): trim 후 저장, 빈값 400 | BE-07 |
+| G-05 / U-05 | 길이·비밀번호 규칙·이메일 대소문자 | **결정**(2026-11-05, BE 구현·테스트로 확정): 이메일 ≤ 254자·형식 검사·대소문자 구분(7-erd CN-02 잠정 유지), 비밀번호 8~72자(bcrypt 72바이트 한계), 이름 1~50자, 카테고리 이름 1~30자, 제목 1~100자, 설명 ≤ 1,000자. 상수 한 곳(PR-39) | BE-04, BE-05, BE-06, BE-07, BE-11, FE-04, FE-12 |
+| U-04 | `today`·상태 필터 파라미터 | **결정**(2026-11-05, BE 구현·테스트로 확정): 쿼리 `today=YYYY-MM-DD`, `status=NOT_STARTED,IN_PROGRESS`(쉼표), `categoryId`, `page`(1부터), `limit` | BE-01, BE-08, FE-07 |
+| AQ-05 | 캘린더 경로·상한·응답 | **결정**(2026-11-05, BE 구현·테스트로 확정): `GET /api/todos/calendar?from&to&today`, 기간 ≤ 42일(월간 6주 그리드), 응답 `{ items }`(페이지 없음) | BE-01, BE-10, FE-10 |
+| AQ-10 | 수정·토글 API 형태 | **결정**(2026-11-05, BE 구현·테스트로 확정): 수정 `PUT /api/todos/:id`(`isCompleted` 불가), 토글 `PATCH /api/todos/:id { isCompleted }`만 | BE-01, BE-07, BE-09, FE-08, FE-09 |
+| AQ-09 | 쓰기 응답의 상태 | **결정**(2026-11-05, BE 구현·테스트로 확정): 쓰기·단건 조회 응답에 `status` 없음, 재조회로 표시 | BE-07, BE-09 |
+| AQ-07 | 헬스체크의 DB 접근 | **결정**(2026-11-05, BE 구현·테스트로 확정): `db.js`의 `checkConnection()`만 호출하는 예외 허용 | BE-02 |
+| AQ-04 | 날짜 ±1일 산술과 PR-04 | **결정**(2026-11-05, FE-05): `lib/date.ts` 안에서만 UTC 기준 `Date` 산술 허용, 어댑터는 이 함수를 사용 | FE-05, FE-10 |
 | AQ-11 | 만료 토큰 재방문 | **결정**: `exp` 확인 대신 앱 진입 시 refresh 호출(AD-13). 성공 → 보호 화면, 실패 → `/login`, 판정 중 보호 화면 미렌더 | FE-02 |
 | U-02 | 토큰 저장 위치 | **결정**: access token 메모리(persist 안 함), refresh token localStorage(Zustand `persist`는 refresh만). R-05 XSS 노출 감수, 완화책 유지 | FE-02, FE-04, FE-12 |
 | G-06 | 비밀번호 변경 후 기존 토큰 | **결정**: 그 사용자의 refresh token 전체 폐기 + 현재 세션용 새 발급(200 `{ refreshToken }`), 다른 기기는 access 만료(최대 15분) 후 로그아웃 | BE-01, BE-11, FE-12 |
-| U-03 | 캘린더 라이브러리 | `@fullcalendar/react` + `@fullcalendar/daygrid`(월·주·일 모두 daygrid, `dayMaxEvents`로 `+N`). React 19 호환 버전이 없으면 직접 구현으로 전환하고 FE-10·FE-11 재추정 | FE-10, FE-11 |
-| U-06 | 날짜 피커 | 네이티브 `<input type="date">` | FE-09 |
-| U-07 | 스타일 가이드 | `frontend/src/styles/tokens.css`를 임시 원본으로 사용 | FE-01, FE-03, 모든 FE |
+| U-03 | 캘린더 라이브러리 | **결정**(2026-11-05, FE-10): `@fullcalendar/core`·`react`·`daygrid` **6.1.22** 고정(React 19 peer 지원. 7.x는 daygrid 정식판 없음). `@fullcalendar/react` + `@fullcalendar/daygrid`(월·주·일 모두 daygrid, `dayMaxEvents`로 `+N`). React 19 호환 버전이 없으면 직접 구현으로 전환하고 FE-10·FE-11 재추정 | FE-10, FE-11 |
+| U-06 | 날짜 피커 | **결정**(2026-11-05, FE-09): 네이티브 `<input type="date">` | FE-09 |
+| U-07 | 스타일 가이드 | **결정**(2026-11-05): `docs/style-guide.md`가 원본, `tokens.css`는 구현 | FE-01, FE-03, 모든 FE |
 | U-01 | 배포 환경·HTTPS 종단 | **범위 밖**(v0.6): 배포는 사용자가 직접 하며 계획 Task 없음 | - |
 | PQ-01 | FE 테스트용 개발 의존성(원칙 허용 목록 밖) | `jsdom`, `@testing-library/react`, `@vitest/coverage-v8` 추가(훅 테스트·커버리지 측정에 필요, PR-17 사유 기록) | FE-01 |
-| PQ-02 | 현재 비밀번호 불일치 응답 코드 | 400 `VALIDATION_ERROR` + `fields.currentPassword`. 401을 쓰면 FE 공통 401 처리(PR-16)로 로그아웃된다 | BE-11, FE-12 |
-| PQ-03 | `bigint` id의 JSON 타입(`pg`는 int8을 문자열로 반환) | `db.js`에서 `setTypeParser(20, Number)`로 number 반환(id·COUNT 모두 2^53 미만 가정) | BE-01, BE-02, FE-02 |
+| PQ-02 | 현재 비밀번호 불일치 응답 코드 | **결정**(2026-11-05, BE 구현·테스트로 확정): 400 `VALIDATION_ERROR` + `fields.currentPassword`. 401을 쓰면 FE 공통 401 처리(PR-16)로 로그아웃된다 | BE-11, FE-12 |
+| PQ-03 | `bigint` id의 JSON 타입(`pg`는 int8을 문자열로 반환) | **결정**(2026-11-05, BE 구현·테스트로 확정): `db.js`에서 `setTypeParser(20, Number)`로 number 반환(id·COUNT 모두 2^53 미만 가정) | BE-01, BE-02, FE-02 |
 | PQ-04 | 로그인 응답 시간 차이(G-04): 문구는 같지만 미가입 이메일은 bcrypt 비교를 건너뛰어 응답이 빨라 가입 여부를 추측할 수 있다 | MVP 미적용(완료 조건·NFR 밖, U-10과 같은 범주). 적용 시 미가입 이메일에도 고정 더미 해시로 `bcrypt.compare` 1회 | BE-05 |
 | PQ-05 | JSON 파싱 실패 요청이 요청 로그에 남지 않는다(BE-02 순서 `json → requestLog`) | 그대로 둔다(계획 순서 유지). 운영 로그에 필요하면 `requestLog`를 `express.json()` 앞으로 옮긴다 | BE-02 |
 
@@ -967,4 +980,5 @@ Task 수행 중 미룬 작업의 추적 표(0.2 이월 규칙). 대상 Task 절�
 | BE-08 | 목록 COUNT와 페이지 조회가 별도 쿼리라 동시 쓰기 시 `total`이 어긋날 수 있음(`todoRepository.findTodosByUser`의 `shortcut:` 주석) → 부하 중 불일치가 문제되면 같은 트랜잭션(REPEATABLE READ)으로 묶기 | - | 제외(v0.6, QA-02 삭제) |
 | BE-01 | `swagger.yaml` v0.2 수정분 YAML 문법 미검증 | QA-01 | 완료(2026-11-05, `test/apiDocs.test.js`가 YAML 파싱·엔드포인트 19개 확인, 개발 환경 Swagger UI `/api-docs`) |
 | BE-05 | 로그인 응답 시간 차이(G-04 계정 존재 추측) | PQ-04 결정 | 결정 대기 |
+| U-07 | `tokens.css`가 `docs/style-guide.md` 2장 토큰과 다름(가이드 작성 시점 기준) → 이름·값 동기화 | FE-03 | 완료(2026-11-05, 스타일 가이드 v0.2 토큰과 일치) |
 | BE-02 | JSON 파싱 실패 요청 로그 누락 | PQ-05 결정 | 결정 대기 |

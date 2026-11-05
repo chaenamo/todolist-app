@@ -6,6 +6,7 @@
 |------|------|--------|------|------|
 | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
 | v0.2 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
+| v0.3 | 2026-11-05 | chaenamo | 초안 | 구현 완료 현황 추가 |
 
 ## 변경 이력
 
@@ -13,6 +14,7 @@
 |------|------|-----------|-----------|--------|
 | v0.1 | 2026-11-04 | 전체 | `8-plan.md` BE-01 잠정 표와 `backend/swagger.yaml` v0.2 기준으로 엔드포인트 19개, 인증, 공통 형식, 결정 사항 최초 작성 | chaenamo |
 | v0.2 | 2026-11-05 | 3.1, 4 | `GET /health` 응답에 DB 연결 상태 필드 `db` 추가: 200 `{ status: "ok", db: "connected" }`, 503 `{ status: "unavailable", db: "disconnected" }` | chaenamo |
+| v0.3 | 2026-11-05 | 5(신규) | BE-01~12 완료에 맞춰 5장 "구현 현황" 추가: 19개 구현 완료, 검증 테스트, Swagger UI, CORS 출처 규칙. 계약 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/8-plan.md` (v0.3), `backend/swagger.yaml` (v0.4).
 > 기준 문서 ID(BR, AC, PR, AQ, EQ, G, U, PQ 등)는 **참조만** 하며 재정의하지 않는다. 이 문서는 새 ID를 만들지 않는다.
@@ -199,3 +201,16 @@ Todo (쓰기·단건 조회 응답, `status` 없음 — AQ-09)
 
 - `PATCH /api/users/me`: `name` 외 필드가 있으면 400 `VALIDATION_ERROR`(이메일 변경 불가 A-06, 할일 입력의 미허용 필드 처리 AQ-10과 같은 방식).
 - `GET /health` 본문: 200 `{ "status": "ok", "db": "connected" }`, 503 `{ "status": "unavailable", "db": "disconnected" }`(v0.2에서 `db` 추가).
+
+## 5. 구현 현황
+
+19개 엔드포인트를 모두 구현했다(BE-02, BE-05~BE-12, 2026-11-05). 이 문서와 `backend/swagger.yaml`(v0.4)이 구현과 일치한다.
+
+| 확인 수단 | 내용 |
+|-----------|------|
+| `backend/test/*.test.js` | 엔드포인트별 정상·검증 오류·401·타인 소유 404·트랜잭션 롤백·경합 테스트 |
+| `backend/test/scenarios.test.js` | 사용자 시나리오 SC-00~SC-11 흐름을 API 호출만으로 재현 |
+| `backend/test/apiDocs.test.js` | `swagger.yaml` 파싱·엔드포인트 19개 확인 |
+| `GET /api-docs` | 개발 환경(`NODE_ENV=development`)에서만 Swagger UI 제공 |
+
+브라우저 호출은 개발·운영 모두 CORS로 한다. 서버는 필수 환경변수 `CORS_ORIGIN`(쉼표로 여러 출처, `*` 금지)에 지정한 출처만 허용한다(PR-35).

@@ -11,6 +11,9 @@
 | v0.5 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 | v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 | v0.7 | 2026-11-05 | chaenamo | 초안 | 개발 환경도 CORS 방식으로 변경 |
+| v0.8 | 2026-11-05 | chaenamo | 초안 | 백엔드 구현 완료에 맞춰 잠정 표기 정리 |
+| v0.9 | 2026-11-05 | chaenamo | 초안 | AQ-04 결정(FE-05) |
+| v1.0 | 2026-11-05 | chaenamo | 초안 | U-03 결정(FullCalendar 6.1.22) |
 
 ## 변경 이력
 
@@ -23,6 +26,9 @@
 | v0.5 | 2026-11-04 | 기준 문서, AD-11, AD-12, 4.1(AQ-01, AQ-08, AQ-12) | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5, 원칙 v0.4로 갱신. AD-11 repository 함수명을 AD-09·실행 계획 BE-06/BE-12와 같게(`findCategoryById`, `findDefaultCategory`, `deleteCategory`), AD-12 정렬에 `id` 추가(실행 계획 BE-10과 일치). AQ-01에 refresh·logout까지 확장된 범위(PR-16) 표기, 결정된 AQ-08·AQ-12의 기존 질문 문구를 "(원 내용)"으로 구분 | chaenamo |
 | v0.6 | 2026-11-05 | 기준 문서, 0, AD-01, AD-05 | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로: AD-01에서 k6 노드·연결 삭제, AD-05를 "범위 밖"으로 바꾸고 후보 A·B는 코드 전제 참고용으로 유지. 기준 PRD v0.5, 원칙 v0.6 | chaenamo |
 | v0.7 | 2026-11-05 | 0 | 개발 환경도 Vite 프록시 대신 CORS: FE(5173)가 `VITE_API_BASE_URL`로 BE(3000)를 직접 호출, BE는 `CORS_ORIGIN`만 허용(원칙 v0.8 PR-35) | chaenamo |
+| v0.8 | 2026-11-05 | 4.1(AQ-05~07, AQ-09, AQ-10), 4.2, AD-05, AD-06~12 시퀀스 | BE-01~12 완료 반영: AQ-05·06·07·08(total)·09·10을 구현 값으로 결정 표기, 시퀀스 다이어그램의 "경로·메서드·코드 잠정" 문구 제거, U-04·U-05·U-09 결정 표기 | chaenamo |
+| v0.9 | 2026-11-05 | 4.1(AQ-04) | FE-05 구현으로 AQ-04 결정: 날짜 산술은 `lib/date.ts` 안 UTC만, 어댑터도 이 함수 사용 | chaenamo |
+| v1.0 | 2026-11-05 | AD-02, AD-12, 4.2 | FE-10 구현으로 U-03 결정: FullCalendar 6.1.22 고정, "미정·가정" 표기 정리 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U)는 **참조만** 하며 재정의하지 않는다. 구조 결정은 `5-project-principle.md`를 따른다.
@@ -88,7 +94,7 @@ flowchart TB
     end
 
     COMP["components/ 표시용, props만<br/>StatusBadge CMP-05, ConfirmModal CMP-01·02<br/>Toast CMP-03, todo/"]
-    CALAD["components/calendar/ 어댑터<br/>캘린더 라이브러리 1개 - 미정 U-03<br/>종료일 +1 배타 변환은 여기서만 PR-18"]
+    CALAD["components/calendar/ 어댑터<br/>FullCalendar 6.1.22 - U-03 결정<br/>종료일 +1 배타 변환은 여기서만 PR-18"]
     LIB["lib/date.ts<br/>todayString 브라우저 로컬 A-01<br/>월/주 범위, 일요일 시작 A-12"]
 
     subgraph STATE["상태"]
@@ -207,7 +213,7 @@ flowchart LR
     end
 ```
 
-- HTTPS 종단 위치(프록시/호스팅 플랫폼), 로컬 실행 방식(로컬 설치/Docker Compose DB 1개, U-09)은 미정.
+- HTTPS 종단 위치(프록시/호스팅 플랫폼), 로컬 실행 방식은 로컬 설치로 결정(U-09).
 - 배포 전 확인: `GET /health` 200, 마이그레이션 적용(`scripts/migrate.js`), 환경변수 필수값(PR-34).
 
 ---
@@ -234,7 +240,7 @@ sequenceDiagram
 
     U->>P: 이메일·비밀번호·이름 입력 후 가입하기
     P->>H: signup mutation
-    H->>R: POST /api/auth/signup (경로 잠정)
+    H->>R: POST /api/auth/signup
     Note over R: 공개 경로, auth mw 미적용 PR-07
     R->>V: validateSignup(body)
     alt 필수 누락·이메일 형식·비밀번호 규칙 위반 SC-01-E2, 규칙 G-05
@@ -294,7 +300,7 @@ sequenceDiagram
         Note over U,DB: 1) 로그인 UC-02 - 토큰 쌍 발급
         U->>P: 이메일·비밀번호 입력 후 로그인 WF-02
         P->>H: login mutation
-        H->>R: POST /api/auth/login (공개, 경로 잠정)
+        H->>R: POST /api/auth/login (공개)
         Note over R: validators/auth로 필수·형식 검증, 실패 400
         R->>S: login(email, password)
         S->>Repo: findUserWithHashByEmail(db, email) PR-36
@@ -342,7 +348,7 @@ sequenceDiagram
         A-->>H: 401 UNAUTHORIZED
         Note over H: 동시에 401이 여러 개여도 refresh 요청은 1개 single-flight, 나머지는 결과 대기
         H->>ST: refresh token 읽기
-        H->>R: POST /api/auth/refresh body refreshToken (공개, 경로 잠정)
+        H->>R: POST /api/auth/refresh body refreshToken (공개)
         R->>S: refresh(refreshToken)
         S->>Repo: findValidByHash(db, SHA-256 해시)
         Repo->>DB: SELECT user_id ... WHERE token_hash = $1 AND expires_at > now()
@@ -370,7 +376,7 @@ sequenceDiagram
         Note over U,DB: 4) 로그아웃 A-14 - 서버 폐기
         U->>P: 로그아웃 WF-01
         P->>H: logout
-        H->>R: POST /api/auth/logout body refreshToken (공개, 경로 잠정)
+        H->>R: POST /api/auth/logout body refreshToken (공개)
         R->>S: logout(refreshToken)
         S->>Repo: deleteByHash(db, SHA-256 해시)
         Repo->>DB: DELETE FROM refresh_tokens WHERE token_hash = $1
@@ -516,7 +522,7 @@ sequenceDiagram
     U->>P: 제목·설명·카테고리·시작일자·종료일자 입력 후 저장
     P->>P: FE 검증 UX 보조 - 필수, 종료일자 ≥ 시작일자 PR-06
     P->>H: create 또는 update(id) mutation
-    H->>A: POST /api/todos 또는 PUT /api/todos/:id (메서드 잠정 AQ-10)
+    H->>A: POST /api/todos 또는 PUT /api/todos/:id (AQ-10)
     A->>R: req.userId
     R->>V: validateTodo(body)
     alt 필수 누락 BR-10, 날짜 형식·실제 날짜 오류, 종료일자 < 시작일자 BR-11
@@ -532,7 +538,7 @@ sequenceDiagram
             S->>Repo: findCategoryById(db, userId, categoryId)
             Repo->>DB: SELECT ... WHERE user_id = $1 AND id = $2
             alt 0건 - 타인 또는 없는 카테고리 PR-10
-                S-->>R: throw 400 VALIDATION_ERROR fields.categoryId (코드 잠정 AQ-06)
+                S-->>R: throw 400 VALIDATION_ERROR fields.categoryId (AQ-06)
                 R-->>H: 400
             end
         end
@@ -556,7 +562,7 @@ sequenceDiagram
     end
 ```
 
-- 쓰기 요청에는 `today`가 없으므로(PR-05는 조회에만 전달) 응답에 상태를 넣지 않고 재조회 결과로 표시한다(잠정, AQ-09).
+- 쓰기 요청에는 `today`가 없으므로(PR-05는 조회에만 전달) 응답에 상태를 넣지 않고 재조회 결과로 표시한다(AQ-09 결정).
 
 ## AD-10 완료 토글
 
@@ -579,7 +585,7 @@ sequenceDiagram
     U->>P: 완료 토글 클릭 WF-04 (6)
     P->>H: setCompleted.mutate(id, 반전값)
     Note over P,H: 요청 중 해당 토글 비활성, 캐시 선반영 없음 PR-14
-    H->>A: PATCH /api/todos/:id isCompleted (경로·메서드 잠정 AQ-10)
+    H->>A: PATCH /api/todos/:id isCompleted (AQ-10)
     A->>R: req.userId
     R->>V: isCompleted boolean 검증, 실패 400
     R->>S: setCompleted(userId, id, isCompleted)
@@ -656,7 +662,7 @@ sequenceDiagram
 
 ## AD-12 캘린더 조회 (월/주/일)
 
-뷰 범위 `from`~`to`(PR-43 이름. 요청의 start/end, rangeStart/rangeEnd와 같은 뜻)로 기간 겹침 할일만 조회하고(BR-16), 라이브러리 형식 변환은 어댑터 한 곳에서 한다(PR-18). 라이브러리 선택은 미정(U-03), 아래는 FullCalendar 계열 가정.
+뷰 범위 `from`~`to`(PR-43 이름. 요청의 start/end, rangeStart/rangeEnd와 같은 뜻)로 기간 겹침 할일만 조회하고(BR-16), 라이브러리 형식 변환은 어댑터 한 곳에서 한다(PR-18). 라이브러리는 FullCalendar 6.1.22로 결정(U-03).
 
 ```mermaid
 sequenceDiagram
@@ -680,7 +686,7 @@ sequenceDiagram
     CA-->>P: from, to 포함 범위 'YYYY-MM-DD', 주는 일요일 시작 A-12 (라이브러리 범위 end 배타 처리 AQ-04)
     P->>H: useCalendarTodos(from, to)
     H->>H: today = todayString() 일간 뷰 상태 배지용 PR-05
-    H->>A: GET 캘린더 기간 조회 ?from&to&today (경로 잠정 AQ-05)
+    H->>A: GET 캘린더 기간 조회 ?from&to&today (AQ-05)
     A->>R: req.userId
     R->>V: from·to·today 형식, from ≤ to
     alt 검증 실패
@@ -738,13 +744,13 @@ AC 확인: AC-05 할일 10/30~11/02, 11월 월간 from 11/01 → `start_date 10/
 | AQ-01 | **결정(2026-11-04)**: 로그인·회원가입 요청의 401은 공통 401 처리에서 제외하고 화면이 폼 오류로 표시한다. PR-16에 반영. v0.4에서 인증 엔드포인트 전체(login, signup, refresh, logout)로 확장(PR-16, AD-02) | AD-07 | PR-16, PR-20, SC-02-E1, G-04 |
 | AQ-02 | **결정(2026-11-04)**: 409 `CONFLICT` 응답에 `fields`로 충돌 필드를 담는다. error 미들웨어가 unique 제약 이름을 필드(`email`, `name`)와 한국어 문구로 매핑한다. PR-20, PR-46에 반영 | AD-06, AD-11 | PR-21, PR-46, SC-01-E1, SC-03-E2, CMP-03 |
 | AQ-03 | **결정(2026-11-04)**: 낙관적 업데이트 없이 성공 후 즉시 재조회한다. 필터와 안 맞게 된 항목은 바로 사라진다. PR-14, 시나리오 G-11·SC-06-A1, 와이어프레임 WF-04에 반영 | AD-10 | PR-14, G-11, SC-06-E1, WF-04 |
-| AQ-04 | FullCalendar는 이벤트 `end`뿐 아니라 뷰 표시 범위(`datesSet`)의 `end`도 배타적이다. PR-18은 이벤트 쪽만 언급한다. 또한 ±1일 계산은 PR-4장 체크리스트 "날짜를 `Date`로 변환하지 않는다"와 부딪히므로 `lib/date.ts` 또는 어댑터 안에서 UTC 기준 날짜 산술을 예외로 허용할지 명시 필요 | AD-02, AD-12 | PR-04, PR-18, PR-28, U-03 |
-| AQ-05 | 캘린더 조회는 기간 필수(PR-43)지만 기간 길이 상한이 없어 넓은 `from`~`to`로 사실상 전체 조회가 가능하다(NFR-06). 최대 기간 검증 여부, 엔드포인트 경로, 응답 형식(PR-20 목록 형식 `items, page, limit, total` 적용 여부) 확정 필요. 기간 겹침 인덱스는 `7-erd.md` IX-03 | AD-12 | PR-20, PR-43, NFR-06, U-04 |
-| AQ-06 | 타인·없는 `categoryId`로 할일 등록·수정 시 응답 코드 미정(PR-10은 확인만, PR-29는 "거부"). 이 문서는 400 `VALIDATION_ERROR` + `fields.categoryId`로 잠정. 확인과 INSERT/UPDATE 사이에 카테고리가 삭제되면 FK 위반(23503)이 PR-46상 500이 되는 점도 처리 필요. DB는 복합 FK로 타인 카테고리를 거부하며 23503 처리는 `7-erd.md` EQ-01 | AD-09 | PR-10, PR-29, PR-46, NFR-12 |
-| AQ-07 | `GET /health`의 `SELECT 1`은 route가 DB에 직접 접근하는 형태라 PR-09(routes의 `pg` 직접 사용 금지)와 충돌한다. 헬스체크만 예외로 둘지, `db.js` 헬퍼 호출로 볼지 명시 필요 | AD-03 | PR-09, PR-45 |
-| AQ-08 | **결정: `7-erd.md` 7.1 참조** (`id` 보조 정렬 추가, total은 별도 COUNT 잠정). (원 내용) Q-05 정렬(종료일자, 생성일시)만으로는 동률이 생길 수 있어 OFFSET 페이지네이션에서 행이 중복·누락될 수 있다. `id` 보조 정렬 추가 여부, `total` 집계 방식(별도 COUNT / 윈도 함수) 확인 필요 | AD-08 | Q-05, NFR-02, NFR-06 |
-| AQ-09 | 쓰기 요청(등록·수정·토글)에는 `today`가 없어(PR-05는 조회만) 응답에 상태를 붙일 수 없다. 응답에서 상태를 빼고 재조회로 표시하는 것으로 잠정 | AD-09, AD-10 | PR-03, PR-05 |
-| AQ-10 | 할일 수정과 완료 토글의 API 형태 미정: 수정에서 `isCompleted` 변경 허용 여부(편집 화면에 토글 없음 G-16), 토글 전용 경로 vs 공용 PATCH, PUT/PATCH 선택 | AD-09, AD-10 | PR 3.1 API 경로, G-16, BR-13, BR-17 |
+| AQ-04 | **결정(2026-11-05, FE-05)**: ±1일 등 날짜 산술은 `lib/date.ts` 안에서만 UTC 기준 `Date`로 허용하고, 어댑터의 배타적 `end` 변환도 이 함수(`addDays`)를 쓴다. (원 내용) FullCalendar는 이벤트 `end`뿐 아니라 뷰 표시 범위(`datesSet`)의 `end`도 배타적이다. PR-18은 이벤트 쪽만 언급한다. 또한 ±1일 계산은 PR-4장 체크리스트 "날짜를 `Date`로 변환하지 않는다"와 부딪히므로 `lib/date.ts` 또는 어댑터 안에서 UTC 기준 날짜 산술을 예외로 허용할지 명시 필요 | AD-02, AD-12 | PR-04, PR-18, PR-28, U-03 |
+| AQ-05 | **결정(2026-11-05, BE-10)**: `GET /api/todos/calendar?from&to&today`, 양 끝 포함 최대 42일(초과·역순 400 `fields.to`), 응답 `{ items }`. (원 내용) 캘린더 조회는 기간 필수(PR-43)지만 기간 길이 상한이 없어 넓은 `from`~`to`로 사실상 전체 조회가 가능하다(NFR-06). 최대 기간 검증 여부, 엔드포인트 경로, 응답 형식(PR-20 목록 형식 `items, page, limit, total` 적용 여부) 확정 필요. 기간 겹침 인덱스는 `7-erd.md` IX-03 | AD-12 | PR-20, PR-43, NFR-06, U-04 |
+| AQ-06 | **결정(2026-11-05, BE-07)**: 400 `VALIDATION_ERROR` + `fields.categoryId`, 경합 시 23503은 409 `CONFLICT`(EQ-01). (원 내용) 타인·없는 `categoryId`로 할일 등록·수정 시 응답 코드 미정(PR-10은 확인만, PR-29는 "거부"). 이 문서는 400 `VALIDATION_ERROR` + `fields.categoryId`로 잠정. 확인과 INSERT/UPDATE 사이에 카테고리가 삭제되면 FK 위반(23503)이 PR-46상 500이 되는 점도 처리 필요. DB는 복합 FK로 타인 카테고리를 거부하며 23503 처리는 `7-erd.md` EQ-01 | AD-09 | PR-10, PR-29, PR-46, NFR-12 |
+| AQ-07 | **결정(2026-11-05, BE-02)**: route는 `db.js`의 `checkConnection()` 헬퍼만 호출하는 예외로 둔다(PR-45). (원 내용) `GET /health`의 `SELECT 1`은 route가 DB에 직접 접근하는 형태라 PR-09(routes의 `pg` 직접 사용 금지)와 충돌한다. 헬스체크만 예외로 둘지, `db.js` 헬퍼 호출로 볼지 명시 필요 | AD-03 | PR-09, PR-45 |
+| AQ-08 | **결정: `7-erd.md` 7.1 참조** (`id` 보조 정렬 추가, total은 별도 COUNT로 결정, BE-08). (원 내용) Q-05 정렬(종료일자, 생성일시)만으로는 동률이 생길 수 있어 OFFSET 페이지네이션에서 행이 중복·누락될 수 있다. `id` 보조 정렬 추가 여부, `total` 집계 방식(별도 COUNT / 윈도 함수) 확인 필요 | AD-08 | Q-05, NFR-02, NFR-06 |
+| AQ-09 | **결정(2026-11-05, BE-07·BE-09)**: 쓰기·단건 응답에 `status` 없음, 재조회로 표시. (원 내용) 쓰기 요청(등록·수정·토글)에는 `today`가 없어(PR-05는 조회만) 응답에 상태를 붙일 수 없다. 응답에서 상태를 빼고 재조회로 표시하는 것으로 잠정 | AD-09, AD-10 | PR-03, PR-05 |
+| AQ-10 | **결정(2026-11-05, BE-07·BE-09)**: 수정 `PUT /api/todos/:id`(`isCompleted` 포함 시 400), 토글 `PATCH /api/todos/:id { isCompleted }`만. (원 내용) 할일 수정과 완료 토글의 API 형태 미정: 수정에서 `isCompleted` 변경 허용 여부(편집 화면에 토글 없음 G-16), 토글 전용 경로 vs 공용 PATCH, PUT/PATCH 선택 | AD-09, AD-10 | PR 3.1 API 경로, G-16, BR-13, BR-17 |
 | AQ-11 | **결정(2026-11-04)**: FE의 JWT `exp` 확인 대신 AD-13 흐름으로 대체한다. access token은 메모리에만 있으므로 앱 진입 시 refresh token으로 refresh를 먼저 호출하고, 성공 시 보호 화면·실패 시 로그인 화면. 판정 중 보호 화면을 렌더하지 않는다. (원 내용) FE 인증 가드는 토큰 유무만 알 수 있어, 만료 토큰으로 재방문하면 보호 화면이 잠깐 보인 뒤 첫 요청 401로 로그인 이동한다. SC-02-A1의 "유효한 토큰" 판정 방법(클라이언트 `exp` 확인 여부) 확인 필요 | AD-02, AD-07, AD-13 | SC-02-A1, PR-16, U-02 |
 | AQ-12 | **결정: `7-erd.md` 7.1 참조** (`bigint identity`, 복합 FK로 소유자 일치 강제, service 확인 유지). (원 내용) 식별자 타입(bigint identity / uuid), 할일의 카테고리가 같은 사용자 소유임을 DB 복합 FK로도 강제할지(현재는 service 확인만, PR-10) 후속 DB 설계 문서에서 확정 필요 | AD-04 | PR-10, NFR-07, NFR-12 |
 
@@ -754,10 +760,10 @@ AC 확인: AC-05 할일 10/30~11/02, 11월 월간 from 11/01 → `start_date 10/
 |---------|------------------|
 | U-01 배포 환경·HTTPS 종단 | AD-01 "호스팅 미정", AD-05 후보 A(잠정)/B |
 | U-02 토큰 저장 위치 | **결정**: AD-02 authStore access 메모리·refresh localStorage, AD-07, AD-13 |
-| U-03 캘린더 라이브러리 | AD-02 어댑터, AD-12 "FullCalendar 계열 가정" |
-| U-04 today·상태 필터 파라미터 형식 | AD-08, AD-12 쿼리 파라미터 "형식 U-04" |
-| U-05 / G-05 길이·비밀번호 규칙·이메일 대소문자 | `7-erd.md` 컬럼 정의·CN-02, AD-06 검증 분기 |
-| U-09 실행 방식 | AD-05 주석 |
+| U-03 캘린더 라이브러리 | **결정**: FullCalendar 6.1.22, AD-02 어댑터, AD-12 |
+| U-04 today·상태 필터 파라미터 형식 | **결정**: AD-08, AD-12 쿼리 파라미터. 형식은 `9-api-spec.md` 4장 |
+| U-05 / G-05 길이·비밀번호 규칙·이메일 대소문자 | **결정**: `validators/common.js` `LIMITS`(`9-api-spec.md` 4장), AD-06 검증 분기 |
+| U-09 실행 방식 | **결정**: 로컬 설치(DB-01), AD-05 주석 |
 | G-01 자동 로그인 | AD-06 가입 성공 시 토큰 쌍 발급 |
 | G-03 만료 시 입력 비보존 | AD-07 3) refresh 401 분기 |
 | G-06 비밀번호 변경 후 토큰 | **결정**: AD-07 하단 비밀번호 변경 설명(전체 refresh 폐기 + 새 발급) |

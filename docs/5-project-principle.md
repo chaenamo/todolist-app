@@ -12,6 +12,10 @@
 | v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 | v0.7 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
 | v0.8 | 2026-11-05 | chaenamo | 초안 | 개발 환경도 CORS 방식으로 변경(Vite 프록시 제거), `CORS_ORIGIN` 필수화 |
+| v0.9 | 2026-11-05 | chaenamo | 초안 | U-07 결정: 스타일 가이드 `docs/style-guide.md` |
+| v1.0 | 2026-11-05 | chaenamo | 초안 | 백엔드 구현 완료에 맞춰 미결·PR 확정 |
+| v1.1 | 2026-11-05 | chaenamo | 초안 | U-03·U-06 결정 |
+| v1.2 | 2026-11-05 | chaenamo | 초안 | FE 구현 결과에 맞춰 디렉토리 트리 보강 |
 
 ## 변경 이력
 
@@ -25,6 +29,10 @@
 | v0.6 | 2026-11-05 | 기준 문서, PR-32, PR-45, 6.2, 6.4, 7(U-01) | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로: PR-32를 "부하 테스트 미실시, NFR-05~07 코드 리뷰 선적용"으로, PR-45 용도에서 배포·부하 테스트 제거, 디렉토리 트리·파일 위치 표에서 `backend/loadtest/` 삭제, U-01을 범위 밖으로 표기. 기준 PRD v0.5 | chaenamo |
 | v0.7 | 2026-11-05 | PR-45 | 헬스체크 응답에 DB 연결 상태 `db` 추가(200 `connected`, 503 `disconnected`) | chaenamo |
 | v0.8 | 2026-11-05 | PR-34, PR-35, 5, 6.3 | 개발·운영 모두 CORS 방식: Vite 프록시를 제거하고 FE가 `VITE_API_BASE_URL`로 BE를 직접 호출. 개발 값은 `frontend/.env.development`(커밋, 비밀 아님). `CORS_ORIGIN`을 필수 환경변수로(코드 기본값 제거), 쉼표로 여러 출처, `*`면 기동 종료 | chaenamo |
+| v0.9 | 2026-11-05 | 0, 6.3, 7(U-07) | U-07 결정: 스타일 가이드 원본은 `docs/style-guide.md`, `tokens.css`는 그 구현(SG-01) | chaenamo |
+| v1.0 | 2026-11-05 | PR-45, PR-46, 7(U-04, U-05, U-09) | BE-01~12 완료 반영: PR-45에 `checkConnection()` 헬퍼 사용(AQ-07), PR-46에 23503 → 409 매핑(EQ-01) 명시. U-04·U-05·U-09를 구현 값으로 결정 처리 | chaenamo |
+| v1.1 | 2026-11-05 | 7(U-03, U-06) | FE 구현으로 U-03(FullCalendar 6.1.22)·U-06(네이티브 날짜 입력) 결정 | chaenamo |
+| v1.2 | 2026-11-05 | 6.3 | FE-01~13 구현 결과 반영: 트리에 `.env.development`, `queryClient.ts`, `hooks/useMediaQuery.ts`, `stores/toastStore.ts` 추가 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP)는 **참조만** 하며 재정의하지 않는다. 규칙 본문은 원 문서를 따른다.
@@ -41,7 +49,7 @@
 | 코드 위치 `backend/`, `frontend/` 디렉토리 | 6장 루트 레이아웃과 동일 | 일치 |
 | 작업 단위 문서의 TASK 번호 | 실행 계획 문서는 `docs/8-plan.md` | **해결**(U-08 결정): 스킬 경로를 `docs/8-plan.md`로 고쳐 번호 충돌 없음 |
 | 테스트 커버리지 **90% 이상** | 4장은 2일 일정상 **필수 최소 범위**를 정의 | **충돌**. 해결: 스킬로 작업할 때는 스킬 기준(90%)을 따르되, 측정 대상은 그 TASK가 바꾼 BE `services/`·`repositories/`·`validators/`·`domain/`과 FE `lib/`·`hooks/`로 한정한다(PR-30). 페이지·표시용 컴포넌트는 측정에서 뺀다. 시간이 모자라면 PR-29 필수 범위를 먼저 채우고, 미달분은 스킬 규칙대로 보고한다 |
-| UI 컴포넌트에 **스타일 가이드** 적용 | 스타일 가이드 문서 없음 | **공백**. 임시로 `frontend/src/styles/tokens.css`(색·간격·폰트 변수)를 스타일 가이드 원본으로 본다(PR-24). 정식 문서는 미결 U-07 |
+| UI 컴포넌트에 **스타일 가이드** 적용 | 스타일 가이드 문서 없음 | **결정**(U-07): `docs/style-guide.md`가 원본, `frontend/src/styles/tokens.css`는 그 토큰의 구현(PR-24, SG-01) |
 | 테스트 작성·구현을 서브에이전트로 병렬 수행 | 레이어·파일 경계를 명확히 둔다(2장, 6장) | 일치 (경계가 분명해야 병렬 작업 충돌이 적다) |
 
 ## 1. 최상위 공통 원칙 (모든 스택)
@@ -186,8 +194,8 @@
 | PR-42 | **DATE 타입 파서**: `db.js`에서 `pg.types.setTypeParser(1082, v => v)`로 `date` 컬럼을 문자열 그대로 받는다. 기본값(JS `Date` 변환)은 서버 타임존에 따라 하루가 밀린다. | PR-04, A-01, R-03 |
 | PR-43 | **페이지네이션 상한**: 목록 `limit` 기본 50, 최대 100으로 서버에서 자른다. 캘린더 조회는 반드시 기간(`from`, `to`)을 받고 기간 겹침(`start_date <= to AND end_date >= from`)으로 제한한다. 기간 없는 전체 조회 API는 두지 않는다. | NFR-06, BR-16 |
 | PR-44 | **마이그레이션**: `backend/db/migrations/NNN_설명.sql` 순번 SQL 파일만 쓴다. `scripts/migrate.js`(작은 스크립트)가 `schema_migrations` 테이블에 기록하며 아직 적용 안 된 파일을 번호순으로 트랜잭션 안에서 실행한다. 적용된 파일은 수정하지 않고 새 번호 파일을 추가한다. down 마이그레이션은 두지 않는다. | TC-05, PR-08 |
-| PR-45 | **헬스체크**: 인증 없는 `GET /health`가 `SELECT 1` 성공 시 200 `{ status: "ok", db: "connected" }`, 실패 시 503 `{ status: "unavailable", db: "disconnected" }`. 기동·DB 연결 확인용. | M-04 |
-| PR-46 | **에러 처리 미들웨어 한 곳**(`middleware/error.js`, 라우터 맨 뒤): `AppError`는 그 상태·코드로, PostgreSQL unique 위반(`23505`)은 409 `CONFLICT`로 바꾸되 **에러의 제약 이름(`err.constraint`)을 필드로 매핑해 `fields`와 한국어 문구를 채운다**(사용자 이메일 unique → `email`, 카테고리 (사용자, 이름) unique → `name`. 매핑에 없는 제약은 `fields` 없이 409. 매핑 표는 이 미들웨어 한 곳에 둔다, AQ-02 결정), 그 외는 500 `INTERNAL`로 PR-20 형식에 맞춰 응답한다. 라우트·서비스는 에러를 삼키지 않고 던진다. 미등록 경로는 404 `NOT_FOUND`. | PR-20, BR-03, BR-07 |
+| PR-45 | **헬스체크**: 인증 없는 `GET /health`가 `db.js`의 `checkConnection()`(`SELECT 1`)으로 확인한다(PR-09의 예외, AQ-07 결정). 성공 시 200 `{ status: "ok", db: "connected" }`, 실패 시 503 `{ status: "unavailable", db: "disconnected" }`. 기동·DB 연결 확인용. | M-04 |
+| PR-46 | **에러 처리 미들웨어 한 곳**(`middleware/error.js`, 라우터 맨 뒤): `AppError`는 그 상태·코드로, PostgreSQL unique 위반(`23505`)은 409 `CONFLICT`로 바꾸되 **에러의 제약 이름(`err.constraint`)을 필드로 매핑해 `fields`와 한국어 문구를 채운다**(사용자 이메일 unique → `email`, 카테고리 (사용자, 이름) unique → `name`. 매핑에 없는 제약은 `fields` 없이 409. 매핑 표는 이 미들웨어 한 곳에 둔다, AQ-02 결정), `fk_todos_category_owner` FK 위반(`23503`, 확인과 쓰기 사이 경합)은 409 `CONFLICT`(`fields` 없음, 재시도 안내, EQ-01 결정), 그 외는 500 `INTERNAL`로 PR-20 형식에 맞춰 응답한다. 라우트·서비스는 에러를 삼키지 않고 던진다. 미등록 경로는 404 `NOT_FOUND`. | PR-20, BR-03, BR-07 |
 
 `backend/.env.example` 키 (값은 예시)
 
@@ -298,11 +306,13 @@ backend/
 frontend/
 ├── package.json            # scripts: dev, build, test, lint
 ├── .env.example            # VITE_API_BASE_URL (PR-33)
+├── .env.development        # 개발용 VITE_API_BASE_URL=http://localhost:3000 (커밋, 비밀 아님, PR-35)
 ├── vite.config.ts          # react 플러그인, vitest 설정 (프록시 없음, PR-35)
 ├── index.html
 └── src/
     ├── main.tsx            # QueryClientProvider, Router 마운트
     ├── App.tsx             # 라우트 정의, 인증 가드(SC-00-E1)
+    ├── queryClient.ts      # QueryClient 1개(로그아웃 시 clear, PR-16)
     ├── api/
     │   ├── client.ts       # fetch 래퍼: Bearer 부착, 에러 형식 파싱, 401 → single-flight refresh → 재시도 (PR-16)
     │   ├── types.ts        # Todo, Category, User, ApiError 타입 (PR-24)
@@ -315,10 +325,12 @@ frontend/
     │   ├── useMe.ts
     │   ├── useCategories.ts
     │   ├── useTodos.ts     # 목록·상세·등록·수정·완료·삭제
-    │   └── useCalendarTodos.ts
+    │   ├── useCalendarTodos.ts
+    │   └── useMediaQuery.ts    # 모바일 폭 감지(캘린더 +N, NFR-16)
     ├── stores/
     │   ├── authStore.ts    # access token(메모리), refresh token(persist localStorage) (PR-37, U-02)
-    │   └── uiStore.ts      # 목록 필터·페이지, 캘린더 뷰·기준 날짜 (PR-15)
+    │   ├── uiStore.ts      # 목록 필터·페이지, 캘린더 뷰·기준 날짜 (PR-15)
+    │   └── toastStore.ts   # 토스트 표시 상태 (CMP-03)
     ├── pages/              # WF 화면 1:1
     │   ├── LoginPage.tsx
     │   ├── SignupPage.tsx
@@ -339,7 +351,7 @@ frontend/
     │   ├── date.ts         # todayString(로컬), 월/주(일요일 시작) 범위 (PR-04, A-12)
     │   └── date.test.ts    # 테스트는 대상 옆에 *.test.ts (PR-28)
     └── styles/
-        ├── tokens.css      # 색·간격·폰트 변수 = 임시 스타일 가이드 (PR-24)
+        ├── tokens.css      # docs/style-guide.md 토큰의 구현 (PR-24, SG-01)
         └── global.css
 ```
 
@@ -377,11 +389,11 @@ WF → 라우트·폴더 매핑
 |----|-----------|------|---------------------|
 | U-01 | 배포 환경(단일 서버에서 FE 정적 파일 + API 같은 출처 / FE·BE 분리 호스팅), HTTPS 종단 위치 | PR-35 CORS, `VITE_API_BASE_URL`, 정적 파일 서빙 여부 | **범위 밖**(2026-11-05): 배포는 사용자가 직접 한다. 코드는 FE·BE 분리 가정(CORS 화이트리스트, `VITE_API_BASE_URL`)을 유지 |
 | U-02 | 토큰 저장 위치(localStorage / sessionStorage / 메모리) | `authStore` 영속화, R-05 XSS 노출 범위, SC-02-A1 재방문 시 로그인 생략 | **결정(2026-11-04)**: access token은 메모리(persist 안 함), refresh token은 localStorage(Zustand `persist`는 refresh token만). R-05 XSS 노출은 감수, 완화책(PR-24, PR-37) 유지 |
-| U-03 | 캘린더 라이브러리 선택(FullCalendar daygrid 등 / 직접 구현) | `components/calendar/` 내부, 번들 크기, 모바일 `+N`(NFR-16, G-14) 지원 여부 | 라이브러리 1개 허용, 어댑터로 격리(PR-18) |
-| U-04 | 목록·캘린더 API에 `today` 전달 방식과 상태 필터 파라미터 형식 | `validators/todo.js`, `domain/todoStatus.js` | 쿼리 파라미터로 전달(PR-05), 형식은 API 문서 |
-| U-05 | 입력 길이·비밀번호 규칙·이메일 대소문자(G-05) | `validators/` 상수, DB 컬럼 길이 | 상수 하나로 두고 확정 시 교체(PR-39) |
-| U-06 | 날짜 피커: 네이티브 `<input type="date">` / 캘린더 라이브러리 / 별도 패키지 (와이어프레임 6.2) | FE 패키지 수 | 네이티브 `<input type="date">` 우선(값이 `YYYY-MM-DD` 문자열이라 PR-04와 맞음) |
-| U-07 | 스타일 가이드 문서 부재 (develop-frontend 스킬 요구) | 모든 UI 컴포넌트 | `styles/tokens.css`를 임시 원본으로 사용 |
+| U-03 | 캘린더 라이브러리 선택(FullCalendar daygrid 등 / 직접 구현) | `components/calendar/` 내부, 번들 크기, 모바일 `+N`(NFR-16, G-14) 지원 여부 | **결정**(2026-11-05, FE-10): FullCalendar(`core`·`react`·`daygrid`) 6.1.22 고정, 어댑터로 격리(PR-18) |
+| U-04 | 목록·캘린더 API에 `today` 전달 방식과 상태 필터 파라미터 형식 | `validators/todo.js`, `domain/todoStatus.js` | **결정**(2026-11-05, BE-08·BE-10): 쿼리 `today=YYYY-MM-DD`, `status=A,B`(쉼표), `categoryId`, `page`, `limit`. 상세는 `9-api-spec.md` 4장 |
+| U-05 | 입력 길이·비밀번호 규칙·이메일 대소문자(G-05) | `validators/` 상수, DB 컬럼 길이 | **결정**(2026-11-05, BE-04): `validators/common.js` `LIMITS` 한 곳(이메일 ≤254·대소문자 구분, 비밀번호 8~72자, 이름 1~50, 카테고리 1~30, 제목 1~100, 설명 ≤1,000). DB 컬럼은 `text` |
+| U-06 | 날짜 피커: 네이티브 `<input type="date">` / 캘린더 라이브러리 / 별도 패키지 (와이어프레임 6.2) | FE 패키지 수 | **결정**(2026-11-05, FE-09): 네이티브 `<input type="date">`(값이 `YYYY-MM-DD` 문자열이라 PR-04와 맞음) |
+| U-07 | 스타일 가이드 문서 부재 (develop-frontend 스킬 요구) | 모든 UI 컴포넌트 | **결정**(2026-11-05): `docs/style-guide.md` 작성. `tokens.css`는 그 구현 |
 | U-08 | 실행 계획 문서 파일명(`docs/5-plan.md`, 스킬 참조)과 이 문서의 번호 중복 | 문서 번호 체계 | **결정(2026-11-04)**: 실행 계획은 `docs/8-plan.md`로 두고 두 개발 스킬의 경로를 그에 맞게 수정 완료 |
-| U-09 | Node.js·PostgreSQL 실행 방식(로컬 설치 / Docker Compose) | 루트에 `docker-compose.yml` 추가 여부 | 미정. 추가하더라도 DB 1개 서비스만 |
+| U-09 | Node.js·PostgreSQL 실행 방식(로컬 설치 / Docker Compose) | 루트에 `docker-compose.yml` 추가 여부 | **결정**(2026-11-05, DB-01): 로컬 설치(Node.js, PostgreSQL 17). `docker-compose.yml` 없음 |
 | U-10 | 로그인 시도 제한(무차별 대입 방어) 필요 여부 | 미들웨어 추가, 패키지 추가 | MVP 제외, 문서 범위 밖 (NFR에 없음) |
