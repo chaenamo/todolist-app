@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
+import { logger } from './lib/logger';
 import { discardSession, refreshAccessToken } from './api/client';
 import { useAuthStore } from './stores/authStore';
 import { Layout } from './components/Layout';
@@ -26,6 +27,7 @@ function RequireAuth() {
 
   useEffect(() => {
     if (!needsRefresh) return;
+    logger.info('auth', '앱 진입: refresh token으로 세션 복구 시도');
     refreshAccessToken().catch(() => {
       discardSession();
       setFailed(true);
@@ -54,8 +56,17 @@ function AppLayout() {
   return <Layout onLogout={() => void logout()} />;
 }
 
+// 개발 모드 로그: 화면 이동
+function useRouteLog() {
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    logger.info('route', pathname + search);
+  }, [pathname, search]);
+}
+
 // 라우트 표: 원칙 6.3. 화면 목록
 export function App() {
+  useRouteLog();
   return (
     <>
       <Routes>

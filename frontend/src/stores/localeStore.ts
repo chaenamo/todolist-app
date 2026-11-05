@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { logger } from '../lib/logger';
 
 export type Locale = 'ko' | 'ja' | 'en';
 
@@ -34,4 +35,7 @@ function syncHtmlLang(locale: Locale): void {
   document.documentElement.lang = locale;
 }
 syncHtmlLang(useLocaleStore.getState().locale);
-useLocaleStore.subscribe((s) => syncHtmlLang(s.locale));
+useLocaleStore.subscribe((s, prev) => {
+  if (s.locale !== prev.locale) logger.info('settings', `언어: ${prev.locale} → ${s.locale}`);
+  syncHtmlLang(s.locale);
+});

@@ -1,5 +1,6 @@
 // HTTP 호출 한 곳. React를 import하지 않는다(PR-13)
 import { getMessages } from '../i18n';
+import { logger } from '../lib/logger';
 import { queryClient } from '../queryClient';
 import { useAuthStore } from '../stores/authStore';
 import { useLocaleStore } from '../stores/localeStore';
@@ -45,13 +46,18 @@ async function send(method: Method, path: string, body: unknown): Promise<Respon
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   const { accessToken } = useAuthStore.getState();
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  const startedAt = performance.now();
   try {
-    return await fetch(BASE_URL + path, {
+    const res = await fetch(BASE_URL + path, {
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
     });
-  } catch {
+    const ms = Math.round(performance.now() - startedAt);
+    (res.ok ? logger.info : logger.warn)('api', `${method} ${path} → ${res.status} (${ms}ms)`);
+    return res;
+  } catch (err) {
+    logger.error('api', `${method} ${path} → 네트워크 오류`, err);
     throw new ApiError(0, 'NETWORK_ERROR', getMessages().error.network);
   }
 }
@@ -63,6 +69,7 @@ async function parse<T>(res: Response): Promise<T> {
 
 // PR-16 ③: 토큰 둘 다 폐기 + 이전 사용자 캐시 삭제. /login 이동은 토큰이 없어진 것을 본 App 가드가 한다
 export function discardSession(): void {
+  logger.info('auth', '세션 폐기(토큰·캐시 삭제)');
   useAuthStore.getState().clear();
   queryClient.clear();
 }
@@ -71,6 +78,7 @@ let refreshing: Promise<string> | null = null;
 
 // PR-16 ①: 동시에 여러 요청이 401이어도 refresh 요청은 하나만 보낸다(single-flight)
 export function refreshAccessToken(): Promise<string> {
+  if (!refreshing) logger.info('auth', 'access token 갱신 시작');
   refreshing ??= (async () => {
     const { refreshToken } = useAuthStore.getState();
     if (!refreshToken) {
@@ -81,10 +89,16 @@ export function refreshAccessToken(): Promise<string> {
     if (res.status === 401) discardSession();
     const { accessToken } = await parse<{ accessToken: string }>(res);
     useAuthStore.getState().setAccessToken(accessToken);
+    logger.info('auth', 'access token 갱신 성공');
     return accessToken;
-  })().finally(() => {
-    refreshing = null;
-  });
+  })()
+    .catch((err: unknown) => {
+      logger.warn('auth', 'access token 갱신 실패', err);
+      throw err;
+    })
+    .finally(() => {
+      refreshing = null;
+    });
   return refreshing;
 }
 
@@ -95,6 +109,7 @@ export async function request<T>(method: Method, path: string, body?: unknown): 
 
   await refreshAccessToken();
   // PR-16 ②: 원 요청은 1회만 재시도. 다시 401이면 refresh 없이 로그아웃
+  logger.info('api', `${method} ${path} 401 → 갱신 후 재시도`);
   const retried = await send(method, path, body);
   if (retried.status === 401) discardSession();
   return parse<T>(retried);

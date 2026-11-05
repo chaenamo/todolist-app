@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { logger } from '../lib/logger';
 
 export type Theme = 'light' | 'dark';
 export type FontSize = 'small' | 'medium' | 'large';
@@ -35,4 +36,9 @@ function syncHtml({ theme, fontSize }: ThemeState): void {
   document.documentElement.dataset.fontSize = fontSize;
 }
 syncHtml(useThemeStore.getState());
-useThemeStore.subscribe(syncHtml);
+useThemeStore.subscribe((s, prev) => {
+  if (s.theme !== prev.theme) logger.info('settings', `화면 모드: ${prev.theme} → ${s.theme}`);
+  if (s.fontSize !== prev.fontSize)
+    logger.info('settings', `글자 크기: ${prev.fontSize} → ${s.fontSize}`);
+  syncHtml(s);
+});
