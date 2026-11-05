@@ -71,3 +71,26 @@ test('NFR-12, SC-00-E3: 다른 사용자 할일 GET·PUT·DELETE → 404, 대상
   }
   assert.deepEqual(await snapshot(todo.id), before);
 });
+
+test('NFR-12: 다른 사용자 카테고리 PATCH·DELETE → 404, 대상 행 변화 없음', async () => {
+  const owner = await createUserAndToken();
+  const intruder = await createUserAndToken();
+  const { body: category } = await request(app)
+    .post('/api/categories')
+    .set(bearer(owner.accessToken))
+    .send({ name: '업무' });
+  const row = async () =>
+    (await pool.query('SELECT * FROM categories WHERE id = $1', [category.id])).rows[0];
+  const before = await row();
+  const path = `/api/categories/${category.id}`;
+
+  const responses = [
+    await request(app).patch(path).set(bearer(intruder.accessToken)).send({ name: '탈취' }),
+    await request(app).delete(path).set(bearer(intruder.accessToken)),
+  ];
+  for (const res of responses) {
+    assert.equal(res.status, 404);
+    assert.equal(res.body.error.code, 'NOT_FOUND');
+  }
+  assert.deepEqual(await row(), before);
+});

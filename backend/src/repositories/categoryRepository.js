@@ -33,3 +33,21 @@ export async function insertCategory(db, userId, { name, isDefault = false }) {
   );
   return rows[0];
 }
+
+// BR-06: '기본'은 SQL 조건으로도 막는다. 0건이면 null
+export async function updateCategoryName(db, userId, id, name) {
+  const { rows } = await db.query(
+    `UPDATE categories SET name = $3 WHERE user_id = $1 AND id = $2 AND NOT is_default
+     RETURNING ${CATEGORY_COLUMNS}`,
+    [userId, id, name],
+  );
+  return rows[0] ?? null;
+}
+
+export async function deleteCategory(db, userId, id) {
+  const { rowCount } = await db.query(
+    'DELETE FROM categories WHERE user_id = $1 AND id = $2 AND NOT is_default',
+    [userId, id],
+  );
+  return rowCount > 0;
+}

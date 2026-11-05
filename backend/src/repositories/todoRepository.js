@@ -88,3 +88,11 @@ export async function updateCompletion(db, userId, id, isCompleted) {
   );
   return rows[0] ?? null;
 }
+
+// BR-09: 카테고리 삭제 전 소속 할일 이동 (IX-02)
+export async function moveCategory(db, userId, fromId, toId) {
+  await db.query(
+    'UPDATE todos SET category_id = $3, updated_at = now() WHERE user_id = $1 AND category_id = $2',
+    [userId, fromId, toId],
+  );
+}

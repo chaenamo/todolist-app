@@ -566,12 +566,12 @@ flowchart LR
   3. `PATCH/DELETE /api/categories/:id`. `test/categories.test.js`, `test/ownership.test.js`에 추가.
 - **선결 결정**: EQ-01(경합 23503 → 409).
 - **완료 조건**:
-  - [ ] 사용자 카테고리 이름 변경 → 200, trim 적용, 중복 이름 → 409 `fields.name` (BR-07, SC-03-A1)
-  - [ ] '기본' 이름 변경·삭제 → 400 `FORBIDDEN_OPERATION`, DB 변화 없음 (BR-06, SC-03-E3)
-  - [ ] 할일 3건이 속한 카테고리 삭제 → 204, 3건 모두 '기본' 소속으로 남는다 (BR-09)
-  - [ ] 이동 후 삭제 단계 실패를 주입하면 할일의 카테고리가 원래대로 남는다(롤백) (PR-11)
-  - [ ] 다른 사용자 카테고리 PATCH·DELETE → 404 (NFR-12)
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] 사용자 카테고리 이름 변경 → 200, trim 적용, 중복 이름 → 409 `fields.name` (BR-07, SC-03-A1)
+  - [x] '기본' 이름 변경·삭제 → 400 `FORBIDDEN_OPERATION`, DB 변화 없음 (BR-06, SC-03-E3)
+  - [x] 할일 3건이 속한 카테고리 삭제 → 204, 3건 모두 '기본' 소속으로 남는다 (BR-09)
+  - [x] 이동 후 삭제 단계 실패를 주입하면 할일의 카테고리가 원래대로 남는다(롤백) (PR-11)
+  - [x] 다른 사용자 카테고리 PATCH·DELETE → 404 (NFR-12)
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ## 5. 프론트엔드 Task
 
