@@ -23,6 +23,7 @@ const ko = {
     internal: '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요',
   },
   language: { label: '언어' },
+  theme: { label: '화면 모드', light: '라이트', dark: '다크' },
   nav: {
     label: '주 메뉴',
     todos: '목록',

@@ -24,6 +24,7 @@ const ja: Messages = {
     internal: '一時的なエラーが発生しました。しばらくしてからもう一度お試しください',
   },
   language: { label: '言語' },
+  theme: { label: '表示モード', light: 'ライト', dark: 'ダーク' },
   nav: {
     label: 'メインメニュー',
     todos: '一覧',

@@ -6,6 +6,7 @@
 |------|------|--------|------|------|
 | v0.1 | 2026-11-05 | chaenamo | 초안 | 최초 작성 (U-07 결정) |
 | v0.2 | 2026-11-05 | chaenamo | 초안 | FE-03 구현 중 토큰 2개 추가 |
+| v0.3 | 2026-11-05 | chaenamo | 초안 | 다크 모드 색 토큰 추가 |
 
 ## 변경 이력
 
@@ -13,6 +14,7 @@
 |------|------|-----------|-----------|--------|
 | v0.1 | 2026-11-05 | 전체 | 와이어프레임 v0.5와 참고 캘린더 화면 3장(월간·주간·일간)을 검토해 디자인 토큰·컴포넌트·화면 규칙을 정의. 임시 원본이던 `tokens.css`(U-07)를 이 문서로 대체 | chaenamo |
 | v0.2 | 2026-11-05 | 2.7 | FE-03 구현에서 리터럴 대신 쓰도록 `--toast-max-width`(480px), `--border-width-thick`(2px) 추가. 모달 최대 폭은 `--form-max-width` 재사용 | chaenamo |
+| v0.3 | 2026-11-05 | 2.9(신규) | 화면 모드(FE-16): 다크 모드 색 토큰 값 정의(검정 배경·흰 글자·밝은 강조색). 라이트(2.1~2.4) 값 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (PR-24, U-07), `docs/2-PRD.md` (NFR-16, NFR-17).
 > 화면 구성·동작은 와이어프레임(WF, CMP)을 따르고, 이 문서는 **어떻게 보이는지**만 정한다. 둘이 다르면 와이어프레임이 우선이다.
@@ -164,6 +166,50 @@
 | 데스크톱 | 1024px 이상 | 본문 최대 960px 중앙 정렬 |
 
 미디어 쿼리는 모바일 우선: `@media (min-width: 768px)`, `@media (min-width: 1024px)`. 360px에서 가로 스크롤이 생기면 안 된다(NFR-16).
+
+### 2.9 다크 모드 (FE-16)
+
+`<html data-theme="dark">`일 때 `tokens.css`의 `:root[data-theme='dark']`가 아래 **색 토큰만** 덮어쓴다(나머지 토큰은 2.1~2.8 그대로). 라이트는 2.1~2.4 값 그대로이고 기본 모드다(8-plan PQ-08). 방향: 검정 배경, 흰 글자, 강조색은 밝게 하고 그 위 글자는 검정(`--color-primary-contrast`, `--color-bar-text`). 글자 대비는 모두 4.5:1 이상. `color-scheme: dark`로 네이티브 입력·스크롤바도 어둡게 한다.
+
+| 토큰 | 다크 값 | 비고 |
+|------|---------|------|
+| `--color-bg` | `#000000` | 페이지 배경(검정) |
+| `--color-surface` | `#121212` | 필터 영역·모달 등 면 |
+| `--color-surface-hover` | `#1f1f1f` | hover 배경 |
+| `--color-border` | `#2c2c2c` | 구분선·격자 |
+| `--color-border-strong` | `#555a62` | 입력란·보조 버튼 테두리 |
+| `--color-text` | `#ffffff` | 본문 글자(흰색) |
+| `--color-text-muted` | `#c2c6cc` | 보조 글자 |
+| `--color-text-subtle` | `#8d939b` | 다른 달 날짜 등 흐린 글자 |
+| `--color-primary` | `#a59cff` | 주 버튼·선택 상태(밝은 보라) |
+| `--color-primary-hover` | `#c0b9ff` | 주 버튼 hover |
+| `--color-primary-soft` | `#26214d` | 선택 행·연한 강조 배경 |
+| `--color-primary-contrast` | `#000000` | 밝은 강조색 위 글자 |
+| `--color-overlay` | `rgba(0, 0, 0, 0.7)` | 모달 오버레이 |
+| `--color-sunday` | `#ff8080` | 일요일 날짜 |
+| `--color-today-bg` | `#16223a` | 오늘 칸 배경 |
+| `--color-today-border` | `#ffffff` | 오늘 칸 테두리 |
+| `--color-status-not-started` | `#2a2d33` | 배지: 시작 전 |
+| `--color-status-not-started-text` | `#d6dae0` |  |
+| `--color-status-in-progress` | `#26214d` | 배지: 진행 중 |
+| `--color-status-in-progress-text` | `#c0b9ff` |  |
+| `--color-status-completed` | `#11331f` | 배지: 완료 |
+| `--color-status-completed-text` | `#74e6a2` |  |
+| `--color-status-overdue` | `#3d1712` | 배지: 기한 초과 |
+| `--color-status-overdue-text` | `#ff9d8c` |  |
+| `--color-bar-not-started` | `#a3abbd` | 캘린더 바: 시작 전 |
+| `--color-bar-in-progress` | `#a59cff` | 캘린더 바: 진행 중 |
+| `--color-bar-overdue` | `#ff8a73` | 캘린더 바: 기한 초과 |
+| `--color-bar-completed` | `#2c2c2c` | 캘린더 바: 완료 |
+| `--color-bar-text` | `#000000` | 바 글자(밝은 바 위) |
+| `--color-error` | `#ff8a73` | 오류 글자·위험 버튼 |
+| `--color-error-hover` | `#ffa898` |  |
+| `--color-error-bg` | `#3d1712` | 오류 배경 |
+| `--color-success` | `#74e6a2` |  |
+| `--color-success-bg` | `#11331f` |  |
+| `--shadow-popover` | `0 4px 16px rgba(0, 0, 0, 0.6)` |  |
+| `--shadow-modal` | `0 12px 32px rgba(0, 0, 0, 0.7)` |  |
+| `--focus-ring` | `0 0 0 3px rgba(165, 156, 255, 0.5)` |  |
 
 ## 3. 공통 요소
 

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { ApiError } from '../api/client';
 import { LanguageSelect } from '../components/LanguageSelect';
+import { ThemeSelect } from '../components/ThemeSelect';
 import { useLogin } from '../hooks/useAuth';
 import { useT } from '../i18n';
 import styles from './AuthPage.module.css';
@@ -30,7 +31,10 @@ export function LoginPage() {
       <div className={styles.card}>
         <div className={styles.top}>
           <p className={styles.brand}>TodoList</p>
-          <LanguageSelect />
+          <div className={styles.controls}>
+            <LanguageSelect />
+            <ThemeSelect />
+          </div>
         </div>
         <h1 className={styles.title}>{t.auth.loginTitle}</h1>
         <form noValidate onSubmit={handleSubmit}>

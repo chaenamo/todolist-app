@@ -94,3 +94,45 @@
   --z-toast: 30;
   --duration-fast: 150ms;
 }
+
+/* 2.9 다크 모드: 색 토큰만 재정의 (FE-16, docs/style-guide.md 2.9) */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #000000;
+  --color-surface: #121212;
+  --color-surface-hover: #1f1f1f;
+  --color-border: #2c2c2c;
+  --color-border-strong: #555a62;
+  --color-text: #ffffff;
+  --color-text-muted: #c2c6cc;
+  --color-text-subtle: #8d939b;
+  --color-primary: #a59cff;
+  --color-primary-hover: #c0b9ff;
+  --color-primary-soft: #26214d;
+  --color-primary-contrast: #000000;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+  --color-sunday: #ff8080;
+  --color-today-bg: #16223a;
+  --color-today-border: #ffffff;
+  --color-status-not-started: #2a2d33;
+  --color-status-not-started-text: #d6dae0;
+  --color-status-in-progress: #26214d;
+  --color-status-in-progress-text: #c0b9ff;
+  --color-status-completed: #11331f;
+  --color-status-completed-text: #74e6a2;
+  --color-status-overdue: #3d1712;
+  --color-status-overdue-text: #ff9d8c;
+  --color-bar-not-started: #a3abbd;
+  --color-bar-in-progress: #a59cff;
+  --color-bar-overdue: #ff8a73;
+  --color-bar-completed: #2c2c2c;
+  --color-bar-text: #000000;
+  --color-error: #ff8a73;
+  --color-error-hover: #ffa898;
+  --color-error-bg: #3d1712;
+  --color-success: #74e6a2;
+  --color-success-bg: #11331f;
+  --shadow-popover: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.7);
+  --focus-ring: 0 0 0 3px rgba(165, 156, 255, 0.5);
+}

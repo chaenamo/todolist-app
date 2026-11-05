@@ -24,6 +24,7 @@ const en: Messages = {
     internal: 'A temporary error occurred. Please try again later',
   },
   language: { label: 'Language' },
+  theme: { label: 'Theme', light: 'Light', dark: 'Dark' },
   nav: {
     label: 'Main menu',
     todos: 'List',
