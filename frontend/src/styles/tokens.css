@@ -1,0 +1,53 @@
+/*
+ * 임시 스타일 가이드 원본 (U-07, PR-24). 색·간격·폰트는 이 변수만 쓴다.
+ * 브레이크포인트(CSS 변수는 미디어 쿼리에 못 쓰므로 값만 기록):
+ *   모바일 360px 이상, 태블릿 768px 이상, 데스크톱 1024px 이상 (NFR-16)
+ */
+:root {
+  /* 기본 색 */
+  --color-bg: #ffffff;
+  --color-surface: #f6f7f9;
+  --color-border: #d9dde3;
+  --color-text: #1f2328;
+  --color-text-muted: #636c76;
+  --color-primary: #2f6feb;
+  --color-primary-contrast: #ffffff;
+
+  /* 할일 상태 4종 (CMP-05, ST-01~04): 배지 배경 / 글자 */
+  --color-status-not-started: #eef1f4;
+  --color-status-not-started-text: #57606a;
+  --color-status-in-progress: #ddeafe;
+  --color-status-in-progress-text: #1a56c4;
+  --color-status-completed: #dcf3e3;
+  --color-status-completed-text: #1d7a3e;
+  --color-status-overdue: #fde4e4;
+  --color-status-overdue-text: #b42318;
+
+  /* 피드백 */
+  --color-error: #b42318;
+  --color-error-bg: #fde4e4;
+  --color-success: #1d7a3e;
+  --color-success-bg: #dcf3e3;
+
+  /* 간격 (4px 단위) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* 폰트 */
+  --font-family: system-ui, -apple-system, 'Segoe UI', 'Noto Sans KR', sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-weight-regular: 400;
+  --font-weight-bold: 600;
+  --line-height: 1.5;
+
+  /* 모서리 */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}

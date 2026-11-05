@@ -584,11 +584,11 @@ flowchart LR
   5. `src/main.tsx`(QueryClientProvider, 기본 `staleTime` 상수), `src/App.tsx`(라우트 자리 + `*` → `NotFoundPage` 임시).
 - **선결 결정**: PQ-01 테스트 개발 의존성 추가. U-07 스타일 가이드 = `tokens.css`.
 - **완료 조건**:
-  - [ ] `npm run build`가 타입 오류 없이 성공한다
-  - [ ] `npm test`에서 샘플 테스트 1개가 jsdom 환경으로 통과한다
-  - [ ] `npm run lint` 경고 0
-  - [ ] `tokens.css`에 상태 4종(NOT_STARTED, IN_PROGRESS, COMPLETED, OVERDUE) 색 변수가 있다 (CMP-05)
-  - [ ] `src/` 어디에도 `dangerouslySetInnerHTML`·`any`가 없다(`grep`) (PR-24, R-05)
+  - [x] `npm run build`가 타입 오류 없이 성공한다
+  - [x] `npm test`에서 샘플 테스트 1개가 jsdom 환경으로 통과한다
+  - [x] `npm run lint` 경고 0
+  - [x] `tokens.css`에 상태 4종(NOT_STARTED, IN_PROGRESS, COMPLETED, OVERDUE) 색 변수가 있다 (CMP-05)
+  - [x] `src/` 어디에도 `dangerouslySetInnerHTML`·`any`가 없다(`grep`) (PR-24, R-05)
 
 ### FE-02 API 클라이언트·스토어·인증 가드
 
