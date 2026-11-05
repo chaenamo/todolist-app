@@ -8,6 +8,7 @@ import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { categoriesRouter } from './routes/categories.js';
 import { todosRouter } from './routes/todos.js';
+import { mountApiDocs } from './apiDocs.js';
 import { usersRouter } from './routes/users.js';
 
 export const app = express();
@@ -16,6 +17,7 @@ app.use(cors({ origin: config.corsOrigin })); // PR-35
 app.use(express.json());
 app.use(requestLog);
 app.use(healthRouter);
+if (config.isDev) mountApiDocs(app); // 개발 환경에서만 Swagger UI
 app.use('/api/auth', authRouter);
 // PR-07: 여기부터 /api는 모두 인증 필요. 보호 라우터는 이 아래에 연결한다
 app.use('/api', requireAuth);

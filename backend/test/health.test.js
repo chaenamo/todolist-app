@@ -6,18 +6,19 @@ import { pool } from '../src/db.js';
 
 after(() => pool.end());
 
-test('PR-45: DB 정상 시 GET /health 200 { status: "ok" }', async () => {
+test('PR-45: DB 정상 시 GET /health 200 { status: "ok", db: "connected" }', async () => {
   const res = await request(app).get('/health');
   assert.equal(res.status, 200);
-  assert.deepEqual(res.body, { status: 'ok' });
+  assert.deepEqual(res.body, { status: 'ok', db: 'connected' });
 });
 
-test('PR-45: 풀 접속 실패 시 GET /health 503', async (t) => {
+test('PR-45: 풀 접속 실패 시 GET /health 503 { status: "unavailable", db: "disconnected" }', async (t) => {
   t.mock.method(pool, 'query', async () => {
     throw new Error('connection refused');
   });
   const res = await request(app).get('/health');
   assert.equal(res.status, 503);
+  assert.deepEqual(res.body, { status: 'unavailable', db: 'disconnected' });
 });
 
 test('PR-46: 미등록 경로는 404 NOT_FOUND', async () => {

@@ -10,11 +10,13 @@
 | v0.4 | 2026-11-04 | chaenamo | 초안 | 이월 작업 추적(9장) 추가 |
 | v0.5 | 2026-11-04 | chaenamo | 초안 | U-08 결정 반영 |
 | v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트(QA-02)·배포(OPS-01) 범위 제외 |
+| v0.7 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
 
 ## 변경 이력
 
 | 버전 | 일자 | 변경 섹션 | 변경 내용 | 변경자 |
 |------|------|-----------|-----------|--------|
+| v0.7 | 2026-11-05 | BE-01, BE-02, QA-01, 9 | 9장 BE-01 이월(swagger YAML 검증)을 개발 환경 Swagger UI 추가와 `test/apiDocs.test.js`로 처리 완료. 사용자 요청으로 `GET /health` 응답에 DB 연결 상태 `db` 추가. 0.2 규칙에 따라 BE-02 체크박스 문장 변경(200 본문에 `db: "connected"`, 503 본문 명시). 코드·테스트 반영 후 재확인해 체크 유지 | chaenamo |
 | v0.6 | 2026-11-05 | 기준 문서, 0.1, 1, 2, DB-03, 6, 7(U-01, EQ-02), 8.3, 9 | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로 QA-02(k6 부하 테스트·튜닝)·OPS-01(배포) Task를 삭제(ID 재사용 금지). 요약표·의존성 그래프·크리티컬 패스(약 13h → 11.5h)·Must 합계(41.5h → 38.5h)에서 제거. U-01은 범위 밖, NFR-01~04는 미검증으로 표기. QA-02로 이월된 2건(IX-02 Sort, 목록 total 불일치)은 "제외"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6, ERD v0.4 | chaenamo |
 | v0.1 | 2026-11-04 | 전체 | 도메인 정의서~ERD·schema.sql 기반 DB/BE/FE/QA/OPS Task 분해, 의존성·크리티컬 패스, 착수 전 결정 목록, UC·AC 추적 표 최초 작성 | chaenamo |
 | v0.2 | 2026-11-04 | 기준 문서, 1, 2, BE-01, DB-02, BE-02, BE-03, BE-05, BE-11, FE-02, FE-04, FE-12, QA-01, QA-02, OPS-01, 7, 8.3 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. BE-05를 토큰 쌍 발급·refresh·logout·HS384로 확장(제목 변경), BE-01 계약에 refresh·logout 추가·비밀번호 변경 응답 200 `{ refreshToken }`, DB-02·BE-03·OPS-01 마이그레이션 4개(004 추가), BE-11 비밀번호 변경 시 전체 refresh 폐기, FE-02 access 메모리·refresh localStorage·single-flight refresh·앱 진입 refresh, FE-04 로그아웃 API 호출. 0.2 규칙에 따라 기존 체크박스 문장 변경: BE-01(엔드포인트 수 17→19), DB-02(001→004·refresh_tokens), BE-02(`JWT_ACCESS_SECRET`, 로그), BE-03(파일·테이블 수), BE-05(응답 필드, payload·만료), BE-11(G-06), FE-02(Bearer, 401, 가드), FE-04(토큰 저장, 로그아웃), FE-12(G-06), QA-02(NFR-02에 refresh), OPS-01(4행, 비밀키 이름). 7장 U-02·AQ-11·G-06·EQ-02 갱신, 예상 시간 BE-05 2→3h, BE-11 1→1.5h, FE-02 1.5→2.5h | chaenamo |
@@ -308,7 +310,7 @@ flowchart LR
   | `PUT /api/todos/:id` | 등록과 같은 필드(`isCompleted` 불가, AQ-10) | 200 `todo` | 400, 404 |
   | `PATCH /api/todos/:id` | `{ isCompleted }`만 | 200 `todo` | 400, 404 |
   | `DELETE /api/todos/:id` | - | 204 | 404 |
-  | `GET /health` | - | 200 `{ status: "ok" }` / 503 | - |
+  | `GET /health` | - | 200 `{ status: "ok", db: "connected" }` / 503 `{ status: "unavailable", db: "disconnected" }` | - |
 
 - **선결 결정**: U-04, AQ-05, AQ-06, AQ-09, AQ-10, EQ-01, G-05, PQ-02, PQ-03 (7장 잠정값 사용)
 - **완료 조건**:
@@ -333,7 +335,7 @@ flowchart LR
   5. `src/routes/health.js`(`GET /health` 200/503), `src/app.js`(cors `CORS_ORIGIN` → json → requestLog → health → `/api` 라우터 자리 → 404 `NOT_FOUND` → error), `src/server.js`.
 - **선결 결정**: AQ-07 — 잠정: `db.checkConnection()` 호출을 헬스체크 예외로 허용. EQ-01 — 잠정: 23503은 409 `CONFLICT`(재시도 안내 문구), 잠금 미도입. PQ-03 — 잠정: bigint를 number로 파싱.
 - **완료 조건**:
-  - [x] `npm test`에서 `test/health.test.js`: DB 정상 시 `GET /health` 200 `{ status: "ok" }`, 풀 접속 실패 시 503 통과 (PR-45)
+  - [x] `npm test`에서 `test/health.test.js`: DB 정상 시 `GET /health` 200 `{ status: "ok", db: "connected" }`, 풀 접속 실패 시 503 `{ status: "unavailable", db: "disconnected" }` 통과 (PR-45)
   - [x] 미등록 경로 요청이 404 `{ error: { code: "NOT_FOUND" } }`를 반환한다 (PR-46)
   - [x] error 미들웨어 단위 테스트: AppError, 23505 `uq_users_email` → 409 `fields.email`, `uq_categories_user_id_name` → 409 `fields.name`, 매핑 없는 23505 → `fields` 없는 409, 23503 → 409, 기타 → 500 `INTERNAL`이고 응답에 스택·SQL 문구가 없다 (PR-20, PR-21, AQ-02)
   - [x] `JWT_ACCESS_SECRET` 없이, 또는 48바이트 미만 값으로 `node src/server.js` 실행 시 0이 아닌 코드로 종료한다 (PR-34, PR-37)
@@ -836,7 +838,7 @@ flowchart LR
   2. 브라우저 날짜를 2026-11-13으로 두고(OS 날짜 변경 또는 개발자도구 시간 재정의) SC-11 1~8단계를 수행한다.
   3. 결과와 발견 결함을 이 Task 아래 한 줄씩 기록하고 결함은 해당 Task로 되돌린다.
 - **선결 결정**: 없음
-- **이월 사항** (9장): `backend/swagger.yaml` v0.2 수정분의 YAML 문법 검증을 하지 못했다(BE-01, 파서 설치가 권한 확인에서 거부됨). Swagger UI나 YAML 파서로 열어 오류가 없는지 확인한다.
+- **이월 사항** (9장, 처리 완료 2026-11-05: `test/apiDocs.test.js`로 YAML 파싱 확인, `npm run dev`에서 `/api-docs` Swagger UI 제공): `backend/swagger.yaml` v0.2 수정분의 YAML 문법 검증을 하지 못했다(BE-01, 파서 설치가 권한 확인에서 거부됨). Swagger UI나 YAML 파서로 열어 오류가 없는지 확인한다.
 - **완료 조건**:
   - [ ] SC-11 1단계: 가입 후 바로 빈 목록, 카테고리 화면에 '기본'이 있다 (UC-01, BR-05, G-01)
   - [ ] SC-11 3~5단계: A 기한 초과, B 진행 중, C '기본' 소속·시작 전으로 표시 (AC-01, ST-02~04)
@@ -961,6 +963,6 @@ Task 수행 중 미룬 작업의 추적 표(0.2 이월 규칙). 대상 Task 절�
 | BE-04 | `COMPLETED` 조각은 today를 쓰지 않음 → today 파라미터는 필요할 때만 추가(08P01 방지) | BE-08 | 완료 |
 | DB-03 | IX-02 쿼리 EXPLAIN에 Sort 노드 잔존 → 데이터를 늘려 재확인 | - | 제외(v0.6, QA-02 삭제) |
 | BE-08 | 목록 COUNT와 페이지 조회가 별도 쿼리라 동시 쓰기 시 `total`이 어긋날 수 있음(`todoRepository.findTodosByUser`의 `shortcut:` 주석) → 부하 중 불일치가 문제되면 같은 트랜잭션(REPEATABLE READ)으로 묶기 | - | 제외(v0.6, QA-02 삭제) |
-| BE-01 | `swagger.yaml` v0.2 수정분 YAML 문법 미검증 | QA-01 | 대기 |
+| BE-01 | `swagger.yaml` v0.2 수정분 YAML 문법 미검증 | QA-01 | 완료(2026-11-05, `test/apiDocs.test.js`가 YAML 파싱·엔드포인트 19개 확인, 개발 환경 Swagger UI `/api-docs`) |
 | BE-05 | 로그인 응답 시간 차이(G-04 계정 존재 추측) | PQ-04 결정 | 결정 대기 |
 | BE-02 | JSON 파싱 실패 요청 로그 누락 | PQ-05 결정 | 결정 대기 |

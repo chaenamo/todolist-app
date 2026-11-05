@@ -7,6 +7,7 @@ function fail(message) {
 }
 
 const isTest = env.NODE_ENV === 'test';
+const isDev = env.NODE_ENV === 'development';
 // PR-27: 테스트는 개발 DB 대신 TEST_DATABASE_URL을 쓴다
 const databaseUrl = isTest ? env.TEST_DATABASE_URL : env.DATABASE_URL;
 
@@ -17,6 +18,7 @@ if (Buffer.byteLength(env.JWT_ACCESS_SECRET) < 48) fail('JWT_ACCESS_SECRET은 48
 
 export const config = {
   isTest,
+  isDev,
   port: Number(env.PORT ?? 3000),
   databaseUrl,
   dbPoolMax: Number(env.DB_POOL_MAX ?? 20),

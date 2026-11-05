@@ -5,16 +5,18 @@
 | 버전 | 일자 | 작성자 | 상태 | 비고 |
 |------|------|--------|------|------|
 | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
+| v0.2 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
 
 ## 변경 이력
 
 | 버전 | 일자 | 변경 섹션 | 변경 내용 | 변경자 |
 |------|------|-----------|-----------|--------|
 | v0.1 | 2026-11-04 | 전체 | `8-plan.md` BE-01 잠정 표와 `backend/swagger.yaml` v0.2 기준으로 엔드포인트 19개, 인증, 공통 형식, 결정 사항 최초 작성 | chaenamo |
+| v0.2 | 2026-11-05 | 3.1, 4 | `GET /health` 응답에 DB 연결 상태 필드 `db` 추가: 200 `{ status: "ok", db: "connected" }`, 503 `{ status: "unavailable", db: "disconnected" }` | chaenamo |
 
-> 기준 문서: `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/8-plan.md` (v0.3), `backend/swagger.yaml` (v0.2).
+> 기준 문서: `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/8-plan.md` (v0.3), `backend/swagger.yaml` (v0.4).
 > 기준 문서 ID(BR, AC, PR, AQ, EQ, G, U, PQ 등)는 **참조만** 하며 재정의하지 않는다. 이 문서는 새 ID를 만들지 않는다.
-> 스키마 세부(필드 제약·예시 전체)는 `backend/swagger.yaml`이 기계 판독용 원본이다. 이 문서와 swagger가 다르면 둘을 함께 고친다.
+> 스키마 세부(필드 제약·예시 전체)는 `backend/swagger.yaml`이 기계 판독용 원본이다. 개발 환경(`npm run dev`)에서는 `http://localhost:3000/api-docs`에서 Swagger UI로 볼 수 있다(운영 환경에는 열지 않음). 이 문서와 swagger가 다르면 둘을 함께 고친다.
 
 ## 1. 공통 형식
 
@@ -127,7 +129,7 @@ Todo (쓰기·단건 조회 응답, `status` 없음 — AQ-09)
 
 | # | 메서드·경로 | 요청 | 성공 | 오류 |
 |---|-------------|------|------|------|
-| 1 | 🔓 `GET /health` | - | 200 `{ "status": "ok" }` | 503 `{ "status": "unavailable" }`(DB `SELECT 1` 실패, PR-45) |
+| 1 | 🔓 `GET /health` | - | 200 `{ "status": "ok", "db": "connected" }` | 503 `{ "status": "unavailable", "db": "disconnected" }`(DB `SELECT 1` 실패, PR-45) |
 
 ### 3.2 인증 (BE-05)
 
@@ -196,4 +198,4 @@ Todo (쓰기·단건 조회 응답, `status` 없음 — AQ-09)
 이 문서에서 함께 정한 세부 (swagger v0.2에 반영)
 
 - `PATCH /api/users/me`: `name` 외 필드가 있으면 400 `VALIDATION_ERROR`(이메일 변경 불가 A-06, 할일 입력의 미허용 필드 처리 AQ-10과 같은 방식).
-- `GET /health` 503 본문: `{ "status": "unavailable" }`.
+- `GET /health` 본문: 200 `{ "status": "ok", "db": "connected" }`, 503 `{ "status": "unavailable", "db": "disconnected" }`(v0.2에서 `db` 추가).
