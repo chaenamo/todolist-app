@@ -603,19 +603,19 @@ flowchart LR
   4. `App.tsx` 인증 가드(AD-13): access token이 있으면 통과. 없고 refresh token이 있으면 refresh를 먼저 호출(판정 중 로딩 표시, 보호 화면 렌더 안 함) → 성공 시 보호 화면, 실패 시 refresh token 폐기 후 `/login`. 둘 다 없으면 `/login`. 로그인 상태로 `/login`·`/signup` 접근 시 `/todos`. 라우트 표는 원칙 6.3.
 - **선결 결정**: U-02 결정(access 메모리, refresh localStorage), AQ-11 결정(`exp` 확인 대신 앱 진입 refresh, AD-13).
 - **완료 조건**:
-  - [ ] `client.test.ts`: access token이 있으면 `Authorization: Bearer <accessToken>` 헤더가 붙는다
-  - [ ] PR-20 에러 응답이 `ApiError{code,message,fields,status}`로 throw된다 (CMP-03)
-  - [ ] 보호 요청 401 → refresh 200 → 새 access token으로 원 요청이 정확히 1회 재시도되고 그 결과가 호출자에게 반환된다 (PR-16)
-  - [ ] 동시에 보호 요청 3개가 401이면 refresh 요청은 1번만 나가고 3개 모두 새 access token으로 재시도된다 (PR-16, single-flight)
-  - [ ] 보호 요청 401 후 refresh도 401 → access·refresh 모두 null, `queryClient.clear` 호출, `/login` 이동 (PR-16, SC-00-E2)
-  - [ ] 재시도한 요청이 다시 401이면 refresh를 또 호출하지 않고 로그아웃 처리한다(무한 루프 없음) (PR-16)
-  - [ ] `/api/auth/login` 401은 토큰 폐기·이동 없이 `ApiError`로만 throw된다 (AQ-01, SC-02-E1)
-  - [ ] `uiStore`: 카테고리·상태 필터 변경 시 `page`가 1로 바뀐다 (G-09)
-  - [ ] 가드 테스트: 토큰 둘 다 없음 → `/login`, refresh token만 있고 refresh 200 → 요청한 보호 화면, refresh 401 → refresh token 폐기 후 `/login`, access token 보유 상태로 `/login` 접근 → `/todos` (SC-00-E1, SC-02-A1, AQ-11, AD-13)
-  - [ ] 가드가 앱 진입 refresh 응답을 기다리는 동안 보호 화면 컴포넌트가 렌더되지 않는다 (AD-13, AQ-11)
-  - [ ] localStorage의 persist 저장값에 refresh token만 있고 access token이 없다 (U-02, PR-37, R-05)
-  - [ ] `api/`가 React를 import하지 않는다(`grep`) (PR-13)
-  - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `api/`·`stores/` 커버리지 ≥ 90%
+  - [x] `client.test.ts`: access token이 있으면 `Authorization: Bearer <accessToken>` 헤더가 붙는다
+  - [x] PR-20 에러 응답이 `ApiError{code,message,fields,status}`로 throw된다 (CMP-03)
+  - [x] 보호 요청 401 → refresh 200 → 새 access token으로 원 요청이 정확히 1회 재시도되고 그 결과가 호출자에게 반환된다 (PR-16)
+  - [x] 동시에 보호 요청 3개가 401이면 refresh 요청은 1번만 나가고 3개 모두 새 access token으로 재시도된다 (PR-16, single-flight)
+  - [x] 보호 요청 401 후 refresh도 401 → access·refresh 모두 null, `queryClient.clear` 호출, `/login` 이동 (PR-16, SC-00-E2)
+  - [x] 재시도한 요청이 다시 401이면 refresh를 또 호출하지 않고 로그아웃 처리한다(무한 루프 없음) (PR-16)
+  - [x] `/api/auth/login` 401은 토큰 폐기·이동 없이 `ApiError`로만 throw된다 (AQ-01, SC-02-E1)
+  - [x] `uiStore`: 카테고리·상태 필터 변경 시 `page`가 1로 바뀐다 (G-09)
+  - [x] 가드 테스트: 토큰 둘 다 없음 → `/login`, refresh token만 있고 refresh 200 → 요청한 보호 화면, refresh 401 → refresh token 폐기 후 `/login`, access token 보유 상태로 `/login` 접근 → `/todos` (SC-00-E1, SC-02-A1, AQ-11, AD-13)
+  - [x] 가드가 앱 진입 refresh 응답을 기다리는 동안 보호 화면 컴포넌트가 렌더되지 않는다 (AD-13, AQ-11)
+  - [x] localStorage의 persist 저장값에 refresh token만 있고 access token이 없다 (U-02, PR-37, R-05)
+  - [x] `api/`가 React를 import하지 않는다(`grep`) (PR-13)
+  - [x] `npm run lint`, `npm test`, `npm run build` 통과, `api/`·`stores/` 커버리지 ≥ 90%
 
 ### FE-03 공통 레이아웃·공통 컴포넌트
 
