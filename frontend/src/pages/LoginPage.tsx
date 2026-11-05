@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { ApiError } from '../api/client';
 import { LanguageSelect } from '../components/LanguageSelect';
 import { ThemeSelect } from '../components/ThemeSelect';
+import { FontSizeSelect } from '../components/FontSizeSelect';
 import { useLogin } from '../hooks/useAuth';
 import { useT } from '../i18n';
 import styles from './AuthPage.module.css';
@@ -34,6 +35,7 @@ export function LoginPage() {
           <div className={styles.controls}>
             <LanguageSelect />
             <ThemeSelect />
+            <FontSizeSelect />
           </div>
         </div>
         <h1 className={styles.title}>{t.auth.loginTitle}</h1>

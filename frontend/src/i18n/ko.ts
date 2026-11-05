@@ -24,6 +24,7 @@ const ko = {
   },
   language: { label: '언어' },
   theme: { label: '화면 모드', light: '라이트', dark: '다크' },
+  fontSize: { label: '글자 크기', small: '작게', medium: '중간', large: '크게' },
   nav: {
     label: '주 메뉴',
     todos: '목록',

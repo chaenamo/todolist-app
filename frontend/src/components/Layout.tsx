@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router';
 import { useT } from '../i18n';
 import { LanguageSelect } from './LanguageSelect';
 import { ThemeSelect } from './ThemeSelect';
+import { FontSizeSelect } from './FontSizeSelect';
 import styles from './Layout.module.css';
 
 const NAV_ITEMS = [
@@ -52,6 +53,9 @@ export function Layout({ onLogout }: { onLogout: () => void }) {
               </li>
               <li className={styles.langItem}>
                 <ThemeSelect />
+              </li>
+              <li className={styles.langItem}>
+                <FontSizeSelect />
               </li>
               <li className={styles.logoutItem}>
                 <button

@@ -136,3 +136,12 @@
   --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.7);
   --focus-ring: 0 0 0 3px rgba(165, 156, 255, 0.5);
 }
+
+/* 2.10 글자 크기 단계: 글자 토큰이 rem이므로 기준 비율만 바꾼다 (FE-17, 중간 = 지정 없음) */
+:root[data-font-size='small'] {
+  font-size: 87.5%;
+}
+
+:root[data-font-size='large'] {
+  font-size: 112.5%;
+}

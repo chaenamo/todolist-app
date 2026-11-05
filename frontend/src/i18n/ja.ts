@@ -25,6 +25,7 @@ const ja: Messages = {
   },
   language: { label: '言語' },
   theme: { label: '表示モード', light: 'ライト', dark: 'ダーク' },
+  fontSize: { label: '文字サイズ', small: '小', medium: '中', large: '大' },
   nav: {
     label: 'メインメニュー',
     todos: '一覧',

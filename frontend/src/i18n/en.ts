@@ -25,6 +25,7 @@ const en: Messages = {
   },
   language: { label: 'Language' },
   theme: { label: 'Theme', light: 'Light', dark: 'Dark' },
+  fontSize: { label: 'Text size', small: 'Small', medium: 'Medium', large: 'Large' },
   nav: {
     label: 'Main menu',
     todos: 'List',

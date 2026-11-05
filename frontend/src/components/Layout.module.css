@@ -109,6 +109,13 @@
     padding: 0 var(--space-6);
   }
 
+  .main {
+    padding: var(--space-6) var(--space-6) 0;
+  }
+}
+
+/* 언어·모드·글자 크기 선택까지 한 줄에 들어가는 폭부터 가로 내비 (FE-17, SG-20) */
+@media (min-width: 1024px) {
   .hamburger {
     display: none;
   }
@@ -148,7 +155,7 @@
     border-top: 0;
   }
 
-  .main {
-    padding: var(--space-6) var(--space-6) 0;
+  .link {
+    white-space: nowrap;
   }
 }

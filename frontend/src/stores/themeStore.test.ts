@@ -26,3 +26,15 @@ test('[FE-16] 다크로 바꾸면 <html data-theme>가 바뀌고 localStorage(to
   expect(saved.state.theme).toBe('dark');
   expect((await freshStore()).getState().theme).toBe('dark');
 });
+
+test('[PQ-09] 글자 크기 기본은 medium, 바꾸면 <html data-font-size>와 localStorage에 반영된다', async () => {
+  const store = await freshStore();
+  expect(store.getState().fontSize).toBe('medium');
+  expect(document.documentElement.dataset.fontSize).toBe('medium');
+
+  store.getState().setFontSize('large');
+  expect(document.documentElement.dataset.fontSize).toBe('large');
+  expect((await freshStore()).getState().fontSize).toBe('large');
+  // 모드 설정과 같은 키에 함께 저장된다
+  expect((await freshStore()).getState().theme).toBe('light');
+});

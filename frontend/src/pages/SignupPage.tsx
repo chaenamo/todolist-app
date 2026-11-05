@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { ApiError } from '../api/client';
 import { LanguageSelect } from '../components/LanguageSelect';
 import { ThemeSelect } from '../components/ThemeSelect';
+import { FontSizeSelect } from '../components/FontSizeSelect';
 import { useSignup } from '../hooks/useAuth';
 import { useT } from '../i18n';
 import styles from './AuthPage.module.css';
@@ -56,6 +57,7 @@ export function SignupPage() {
           <div className={styles.controls}>
             <LanguageSelect />
             <ThemeSelect />
+            <FontSizeSelect />
           </div>
         </div>
         <h1 className={styles.title}>{t.auth.signupTitle}</h1>
