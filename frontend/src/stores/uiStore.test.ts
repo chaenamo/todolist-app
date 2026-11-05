@@ -53,3 +53,26 @@ test('[G-09] setCalendarView와 setCalendarDate는 캘린더 상태를 바꾼다
   expect(useUiStore.getState().calendarView).toBe('week');
   expect(useUiStore.getState().calendarDate).toBe('2026-11-05');
 });
+
+test('[G-09] resetFilters는 카테고리·상태를 비우고 page를 1로 되돌린다', () => {
+  useUiStore.getState().setCategoryId(2);
+  useUiStore.getState().setStatuses(['COMPLETED']);
+  useUiStore.getState().setPage(5);
+  useUiStore.getState().setCalendarView('week');
+
+  useUiStore.getState().resetFilters();
+
+  const s = useUiStore.getState();
+  expect(s.categoryId).toBeNull();
+  expect(s.statuses).toEqual([]);
+  expect(s.page).toBe(1);
+  expect(s.calendarView).toBe('week');
+});
+
+test('[G-14] openDay는 calendarView를 day로, calendarDate를 그 날짜로 바꾼다', () => {
+  useUiStore.getState().setCalendarView('week');
+  useUiStore.getState().openDay('2026-11-11');
+
+  expect(useUiStore.getState().calendarView).toBe('day');
+  expect(useUiStore.getState().calendarDate).toBe('2026-11-11');
+});

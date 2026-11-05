@@ -1,0 +1,54 @@
+.container {
+  position: fixed;
+  top: calc(var(--header-height) + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 90%;
+  max-width: var(--toast-max-width);
+  pointer-events: none; /* 빈 영역이 뒤 화면 클릭을 막지 않게 */
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popover);
+  font-size: var(--font-size-sm);
+  pointer-events: auto;
+}
+
+.success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.close {
+  min-width: var(--control-height);
+  height: var(--control-height);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--color-surface-hover);
+}
+
+.close:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}

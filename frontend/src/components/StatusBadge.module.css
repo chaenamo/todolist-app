@@ -1,0 +1,28 @@
+.badge {
+  display: inline-block;
+  padding: calc(var(--space-1) / 2) var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.notStarted {
+  background: var(--color-status-not-started);
+  color: var(--color-status-not-started-text);
+}
+
+.inProgress {
+  background: var(--color-status-in-progress);
+  color: var(--color-status-in-progress-text);
+}
+
+.completed {
+  background: var(--color-status-completed);
+  color: var(--color-status-completed-text);
+}
+
+.overdue {
+  background: var(--color-status-overdue);
+  color: var(--color-status-overdue-text);
+}

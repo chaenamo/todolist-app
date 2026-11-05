@@ -12,6 +12,9 @@
     "lint": "eslint . --max-warnings=0"
   },
   "dependencies": {
+    "@fullcalendar/core": "6.1.22",
+    "@fullcalendar/daygrid": "6.1.22",
+    "@fullcalendar/react": "6.1.22",
     "@tanstack/react-query": "^5.106.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

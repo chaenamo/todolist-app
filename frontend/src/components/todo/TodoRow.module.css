@@ -1,0 +1,147 @@
+.row {
+  display: grid;
+  /* 모바일 카드: 1행 체크+제목+삭제, 2행 메타, 3행 배지 */
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    'check title delete'
+    '. meta meta'
+    '. badge badge';
+  align-items: center;
+  column-gap: var(--space-2);
+  row-gap: var(--space-1);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.check {
+  grid-area: check;
+  margin: 0;
+  width: var(--space-4);
+  height: var(--space-4);
+  accent-color: var(--color-primary);
+}
+
+.title {
+  grid-area: title;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.title:hover {
+  text-decoration: underline;
+}
+
+.title:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+.done {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.meta {
+  grid-area: meta;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.period {
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  grid-area: badge;
+  justify-self: start;
+}
+
+/* 텍스트 버튼 공통: 수정은 secondary, 삭제는 ghost (SG-10) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--control-height-touch);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+.edit {
+  display: none;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.edit:hover {
+  background: var(--color-surface-hover);
+}
+
+.delete {
+  grid-area: delete;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+}
+
+.delete:hover {
+  background: var(--color-surface-hover);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: auto 1fr 8rem 9rem 6rem auto auto;
+    grid-template-areas: none;
+    gap: var(--space-3);
+    min-height: var(--space-12);
+    box-sizing: border-box;
+  }
+
+  .row:hover {
+    background: var(--color-surface-hover);
+  }
+
+  .check,
+  .title,
+  .badge,
+  .delete {
+    grid-area: auto;
+  }
+
+  .edit {
+    display: inline-flex;
+  }
+
+  .btn {
+    height: var(--control-height);
+  }
+
+  .title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 카테고리·기간을 별도 열로 */
+  .meta {
+    display: contents;
+  }
+
+  .sep {
+    display: none;
+  }
+}

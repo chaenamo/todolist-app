@@ -1,0 +1,122 @@
+.fc {
+  --fc-border-color: var(--color-border);
+  --fc-page-bg-color: var(--color-bg);
+  --fc-neutral-bg-color: var(--color-surface);
+  --fc-today-bg-color: var(--color-today-bg);
+  --fc-event-border-color: var(--color-bar-not-started);
+  font-family: var(--font-family);
+}
+
+.fc .fc-col-header-cell {
+  background: var(--color-surface);
+}
+
+.fc .fc-col-header-cell-cushion {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.fc .fc-col-header-cell.fc-day-sun .fc-col-header-cell-cushion,
+.fc .fc-day-sun .fc-daygrid-day-number {
+  color: var(--color-sunday);
+}
+
+.fc .fc-daygrid-day-top {
+  flex-direction: row;
+}
+
+.fc .fc-daygrid-day-number {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.fc .fc-daygrid-day-number:hover {
+  text-decoration: underline;
+}
+
+/* SG-32: +N 더보기 */
+.fc .fc-daygrid-more-link {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.fc .fc-day-other .fc-daygrid-day-number {
+  color: var(--color-text-subtle);
+}
+
+.fc .fc-daygrid-day-frame {
+  min-height: var(--calendar-cell-min-height-mobile);
+}
+
+.fc .fc-day-today {
+  box-shadow: inset 0 0 0 var(--border-width-thick) var(--color-today-border);
+}
+
+.fc .fc-h-event {
+  height: var(--calendar-bar-height);
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-bar-text);
+  cursor: pointer;
+}
+
+.fc .fc-h-event .fc-event-main {
+  color: inherit;
+}
+
+/* SG-32: 주·뷰 경계를 넘어 이어지는 쪽 끝에 ‹ › */
+.fc .fc-h-event:not(.fc-event-start) .fc-event-main-frame::before {
+  content: '‹';
+  padding-left: var(--space-1);
+}
+
+.fc .fc-h-event:not(.fc-event-end) .fc-event-main-frame::after {
+  content: '›';
+  margin-left: auto;
+  padding-right: var(--space-1);
+}
+
+.fc .fc-event-title {
+  padding: 0 var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc .todo-status-NOT_STARTED {
+  background: var(--color-bar-not-started);
+  border-color: var(--color-bar-not-started);
+}
+
+.fc .todo-status-IN_PROGRESS {
+  background: var(--color-bar-in-progress);
+  border-color: var(--color-bar-in-progress);
+}
+
+.fc .todo-status-OVERDUE {
+  background: var(--color-bar-overdue);
+  border-color: var(--color-bar-overdue);
+}
+
+.fc .todo-status-COMPLETED,
+.fc .todo-done {
+  background: var(--color-bar-completed);
+  border-color: var(--color-bar-completed);
+  color: var(--color-text-muted);
+}
+
+.fc .todo-status-COMPLETED .fc-event-title,
+.fc .todo-done .fc-event-title {
+  text-decoration: line-through;
+}
+
+@media (min-width: 768px) {
+  .fc .fc-daygrid-day-frame {
+    min-height: var(--calendar-cell-min-height);
+  }
+}

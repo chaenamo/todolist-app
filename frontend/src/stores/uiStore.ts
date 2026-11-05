@@ -14,8 +14,10 @@ interface UiState {
   setCategoryId: (categoryId: number | null) => void;
   setStatuses: (statuses: TodoStatus[]) => void;
   setPage: (page: number) => void;
+  resetFilters: () => void;
   setCalendarView: (calendarView: CalendarView) => void;
   setCalendarDate: (calendarDate: string | null) => void;
+  openDay: (date: string) => void;
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -28,6 +30,9 @@ export const useUiStore = create<UiState>()((set) => ({
   setCategoryId: (categoryId) => set({ categoryId, page: 1 }),
   setStatuses: (statuses) => set({ statuses, page: 1 }),
   setPage: (page) => set({ page }),
+  resetFilters: () => set({ categoryId: null, statuses: [], page: 1 }),
   setCalendarView: (calendarView) => set({ calendarView }),
   setCalendarDate: (calendarDate) => set({ calendarDate }),
+  // G-14: 월·주 화면의 날짜·+N 클릭은 일간 뷰로 진입
+  openDay: (date) => set({ calendarView: 'day', calendarDate: date }),
 }));

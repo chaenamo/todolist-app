@@ -1,53 +1,96 @@
 /*
- * 임시 스타일 가이드 원본 (U-07, PR-24). 색·간격·폰트는 이 변수만 쓴다.
- * 브레이크포인트(CSS 변수는 미디어 쿼리에 못 쓰므로 값만 기록):
- *   모바일 360px 이상, 태블릿 768px 이상, 데스크톱 1024px 이상 (NFR-16)
+ * 디자인 토큰의 구현 (SG-01). 원본은 docs/style-guide.md 2장이며 이름·값을 같게 유지한다.
+ * 컴포넌트 CSS는 이 변수만 쓴다 (SG-02, PR-24).
+ * 브레이크포인트(CSS 변수는 미디어 쿼리에 못 쓰므로 값만 기록, 모바일 우선):
+ *   모바일 360px~767px, 태블릿 768px 이상, 데스크톱 1024px 이상 (NFR-16)
  */
 :root {
-  /* 기본 색 */
+  /* 2.1 기본 색 */
   --color-bg: #ffffff;
-  --color-surface: #f6f7f9;
-  --color-border: #d9dde3;
+  --color-surface: #f7f8fa;
+  --color-surface-hover: #f0f1f4;
+  --color-border: #e4e6ea;
+  --color-border-strong: #c8ccd2;
   --color-text: #1f2328;
-  --color-text-muted: #636c76;
-  --color-primary: #2f6feb;
+  --color-text-muted: #5f6670;
+  --color-text-subtle: #9aa0a8;
+  --color-primary: #5b4fe0;
+  --color-primary-hover: #4a3fc8;
+  --color-primary-soft: #efedfd;
   --color-primary-contrast: #ffffff;
+  --color-overlay: rgba(17, 24, 39, 0.45);
 
-  /* 할일 상태 4종 (CMP-05, ST-01~04): 배지 배경 / 글자 */
-  --color-status-not-started: #eef1f4;
-  --color-status-not-started-text: #57606a;
-  --color-status-in-progress: #ddeafe;
-  --color-status-in-progress-text: #1a56c4;
-  --color-status-completed: #dcf3e3;
+  /* 2.2 캘린더 */
+  --color-sunday: #d93b3b;
+  --color-today-bg: #eef4fb;
+  --color-today-border: #1f2328;
+
+  /* 2.3 할일 상태 (CMP-05, ST-01~04): 배지 배경 / 글자, 캘린더 바 */
+  --color-status-not-started: #eef0f3;
+  --color-status-not-started-text: #4b5563;
+  --color-status-in-progress: #efedfd;
+  --color-status-in-progress-text: #4a3fc8;
+  --color-status-completed: #e3f4e8;
   --color-status-completed-text: #1d7a3e;
-  --color-status-overdue: #fde4e4;
-  --color-status-overdue-text: #b42318;
+  --color-status-overdue: #fde8e6;
+  --color-status-overdue-text: #b8321f;
+  --color-bar-not-started: #6b7488;
+  --color-bar-in-progress: #5b4fe0;
+  --color-bar-overdue: #c73e29;
+  --color-bar-completed: #e4e6ea;
+  --color-bar-text: #ffffff;
 
-  /* 피드백 */
-  --color-error: #b42318;
-  --color-error-bg: #fde4e4;
+  /* 2.4 피드백 */
+  --color-error: #b8321f;
+  --color-error-hover: #9c2a1a;
+  --color-error-bg: #fde8e6;
   --color-success: #1d7a3e;
-  --color-success-bg: #dcf3e3;
+  --color-success-bg: #e3f4e8;
 
-  /* 간격 (4px 단위) */
+  /* 2.5 타이포그래피 */
+  --font-family:
+    system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR',
+    sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+  --line-height: 1.5;
+  --line-height-tight: 1.25;
+
+  /* 2.6 간격 (4px 단위) */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-12: 48px;
 
-  /* 폰트 */
-  --font-family: system-ui, -apple-system, 'Segoe UI', 'Noto Sans KR', sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.25rem;
-  --font-size-xl: 1.5rem;
-  --font-weight-regular: 400;
-  --font-weight-bold: 600;
-  --line-height: 1.5;
-
-  /* 모서리 */
+  /* 2.7 크기·모서리·그림자·레이어 */
+  --header-height: 56px;
+  --content-max-width: 960px;
+  --form-max-width: 400px;
+  --toast-max-width: 480px;
+  --control-height: 36px;
+  --control-height-touch: 44px;
+  --calendar-bar-height: 20px;
+  --calendar-cell-min-height: 112px;
+  --calendar-cell-min-height-mobile: 72px;
+  --border-width-thick: 2px;
+  --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 8px;
+  --radius-pill: 999px;
+  --shadow-popover: 0 4px 16px rgba(17, 24, 39, 0.12);
+  --shadow-modal: 0 12px 32px rgba(17, 24, 39, 0.2);
+  --focus-ring: 0 0 0 3px rgba(91, 79, 224, 0.35);
+  --z-header: 10;
+  --z-modal: 20;
+  --z-toast: 30;
+  --duration-fast: 150ms;
 }

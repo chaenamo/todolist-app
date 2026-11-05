@@ -5,6 +5,14 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    coverage: { include: ['src/lib/**', 'src/hooks/**', 'src/api/**', 'src/stores/**'] }, // PR-30
+    coverage: {
+      include: [
+        'src/lib/**',
+        'src/hooks/**',
+        'src/api/**',
+        'src/stores/**',
+        'src/components/calendar/adapter.ts',
+      ],
+    }, // PR-30
   },
 });

@@ -2,8 +2,17 @@ import { useEffect, useState } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router';
 import { discardSession, refreshAccessToken } from './api/client';
 import { useAuthStore } from './stores/authStore';
+import { Layout } from './components/Layout';
+import { Toaster } from './components/Toast';
+import { useLogout } from './hooks/useAuth';
+import { LoginPage } from './pages/LoginPage';
+import { SignupPage } from './pages/SignupPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import { PlaceholderPage } from './pages/PlaceholderPage';
+import { CategoryPage } from './pages/CategoryPage';
+import { TodoListPage } from './pages/TodoListPage';
+import { TodoEditPage } from './pages/TodoEditPage';
+import { CalendarPage } from './pages/CalendarPage';
+import { MyInfoPage } from './pages/MyInfoPage';
 import styles from './App.module.css';
 
 // AD-13, AQ-11: access token이 없고 refresh token만 있으면 refresh를 먼저 끝낸 뒤 보호 화면을 렌더한다
@@ -38,24 +47,34 @@ function PublicOnly() {
   return accessToken ? <Navigate to="/todos" replace /> : <Outlet />;
 }
 
-// 라우트 표: 원칙 6.3. 화면은 FE-04~FE-12에서 PlaceholderPage를 교체한다
+function AppLayout() {
+  const logout = useLogout();
+  return <Layout onLogout={() => void logout()} />;
+}
+
+// 라우트 표: 원칙 6.3. 화면 목록
 export function App() {
   return (
-    <Routes>
-      <Route element={<PublicOnly />}>
-        <Route path="/login" element={<PlaceholderPage title="로그인" />} />
-        <Route path="/signup" element={<PlaceholderPage title="회원가입" />} />
-      </Route>
-      <Route element={<RequireAuth />}>
-        <Route path="/" element={<Navigate to="/todos" replace />} />
-        <Route path="/todos" element={<PlaceholderPage title="할일 목록" />} />
-        <Route path="/todos/new" element={<PlaceholderPage title="할일 등록" />} />
-        <Route path="/todos/:id/edit" element={<PlaceholderPage title="할일 수정" />} />
-        <Route path="/calendar" element={<PlaceholderPage title="캘린더" />} />
-        <Route path="/me" element={<PlaceholderPage title="내 정보" />} />
-        <Route path="/categories" element={<PlaceholderPage title="카테고리 관리" />} />
-      </Route>
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route element={<PublicOnly />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+        </Route>
+        <Route element={<RequireAuth />}>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Navigate to="/todos" replace />} />
+            <Route path="/todos" element={<TodoListPage />} />
+            <Route path="/todos/new" element={<TodoEditPage />} />
+            <Route path="/todos/:id/edit" element={<TodoEditPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/me" element={<MyInfoPage />} />
+            <Route path="/categories" element={<CategoryPage />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+      <Toaster />
+    </>
   );
 }

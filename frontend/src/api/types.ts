@@ -29,6 +29,15 @@ export interface Todo {
   updatedAt: string;
 }
 
+// 등록·수정 요청 본문 (isCompleted는 PATCH로만 바꾼다)
+export interface TodoInput {
+  title: string;
+  description: string | null;
+  categoryId: number | null;
+  startDate: string;
+  endDate: string;
+}
+
 // 목록·캘린더 항목
 export interface TodoWithStatus extends Todo {
   status: TodoStatus;
@@ -43,6 +52,12 @@ export interface Paged<T> {
 
 export interface Items<T> {
   items: T[];
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
 }
 
 // PR-20 에러 본문

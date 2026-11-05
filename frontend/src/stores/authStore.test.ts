@@ -41,3 +41,13 @@ test('[SC-00-E2] clear는 두 토큰을 null로 만들고 저장된 refreshToken
   expect(useAuthStore.getState().refreshToken).toBeNull();
   expect(persisted().state.refreshToken ?? null).toBeNull();
 });
+
+test('[G-06] setRefreshToken은 refreshToken만 바꾸고 accessToken은 유지하며 저장값도 교체한다', () => {
+  useAuthStore.getState().setTokens('at-1', 'rt-old');
+  useAuthStore.getState().setRefreshToken('rt-new');
+
+  expect(useAuthStore.getState().accessToken).toBe('at-1');
+  expect(useAuthStore.getState().refreshToken).toBe('rt-new');
+  expect(persisted().state.refreshToken).toBe('rt-new');
+  expect('accessToken' in persisted().state).toBe(false);
+});
