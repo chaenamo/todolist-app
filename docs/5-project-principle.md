@@ -9,6 +9,7 @@
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.4 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 | v0.5 | 2026-11-04 | chaenamo | 초안 | U-08 결정 반영 |
+| v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 
 ## 변경 이력
 
@@ -19,8 +20,9 @@
 | v0.3 | 2026-11-04 | 기준 문서, PR-07, PR-11, PR-14, PR-16, PR-22, PR-29, PR-34, PR-37, PR-40, 5장 `.env.example`, 6.2, 6.3, 7(U-02) | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. PR-16에 401 → single-flight refresh → 원 요청 1회 재시도 추가, PR-37을 HS384·access 15분·`algorithms` 명시·refresh/logout API로 변경, 환경변수 `JWT_ACCESS_SECRET`·`ACCESS_TOKEN_TTL`·`REFRESH_TOKEN_TTL_DAYS`로 교체, `refreshTokenRepository.js` 추가, U-02 결정 처리 | chaenamo |
 | v0.4 | 2026-11-04 | 기준 문서, PR-36, 6.2 | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5로 갱신, 6.2 마이그레이션 트리를 `001_init.sql` 1개에서 ERD(`7-erd.md` 6장)·실행 계획의 테이블별 4개(001~004)로 변경(ERD EQ-02 결정), 실행 계획 Task 파일 `db/verify.sql`·`test/health.test.js`를 트리에 추가, PR-36 `password_hash` select 함수를 로그인용·비밀번호 변경용 각 1개로 명확화(실행 계획 BE-05·BE-11과 일치) | chaenamo |
 | v0.5 | 2026-11-04 | 0, 7(U-08) | U-08 결정: 실행 계획 문서는 `docs/8-plan.md`, 두 개발 스킬 경로를 그에 맞게 수정 완료. 0장 스킬 관계 표의 번호 충돌 행을 해결로 갱신 | chaenamo |
+| v0.6 | 2026-11-05 | 기준 문서, PR-32, PR-45, 6.2, 6.4, 7(U-01) | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로: PR-32를 "부하 테스트 미실시, NFR-05~07 코드 리뷰 선적용"으로, PR-45 용도에서 배포·부하 테스트 제거, 디렉토리 트리·파일 위치 표에서 `backend/loadtest/` 삭제, U-01을 범위 밖으로 표기. 기준 PRD v0.5 | chaenamo |
 
-> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5).
+> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP)는 **참조만** 하며 재정의하지 않는다. 규칙 본문은 원 문서를 따른다.
 > 이 문서 고유 ID: 원칙 `PR-xx`, 미결 사항 `U-xx`. 삭제되어도 **재사용하거나 다시 매기지 않는다.**
 
@@ -138,7 +140,7 @@
 | PR-29 | **필수 최소 테스트 범위** (일정이 밀려도 빼지 않는다): 아래 표. | K-02, NFR-12, NFR-13 |
 | PR-30 | 스킬의 커버리지 90%는 0장 해결안대로 TASK가 바꾼 로직 폴더에만 적용한다. 커버리지 수치를 맞추려고 의미 없는 테스트를 쓰지 않는다. | 스킬 충돌 해결 |
 | PR-31 | **린트/포맷**: ESLint(flat config) + Prettier, `frontend/`와 `backend/`가 각자 설정을 가진다(루트 공용 설정 없음, PR-08). 경고는 커밋 전 0개. | 품질 일관성 |
-| PR-32 | **부하 테스트**는 k6 스크립트(`backend/loadtest/`)로 M-04에서만 수행한다. 그 전에는 NFR-05~07(풀·페이지네이션·인덱스)을 코드 리뷰로 선적용한다. | NFR-01~04, R-02, M-04 |
+| PR-32 | **부하 테스트**는 이번 범위에서 하지 않는다(v0.6). NFR-05~07(풀·페이지네이션·인덱스)은 코드 리뷰로 선적용한다. | NFR-01~07, R-02 |
 
 필수 최소 테스트 (PR-29)
 
@@ -180,7 +182,7 @@
 | PR-42 | **DATE 타입 파서**: `db.js`에서 `pg.types.setTypeParser(1082, v => v)`로 `date` 컬럼을 문자열 그대로 받는다. 기본값(JS `Date` 변환)은 서버 타임존에 따라 하루가 밀린다. | PR-04, A-01, R-03 |
 | PR-43 | **페이지네이션 상한**: 목록 `limit` 기본 50, 최대 100으로 서버에서 자른다. 캘린더 조회는 반드시 기간(`from`, `to`)을 받고 기간 겹침(`start_date <= to AND end_date >= from`)으로 제한한다. 기간 없는 전체 조회 API는 두지 않는다. | NFR-06, BR-16 |
 | PR-44 | **마이그레이션**: `backend/db/migrations/NNN_설명.sql` 순번 SQL 파일만 쓴다. `scripts/migrate.js`(작은 스크립트)가 `schema_migrations` 테이블에 기록하며 아직 적용 안 된 파일을 번호순으로 트랜잭션 안에서 실행한다. 적용된 파일은 수정하지 않고 새 번호 파일을 추가한다. down 마이그레이션은 두지 않는다. | TC-05, PR-08 |
-| PR-45 | **헬스체크**: 인증 없는 `GET /health`가 `SELECT 1` 성공 시 200 `{ status: "ok" }`, 실패 시 503. 배포·부하 테스트 준비 확인용. | M-04 |
+| PR-45 | **헬스체크**: 인증 없는 `GET /health`가 `SELECT 1` 성공 시 200 `{ status: "ok" }`, 실패 시 503. 기동·DB 연결 확인용. | M-04 |
 | PR-46 | **에러 처리 미들웨어 한 곳**(`middleware/error.js`, 라우터 맨 뒤): `AppError`는 그 상태·코드로, PostgreSQL unique 위반(`23505`)은 409 `CONFLICT`로 바꾸되 **에러의 제약 이름(`err.constraint`)을 필드로 매핑해 `fields`와 한국어 문구를 채운다**(사용자 이메일 unique → `email`, 카테고리 (사용자, 이름) unique → `name`. 매핑에 없는 제약은 `fields` 없이 409. 매핑 표는 이 미들웨어 한 곳에 둔다, AQ-02 결정), 그 외는 500 `INTERNAL`로 PR-20 형식에 맞춰 응답한다. 라우트·서비스는 에러를 삼키지 않고 던진다. 미등록 경로는 404 `NOT_FOUND`. | PR-20, BR-03, BR-07 |
 
 `backend/.env.example` 키 (값은 예시)
@@ -265,8 +267,6 @@ backend/
 │   └── seed.sql            # 개발용 샘플 데이터 (운영 DB에 실행 금지)
 ├── scripts/
 │   └── migrate.js          # 순번 SQL 적용기 (PR-44)
-├── loadtest/
-│   └── todos.k6.js         # k6 시나리오 (M-04, PR-32)
 └── test/
     ├── helpers.js          # 테스트 DB 초기화, 사용자·토큰 생성
     ├── health.test.js      # GET /health 200/503 (PR-45)
@@ -363,7 +363,6 @@ WF → 라우트·폴더 매핑
 | FE 테스트 | 대상 파일 옆 `*.test.ts(x)` |
 | DB 마이그레이션 | `backend/db/migrations/NNN_*.sql` |
 | 개발용 시드 | `backend/db/seed.sql` |
-| 부하 테스트 | `backend/loadtest/*.k6.js` |
 
 ## 7. 미결 / 확인 필요
 
@@ -371,7 +370,7 @@ WF → 라우트·폴더 매핑
 
 | ID | 미결 사항 | 영향 | 이 문서의 잠정 처리 |
 |----|-----------|------|---------------------|
-| U-01 | 배포 환경(단일 서버에서 FE 정적 파일 + API 같은 출처 / FE·BE 분리 호스팅), HTTPS 종단 위치 | PR-35 CORS, `VITE_API_BASE_URL`, 정적 파일 서빙 여부 | FE·BE 분리 가정, CORS 화이트리스트 |
+| U-01 | 배포 환경(단일 서버에서 FE 정적 파일 + API 같은 출처 / FE·BE 분리 호스팅), HTTPS 종단 위치 | PR-35 CORS, `VITE_API_BASE_URL`, 정적 파일 서빙 여부 | **범위 밖**(2026-11-05): 배포는 사용자가 직접 한다. 코드는 FE·BE 분리 가정(CORS 화이트리스트, `VITE_API_BASE_URL`)을 유지 |
 | U-02 | 토큰 저장 위치(localStorage / sessionStorage / 메모리) | `authStore` 영속화, R-05 XSS 노출 범위, SC-02-A1 재방문 시 로그인 생략 | **결정(2026-11-04)**: access token은 메모리(persist 안 함), refresh token은 localStorage(Zustand `persist`는 refresh token만). R-05 XSS 노출은 감수, 완화책(PR-24, PR-37) 유지 |
 | U-03 | 캘린더 라이브러리 선택(FullCalendar daygrid 등 / 직접 구현) | `components/calendar/` 내부, 번들 크기, 모바일 `+N`(NFR-16, G-14) 지원 여부 | 라이브러리 1개 허용, 어댑터로 격리(PR-18) |
 | U-04 | 목록·캘린더 API에 `today` 전달 방식과 상태 필터 파라미터 형식 | `validators/todo.js`, `domain/todoStatus.js` | 쿼리 파라미터로 전달(PR-05), 형식은 API 문서 |

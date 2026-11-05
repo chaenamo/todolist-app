@@ -9,6 +9,7 @@
 | v0.3 | 2026-11-04 | chaenamo | 초안 | AD-04 ERD를 `7-erd.md`로 분리 |
 | v0.4 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.5 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
+| v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 
 ## 변경 이력
 
@@ -19,8 +20,9 @@
 | v0.3 | 2026-11-04 | 0, AD-04, AD-08, 3, 4 | AD-04의 erDiagram과 제약·인덱스 표를 삭제하고 `docs/7-erd.md`로 분리(본문은 요약·링크). AQ-08(`id` 보조 정렬)·AQ-12(bigint, 복합 FK) 결정을 7-erd.md 참조로 표기, AD-08 정렬에 `id` 추가, AQ-05·AQ-06에 데이터 모델 참조 추가 | chaenamo |
 | v0.4 | 2026-11-04 | 기준 문서, 0, AD-01~04, AD-06, AD-07, AD-13(신규), 3, 4 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. AD-03 HS256 → HS384(`algorithms` 명시), AD-02 authStore access 메모리·refresh localStorage·single-flight refresh, AD-06 가입 트랜잭션에 refresh_tokens INSERT 포함, AD-07 시퀀스 재작성(토큰 쌍 발급·refresh 재시도·로그아웃 서버 폐기), AD-13 앱 진입 refresh 추가, AQ-11을 AD-13 흐름으로 대체 | chaenamo |
 | v0.5 | 2026-11-04 | 기준 문서, AD-11, AD-12, 4.1(AQ-01, AQ-08, AQ-12) | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5, 원칙 v0.4로 갱신. AD-11 repository 함수명을 AD-09·실행 계획 BE-06/BE-12와 같게(`findCategoryById`, `findDefaultCategory`, `deleteCategory`), AD-12 정렬에 `id` 추가(실행 계획 BE-10과 일치). AQ-01에 refresh·logout까지 확장된 범위(PR-16) 표기, 결정된 AQ-08·AQ-12의 기존 질문 문구를 "(원 내용)"으로 구분 | chaenamo |
+| v0.6 | 2026-11-05 | 기준 문서, 0, AD-01, AD-05 | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로: AD-01에서 k6 노드·연결 삭제, AD-05를 "범위 밖"으로 바꾸고 후보 A·B는 코드 전제 참고용으로 유지. 기준 PRD v0.5, 원칙 v0.6 | chaenamo |
 
-> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.4).
+> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U)는 **참조만** 하며 재정의하지 않는다. 구조 결정은 `5-project-principle.md`를 따른다.
 > 이 문서 고유 ID: 다이어그램 `AD-xx`, 확인 필요 `AQ-xx`. 삭제되어도 **재사용하거나 다시 매기지 않는다.**
 
@@ -32,7 +34,7 @@
 
 | 구분 | 다이어그램 |
 |------|------------|
-| 1부 기술 아키텍처 | AD-01 시스템 구성, AD-02 FE 내부 구조, AD-03 BE 레이어, AD-04 데이터 모델(→ `7-erd.md`), AD-05 배포 뷰(미정) |
+| 1부 기술 아키텍처 | AD-01 시스템 구성, AD-02 FE 내부 구조, AD-03 BE 레이어, AD-04 데이터 모델(→ `7-erd.md`), AD-05 배포 뷰(범위 밖) |
 | 2부 시퀀스 | AD-06 회원가입, AD-07 로그인·인증·401·refresh·로그아웃, AD-08 목록 조회·필터, AD-09 할일 등록/수정, AD-10 완료 토글, AD-11 카테고리 삭제, AD-12 캘린더 조회, AD-13 앱 진입 refresh |
 
 ---
@@ -41,7 +43,7 @@
 
 ## AD-01 시스템 컨텍스트 / 전체 구성
 
-브라우저의 React SPA가 HTTPS로 Express API를 호출하고, API만 PostgreSQL에 접근한다. 배포 형태는 미정(U-01)이며 k6는 M-04에서만 API에 부하를 건다.
+브라우저의 React SPA가 HTTPS로 Express API를 호출하고, API만 PostgreSQL에 접근한다. 배포는 사용자가 직접 하며 계획 범위 밖이다(U-01).
 
 ```mermaid
 flowchart LR
@@ -57,13 +59,11 @@ flowchart LR
 
     DB[("PostgreSQL 17<br/>users, categories, todos<br/>refresh_tokens, schema_migrations")]
     ENV["환경변수 PR-33, PR-34<br/>DATABASE_URL, JWT_ACCESS_SECRET, CORS_ORIGIN 등"]
-    K6["k6 부하 테스트<br/>backend/loadtest, M-04"]
 
     USER --> SPA
     SPA -->|"HTTPS JSON NFR-14<br/>Authorization: Bearer JWT HS384 NFR-10<br/>HTTPS 종단 위치 미정 U-01"| API
     API -->|"pg.Pool 단일, max 20 NFR-05<br/>파라미터화 SQL NFR-11"| DB
     ENV -.->|"기동 시 1회 로딩"| API
-    K6 -.->|"가상 사용자 1,000, 피크 200 RPS<br/>NFR-01~04"| API
 ```
 
 - 개발 환경: Vite dev 서버 프록시 `/api` → BE로 CORS 없이 동작(PR-35). 운영은 FE·BE 분리 가정 + `CORS_ORIGIN` 화이트리스트(U-01 잠정).
@@ -184,9 +184,9 @@ flowchart TB
 
 ERD는 `docs/7-erd.md`로 분리되었다(v0.3). 테이블 `users`, `categories`, `todos`(snake_case 복수형, 상태 컬럼 없음 PR-03)와 인증 인프라 테이블 `refresh_tokens`(해시만 저장, 사용자 삭제 시 CASCADE, 도메인 규칙과 무관), 식별자 `bigint identity`, 할일의 카테고리 소유자 일치는 복합 FK로 강제한다. 제약 이름(PR-46 매핑), 인덱스(NFR-07), 마이그레이션 파일은 [7-erd.md](7-erd.md)를 따른다.
 
-## AD-05 배포 뷰 (미정, U-01)
+## AD-05 배포 뷰 (범위 밖, U-01)
 
-배포 환경은 **미정**이다. 원칙 문서의 잠정안(A)과 대안(B)만 표시한다. 어느 쪽이든 DB는 1개, API 인스턴스 구성·HTTPS 종단은 확정 후 갱신한다.
+배포는 사용자가 직접 하며 계획 범위 밖이다(U-01). 코드가 전제하는 형태를 참고용으로 남긴다: 후보 A가 코드의 기본 가정(CORS 화이트리스트, `VITE_API_BASE_URL`), B는 대안. 어느 쪽이든 DB는 1개다.
 
 ```mermaid
 flowchart LR

@@ -58,7 +58,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: 로컬 개발 (backend/.env.example PORT=3000)
-  # 운영 서버 URL은 배포 환경 미정(U-01). OPS-01에서 확정 후 추가한다.
+  # 운영 서버 URL은 사용자가 직접 배포한 뒤 추가한다(U-01, 계획 범위 밖).
 
 tags:
   - name: Health

@@ -7,6 +7,7 @@
 | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
 | v0.2 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
+| v0.4 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 
 ## 변경 이력
 
@@ -15,8 +16,9 @@
 | v0.1 | 2026-11-04 | 전체 | `6-arch-diagram.md` AD-04(데이터 모델)에서 분리해 최초 작성. 논리 ERD, 테이블 정의, 제약 이름(PR-46 매핑 대상), 인덱스(NFR-07), 마이그레이션 파일 매핑 정의. AQ-08(`id` 보조 정렬), AQ-12(ID 타입, 소유자 일치 복합 FK) 결정 | chaenamo |
 | v0.2 | 2026-11-04 | 기준 문서, 1, 2(T-04), 3(CN-16~18), 4(IX-04), 5, 6, 7.3(EQ-02) | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. 인증 인프라 테이블 T-04 `refresh_tokens`(해시만 저장, 사용자 삭제 시 CASCADE), 제약 CN-16~18, 인덱스 IX-04, 마이그레이션 `004_create_refresh_tokens.sql` 추가 | chaenamo |
 | v0.3 | 2026-11-04 | 기준 문서, 7.3(EQ-02) | 문서 간 정합성 검토 반영: 기준 원칙 v0.4, 아키텍처 v0.5로 갱신. EQ-02를 결정(잠정 기본값 채택: 테이블별 파일 001~004)으로 표기, 원칙 문서 6.2 트리 갱신 완료 | chaenamo |
+| v0.4 | 2026-11-05 | 기준 문서, 4 | 부하 테스트를 이번 범위에서 하지 않으므로 상태 필터 인덱스 가정의 확인 시점(M-04 부하 테스트) 문구를 "가정으로 남긴다"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6 | chaenamo |
 
-> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5).
+> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/5-project-principle.md` (v0.6), `docs/6-arch-diagram.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ)는 **참조만** 하며 재정의하지 않는다. 도메인 4.2의 개념 ER은 개념 모델로 유지하고, 이 문서는 그 물리(PostgreSQL 17) 구현이다.
 > 이 문서 고유 ID: 테이블 `T-xx`, 제약 `CN-xx`, 인덱스 `IX-xx`, 확인 필요 `EQ-xx`. 삭제되어도 **재사용하거나 다시 매기지 않는다.**
 
@@ -180,7 +182,7 @@ PK·UNIQUE가 만드는 인덱스(CN-01·02·04·06·07·08·10·16·18)는 별�
 | (CN-08) | `uq_categories_user_id_default` | `categories (user_id) WHERE is_default` | '기본' 조회 `WHERE user_id = $1 AND is_default` | BR-08, BR-09 |
 | (CN-18) | `uq_refresh_tokens_token_hash` | `refresh_tokens (token_hash)` | refresh·logout `WHERE token_hash = $1` | PR-37 |
 
-- 상태 필터(`is_completed`, 날짜 비교 조각)는 별도 인덱스 없이 IX-01/02 스캔 중 필터로 처리한다. 사용자당 할일 수가 작다는 가정이며 부하 테스트(M-04)에서 확인한다.
+- 상태 필터(`is_completed`, 날짜 비교 조각)는 별도 인덱스 없이 IX-01/02 스캔 중 필터로 처리한다. 사용자당 할일 수가 작다는 가정이며, 부하 테스트는 이번 범위에서 하지 않으므로 가정으로 남긴다.
 - IX-03의 범위 조건 `start_date <= $to`에는 하한이 없어 사용자의 과거 할일 전체를 훑는다. 사용자당 수가 커지면 `daterange` GiST 인덱스로 바꾼다(지금은 `btree_gist` 확장 불필요, PR-01).
 - 데이터가 적으면 플래너가 Seq Scan을 고르는 것이 정상이다. NFR-07 확인은 시드 데이터를 충분히 넣거나 `SET enable_seqscan = off`로 `EXPLAIN` 해 인덱스 사용 가능 여부를 본다.
 

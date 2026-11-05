@@ -9,18 +9,20 @@
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 | v0.4 | 2026-11-04 | chaenamo | 초안 | 이월 작업 추적(9장) 추가 |
 | v0.5 | 2026-11-04 | chaenamo | 초안 | U-08 결정 반영 |
+| v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트(QA-02)·배포(OPS-01) 범위 제외 |
 
 ## 변경 이력
 
 | 버전 | 일자 | 변경 섹션 | 변경 내용 | 변경자 |
 |------|------|-----------|-----------|--------|
+| v0.6 | 2026-11-05 | 기준 문서, 0.1, 1, 2, DB-03, 6, 7(U-01, EQ-02), 8.3, 9 | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로 QA-02(k6 부하 테스트·튜닝)·OPS-01(배포) Task를 삭제(ID 재사용 금지). 요약표·의존성 그래프·크리티컬 패스(약 13h → 11.5h)·Must 합계(41.5h → 38.5h)에서 제거. U-01은 범위 밖, NFR-01~04는 미검증으로 표기. QA-02로 이월된 2건(IX-02 Sort, 목록 total 불일치)은 "제외"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6, ERD v0.4 | chaenamo |
 | v0.1 | 2026-11-04 | 전체 | 도메인 정의서~ERD·schema.sql 기반 DB/BE/FE/QA/OPS Task 분해, 의존성·크리티컬 패스, 착수 전 결정 목록, UC·AC 추적 표 최초 작성 | chaenamo |
 | v0.2 | 2026-11-04 | 기준 문서, 1, 2, BE-01, DB-02, BE-02, BE-03, BE-05, BE-11, FE-02, FE-04, FE-12, QA-01, QA-02, OPS-01, 7, 8.3 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. BE-05를 토큰 쌍 발급·refresh·logout·HS384로 확장(제목 변경), BE-01 계약에 refresh·logout 추가·비밀번호 변경 응답 200 `{ refreshToken }`, DB-02·BE-03·OPS-01 마이그레이션 4개(004 추가), BE-11 비밀번호 변경 시 전체 refresh 폐기, FE-02 access 메모리·refresh localStorage·single-flight refresh·앱 진입 refresh, FE-04 로그아웃 API 호출. 0.2 규칙에 따라 기존 체크박스 문장 변경: BE-01(엔드포인트 수 17→19), DB-02(001→004·refresh_tokens), BE-02(`JWT_ACCESS_SECRET`, 로그), BE-03(파일·테이블 수), BE-05(응답 필드, payload·만료), BE-11(G-06), FE-02(Bearer, 401, 가드), FE-04(토큰 저장, 로그아웃), FE-12(G-06), QA-02(NFR-02에 refresh), OPS-01(4행, 비밀키 이름). 7장 U-02·AQ-11·G-06·EQ-02 갱신, 예상 시간 BE-05 2→3h, BE-11 1→1.5h, FE-02 1.5→2.5h | chaenamo |
 | v0.3 | 2026-11-04 | 기준 문서, 2, DB-02, 7(EQ-02) | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5, 원칙 v0.4, 아키텍처 v0.5, ERD v0.3으로 갱신. 의존성 그래프에 1장 표의 QA-03 선행 FE-04 간선 추가. EQ-02를 결정(잠정 기본값 채택: 테이블별 4개)으로 표기하고 DB-02 선결 결정 문구 갱신(원칙 6.2 트리 갱신 완료). 체크박스 문장 변경 없음 | chaenamo |
 | v0.4 | 2026-11-04 | 0.2, BE-07, BE-08, BE-11, QA-01, QA-02, 7(PQ-04, PQ-05), 9(신규) | DB-01~BE-06 수행 중 미룬 작업을 기록: 0.2에 이월 규칙 추가, 대상 Task 절에 **이월 사항** 줄 추가, 9장 이월 작업 표 신설. 결정 필요 항목 PQ-04(로그인 응답 시간 차이), PQ-05(JSON 파싱 실패 요청 로그) 추가. 체크박스 문장 변경 없음 | chaenamo |
 | v0.5 | 2026-11-04 | 0.1, 7(U-08) | U-08 결정: 두 개발 스킬의 계획 문서 경로를 `docs/8-plan.md`로 수정 완료. 0.1의 주의 문구를 결정 문구로 교체. 체크박스 문장 변경 없음 | chaenamo |
 
-> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.4), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/schema.sql`.
+> 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.6), `docs/6-arch-diagram.md` (v0.6), `docs/7-erd.md` (v0.4), `docs/schema.sql`.
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ, T, CN, IX, EQ)는 **참조만** 하며 재정의하지 않는다.
 > 이 문서 고유 ID: Task `DB-xx`, `BE-xx`, `FE-xx`, `QA-xx`, `OPS-xx`, 확인 필요 `PQ-xx`. 삭제되어도 **재사용하거나 다시 매기지 않는다.** Task를 나누면 새 번호를 붙이고 원 Task는 "분할됨"으로 남긴다.
 
@@ -33,7 +35,7 @@
 | BE (`BE-02`~) | `/develop-backend <Task ID>` | `/develop-backend BE-07` |
 | FE | `/develop-frontend <Task ID>` | `/develop-frontend FE-07` |
 | BE-01 (API 계약 문서) | 스킬 미사용. 수동 또는 `api-designer` 에이전트로 문서 작성 | - |
-| DB, QA, OPS | 스킬 없음. 수행 작업의 명령을 직접 실행하고 결과로 체크 | - |
+| DB, QA | 스킬 없음. 수행 작업의 명령을 직접 실행하고 결과로 체크 | - |
 
 - 스킬은 Task 제목 `### <ID> <Task명>`을 검색해 그 절의 **수행 작업·선결 결정·완료 조건**만 읽는다. 다른 Task 절의 내용을 전제로 쓰지 않는다(필요하면 ID로 참조).
 - **U-08 결정(2026-11-04)**: 두 스킬(`develop-backend`, `develop-frontend`)이 `docs/8-plan.md`를 읽도록 경로를 수정했다. 7장 참조.
@@ -91,11 +93,9 @@ BE: `npm run lint` 경고 0, `npm test` 전체 통과, PR-30 대상 폴더 커�
 | FE-12 | FE | 내 정보 화면 | Must | M-03 | FE-02, FE-03 | 1h |
 | FE-13 | FE | 카테고리 이름 변경·삭제 화면 | Should | M-05 | FE-06 | 1h |
 | QA-01 | QA | 종단 시나리오(SC-11)·AC 화면 확인 | Must | M-04 | BE-05~BE-11, FE-04, FE-06~FE-12 | 1h |
-| QA-02 | QA | k6 부하 테스트·튜닝 | Must | M-04 | BE-05, BE-08, BE-09, BE-10, DB-03 | 1.5h |
 | QA-03 | QA | 반응형·브라우저 점검 | Must | M-04 | FE-04, FE-06~FE-12 | 1h |
-| OPS-01 | OPS | 배포 | Must | M-04 | QA-01 | 1.5h |
 
-Must 합계 약 41.5h(DB 2.5, BE 15.5, FE 18.5, QA/OPS 5). 2일·1인(PRD 1.2)에 맞추려면 BE 트랙과 FE 트랙을 **별도 세션으로 병행**해야 하며, 그래도 넘치면 R-01대로 FE-11(주·일 뷰)의 모바일 `+N` 세부를 마지막에, M-05(BE-12, FE-13)는 생략한다.
+Must 합계 약 38.5h(DB 2.5, BE 15.5, FE 18.5, QA 2). 2일·1인(PRD 1.2)에 맞추려면 BE 트랙과 FE 트랙을 **별도 세션으로 병행**해야 하며, 그래도 넘치면 R-01대로 FE-11(주·일 뷰)의 모바일 `+N` 세부를 마지막에, M-05(BE-12, FE-13)는 생략한다.
 
 ## 2. 의존성 그래프
 
@@ -137,11 +137,9 @@ flowchart LR
         FE12["FE-12 내 정보 화면"]
         FE13["FE-13 카테고리 변경·삭제 Should"]
     end
-    subgraph QAL["통합·품질·배포"]
+    subgraph QAL["통합·품질"]
         QA01["QA-01 SC-11 E2E"]
-        QA02["QA-02 k6 부하"]
         QA03["QA-03 반응형"]
-        OPS01["OPS-01 배포"]
     end
 
     DB01 --> DB02
@@ -197,22 +195,17 @@ flowchart LR
     FE09 --> QA01
     FE11 --> QA01
     FE12 --> QA01
-    BE08 --> QA02
-    BE09 --> QA02
-    BE10 --> QA02
-    DB03 --> QA02
     FE04 --> QA03
     FE08 --> QA03
     FE09 --> QA03
     FE11 --> QA03
     FE12 --> QA03
-    QA01 --> OPS01
 
     classDef crit stroke:#d33,stroke-width:3px
-    class DB01,BE02,BE03,BE04,BE05,BE06,BE07,BE08,QA01,OPS01 crit
+    class DB01,BE02,BE03,BE04,BE05,BE06,BE07,BE08,QA01 crit
 ```
 
-- **크리티컬 패스**(병행 무제한 가정, 약 13h): DB-01 → BE-02 → BE-03/BE-04(동률) → BE-05 → BE-06 → BE-07 → BE-08 → QA-01 → OPS-01.
+- **크리티컬 패스**(병행 무제한 가정, 약 11.5h): DB-01 → BE-02 → BE-03/BE-04(동률) → BE-05 → BE-06 → BE-07 → BE-08 → QA-01.
 - **병행 가능 지점**: BE-01 계약이 끝나면 FE-02 이후 FE 트랙 전체가 BE와 독립으로 진행된다. DB-02와 BE-02, BE-03과 BE-04, BE-08·BE-09·BE-10·BE-11, FE-05와 FE-02·FE-03은 서로 병행 가능하다.
 - 1인 실작업 기준 실질 병목은 FE 트랙 총량(18.5h)이다. FE 세션을 M-01부터 바로 시작한다.
 
@@ -263,7 +256,7 @@ flowchart LR
 
 - **목표**: 수동 개발용 샘플 데이터를 넣고 주요 쿼리가 IX-01~03을 쓸 수 있음을 확인한다.
 - **선행 Task**: DB-02, BE-03
-- **우선순위·마일스톤**: Must · M-02 (EXPLAIN 재확인은 QA-02에서)
+- **우선순위·마일스톤**: Must · M-02
 - **관련 ID**: NFR-07, IX-01~03, AQ-08, PR-44, SC-11
 - **수행 작업**:
   1. `backend/db/seed.sql`: 사용자 2명(개발용 공통 비밀번호를 `bcrypt` cost 10으로 미리 해시한 값. 평문은 "개발 전용" 표시와 함께 파일 주석에만), 사용자별 '기본'+'업무', SC-11의 할일 A·B·C와 사용자당 할일 200건 이상(`generate_series`).
@@ -828,7 +821,9 @@ flowchart LR
   - [ ] '기본' 행에는 변경·삭제 컨트롤이 없다 (BR-06)
   - [ ] `npm run lint`, `npm test`, `npm run build` 통과, `hooks/` 커버리지 ≥ 90%
 
-## 6. 통합·품질·배포 Task
+## 6. 통합·품질 Task
+
+> v0.6: QA-02(k6 부하 테스트·튜닝)와 OPS-01(배포)은 삭제했다. 이번 범위에서 부하 테스트를 하지 않고, 배포는 사용자가 직접 한다. 두 ID는 재사용하지 않는다.
 
 ### QA-01 종단 시나리오(SC-11)·AC 화면 확인
 
@@ -856,26 +851,6 @@ flowchart LR
   - [ ] 다른 계정의 할일 id로 `/todos/:id/edit` 접근 시 CMP-04 (SC-00-E3)
   - [ ] 내 정보에서 이름·비밀번호 변경 후 새 비밀번호로 재로그인 성공 (UC-03)
 
-### QA-02 k6 부하 테스트·튜닝
-
-- **목표**: 1,000 VU·피크 200 RPS에서 NFR-01~04를 측정하고 미달 시 튜닝한다.
-- **선행 Task**: BE-05, BE-08, BE-09, BE-10, DB-03
-- **우선순위·마일스톤**: Must · M-04 (R-02: Day 2 오후 첫 작업)
-- **관련 ID**: NFR-01~07, K-03, R-02, PR-32, PR-41, IX-01~03
-- **수행 작업**:
-  1. `backend/loadtest/todos.k6.js`: `setup`에서 테스트 사용자 N명 가입·토큰 확보(로그인 부하는 별도 시나리오), 시나리오 혼합 = 목록 조회(필터 포함)·캘린더 조회·토큰 갱신(refresh)·등록·토글·로그인. `constant-arrival-rate` 200 RPS, 최대 1,000 VU, 10분. `thresholds`에 NFR-02~04 값.
-  2. 운영과 같은 설정(`NODE_ENV=production`, 풀 20)의 로컬 또는 스테이징 BE에 실행. 결과 요약은 이 Task 아래 표로 기록.
-  3. 미달 시 순서: EXPLAIN 재확인(IX), 풀 크기, bcrypt 비용 영향(로그인만) 확인 → 원인과 조정값을 PRD "가정" 수치 갱신 요청으로 남김.
-- **선결 결정**: 부하 대상 환경 — 잠정: 로컬 운영 모드(배포 전). OPS-01 후 여유 시 배포 환경 재측정.
-- **이월 사항** (9장): DB-03 EXPLAIN에서 IX-02 쿼리(카테고리 필터 목록, `ORDER BY end_date, created_at, id`)가 `ix_todos_user_id_category_id`는 쓰지만 Bitmap Heap Scan + Sort 노드가 남았다(완료 조건은 인덱스 사용까지라 충족). 데이터를 늘린 상태에서 정렬까지 인덱스로 처리되는지 재확인하고, 아니면 원인을 기록한다. 또한 BE-08 목록은 COUNT와 페이지 조회가 별도 쿼리라 동시 쓰기 중 `total`이 어긋날 수 있다(`shortcut:` 주석). 부하 중 문제가 되면 같은 트랜잭션으로 묶는다.
-- **완료 조건**:
-  - [ ] k6 10분 실행이 끝까지 돌고 `http_reqs` 평균 ≥ 190 RPS (NFR-01)
-  - [ ] 조회(목록·캘린더·refresh) p95 ≤ 300ms, 쓰기 p95 ≤ 500ms threshold 통과 (NFR-02)
-  - [ ] 로그인 p95 ≤ 800ms threshold 통과 (NFR-03)
-  - [ ] 5xx 비율 < 0.1%, 전체 실패율 < 1% threshold 통과 (NFR-04)
-  - [ ] 실행 중 `pg_stat_activity`의 앱 커넥션 수가 `DB_POOL_MAX` 이하 (NFR-05)
-  - [ ] 결과 표(지표·목표·측정값)가 이 Task 아래에 기록됨
-
 ### QA-03 반응형·브라우저 점검
 
 - **목표**: 360px~1920px와 지원 브라우저에서 주요 기능 사용 가능을 확인한다.
@@ -891,24 +866,6 @@ flowchart LR
   - [ ] 1920px에서 레이아웃이 깨지지 않는다
   - [ ] Chrome·Edge·Firefox 최신에서 로그인→목록→편집→캘린더가 동작한다 (Safari는 가능 시, 미확인이면 사유 기록) (NFR-15)
 
-### OPS-01 배포
-
-- **목표**: 운영 환경에 DB·BE·FE를 HTTPS로 배포한다.
-- **선행 Task**: QA-01
-- **우선순위·마일스톤**: Must · M-04
-- **관련 ID**: U-01, U-09, NFR-14, PR-33~35, PR-44, PR-45, AD-05
-- **수행 작업**:
-  1. U-01 확정(잠정: FE 정적 호스팅 + BE Node 호스팅 + 관리형 PostgreSQL 17, 분리 출처, HTTPS는 호스팅 플랫폼 종단).
-  2. 운영 DB에 `npm run migrate`(seed 실행 금지), BE 환경변수(`DATABASE_URL`, 48바이트 이상 무작위 `JWT_ACCESS_SECRET`, `ACCESS_TOKEN_TTL`, `REFRESH_TOKEN_TTL_DAYS`, `CORS_ORIGIN` = FE 출처), FE 빌드 시 `VITE_API_BASE_URL`.
-  3. SPA 라우팅 fallback(새로고침 시 `index.html`) 설정.
-- **선결 결정**: U-01 배포 환경·HTTPS 종단 (7장).
-- **완료 조건**:
-  - [ ] 운영 `GET /health`가 HTTPS로 200 `{ status: "ok" }` (PR-45, NFR-14)
-  - [ ] 운영 DB `schema_migrations`에 4행, `users` 행이 seed 데이터를 포함하지 않는다
-  - [ ] FE 출처가 아닌 Origin의 요청에 CORS 허용 헤더가 없다 (PR-35)
-  - [ ] HTTP 접속이 HTTPS로 리다이렉트되거나 차단된다 (NFR-14)
-  - [ ] 운영 FE에서 가입 → 할일 등록 → 캘린더 표시가 동작하고 `/todos` 새로고침이 404가 아니다
-  - [ ] 저장소에 `.env`·비밀 값이 커밋되지 않았다(`git log -p | grep JWT_ACCESS_SECRET=` 결과가 예시 값뿐) (NFR-14)
 
 ## 7. 착수 전 결정 필요 목록
 
@@ -918,7 +875,7 @@ flowchart LR
 |----|------|-------------|-----------|
 | U-08 | 스킬이 `docs/5-plan.md`를 읽는데 계획 문서는 `docs/8-plan.md` | **결정**(2026-11-04, 잠정 기본값 채택): 스킬 두 개의 경로를 `docs/8-plan.md`로 수정 완료 | 모든 BE·FE Task |
 | U-09 | PostgreSQL 실행 방식 | 로컬 설치 우선, 없으면 루트 `docker-compose.yml`(postgres:17 1개) | DB-01 |
-| EQ-02 | 마이그레이션 파일 1개 vs 테이블별 | **결정**(2026-11-04, 이 잠정 기본값 채택, 원칙 6.2 트리 갱신): 7-erd대로 4개(`001_create_users`, `002_create_categories`, `003_create_todos`, `004_create_refresh_tokens`) | DB-02, BE-03, OPS-01 |
+| EQ-02 | 마이그레이션 파일 1개 vs 테이블별 | **결정**(2026-11-04, 이 잠정 기본값 채택, 원칙 6.2 트리 갱신): 7-erd대로 4개(`001_create_users`, `002_create_categories`, `003_create_todos`, `004_create_refresh_tokens`) | DB-02, BE-03 |
 | EQ-01 | 23503 `fk_todos_category_owner` 처리 | 정상 경로는 service 확인으로 400 `fields.categoryId`, 경합 시 23503은 error 미들웨어에서 409 `CONFLICT`(fields 없음, 재시도 안내). 잠금 미도입(PR-01) | BE-02, BE-07, BE-12 |
 | AQ-06 | 타인·없는 `categoryId` 응답 | 400 `VALIDATION_ERROR` + `fields.categoryId` (아키텍처 잠정 그대로) | BE-07, FE-09 |
 | EQ-03 | 할일 제목 trim | trim 후 저장, 빈값 400 | BE-07 |
@@ -935,7 +892,7 @@ flowchart LR
 | U-03 | 캘린더 라이브러리 | `@fullcalendar/react` + `@fullcalendar/daygrid`(월·주·일 모두 daygrid, `dayMaxEvents`로 `+N`). React 19 호환 버전이 없으면 직접 구현으로 전환하고 FE-10·FE-11 재추정 | FE-10, FE-11 |
 | U-06 | 날짜 피커 | 네이티브 `<input type="date">` | FE-09 |
 | U-07 | 스타일 가이드 | `frontend/src/styles/tokens.css`를 임시 원본으로 사용 | FE-01, FE-03, 모든 FE |
-| U-01 | 배포 환경·HTTPS 종단 | FE·BE 분리 호스팅 + 관리형 PostgreSQL 17, HTTPS는 플랫폼 종단, CORS 화이트리스트 | OPS-01 |
+| U-01 | 배포 환경·HTTPS 종단 | **범위 밖**(v0.6): 배포는 사용자가 직접 하며 계획 Task 없음 | - |
 | PQ-01 | FE 테스트용 개발 의존성(원칙 허용 목록 밖) | `jsdom`, `@testing-library/react`, `@vitest/coverage-v8` 추가(훅 테스트·커버리지 측정에 필요, PR-17 사유 기록) | FE-01 |
 | PQ-02 | 현재 비밀번호 불일치 응답 코드 | 400 `VALIDATION_ERROR` + `fields.currentPassword`. 401을 쓰면 FE 공통 401 처리(PR-16)로 로그아웃된다 | BE-11, FE-12 |
 | PQ-03 | `bigint` id의 JSON 타입(`pg`는 int8을 문자열로 반환) | `db.js`에서 `setTypeParser(20, Number)`로 number 반환(id·COUNT 모두 2^53 미만 가정) | BE-01, BE-02, FE-02 |
@@ -975,10 +932,10 @@ flowchart LR
 
 | ID | Task |
 |----|------|
-| NFR-01~04 | QA-02 |
-| NFR-05 | BE-02, QA-02 |
+| NFR-01~04 | 범위 밖(v0.6, 부하 테스트 미실시) |
+| NFR-05 | BE-02 |
 | NFR-06 | BE-04, BE-08, BE-10 |
-| NFR-07 | DB-02, DB-03, QA-02 |
+| NFR-07 | DB-02, DB-03 |
 | NFR-08 | FE-02, FE-07 |
 | NFR-09 | BE-05, BE-11 |
 | NFR-10 | DB-02(T-04), BE-05, BE-11, FE-02, FE-04 |
@@ -986,7 +943,7 @@ flowchart LR
 | NFR-11 | BE-04, 모든 BE repository Task(PR-38) |
 | NFR-12 | DB-02(CN-12), BE-06~BE-12의 소유권 조건, QA-01 |
 | NFR-13 | BE-04~BE-11 validators |
-| NFR-14 | DB-01, BE-02, OPS-01 |
+| NFR-14 | DB-01, BE-02 |
 | NFR-15, NFR-16 | FE-03, FE-11, QA-03 |
 | SC-00-E1, E2 | FE-02, BE-05 |
 | SC-02-A1 | FE-02(AD-13), QA-01 |
@@ -1002,8 +959,8 @@ Task 수행 중 미룬 작업의 추적 표(0.2 이월 규칙). 대상 Task 절�
 | BE-05 | `userRepository.findUserById`, `refreshTokenRepository.deleteAllByUser` 미작성(쓰는 곳 없음) | BE-11 | 완료 |
 | BE-06 | `categoryRepository.findCategoryById`, `findDefaultCategory` 미작성(쓰는 곳 없음) | BE-07 | 완료 |
 | BE-04 | `COMPLETED` 조각은 today를 쓰지 않음 → today 파라미터는 필요할 때만 추가(08P01 방지) | BE-08 | 완료 |
-| DB-03 | IX-02 쿼리 EXPLAIN에 Sort 노드 잔존 → 데이터를 늘려 재확인 | QA-02 | 대기 |
-| BE-08 | 목록 COUNT와 페이지 조회가 별도 쿼리라 동시 쓰기 시 `total`이 어긋날 수 있음(`todoRepository.findTodosByUser`의 `shortcut:` 주석) → 부하 중 불일치가 문제되면 같은 트랜잭션(REPEATABLE READ)으로 묶기 | QA-02 | 대기 |
+| DB-03 | IX-02 쿼리 EXPLAIN에 Sort 노드 잔존 → 데이터를 늘려 재확인 | - | 제외(v0.6, QA-02 삭제) |
+| BE-08 | 목록 COUNT와 페이지 조회가 별도 쿼리라 동시 쓰기 시 `total`이 어긋날 수 있음(`todoRepository.findTodosByUser`의 `shortcut:` 주석) → 부하 중 불일치가 문제되면 같은 트랜잭션(REPEATABLE READ)으로 묶기 | - | 제외(v0.6, QA-02 삭제) |
 | BE-01 | `swagger.yaml` v0.2 수정분 YAML 문법 미검증 | QA-01 | 대기 |
 | BE-05 | 로그인 응답 시간 차이(G-04 계정 존재 추측) | PQ-04 결정 | 결정 대기 |
 | BE-02 | JSON 파싱 실패 요청 로그 누락 | PQ-05 결정 | 결정 대기 |
