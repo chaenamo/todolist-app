@@ -13,7 +13,7 @@ import { usersRouter } from './routes/users.js';
 
 export const app = express();
 
-app.use(cors({ origin: config.corsOrigin })); // PR-35
+app.use(cors({ origin: config.corsOrigins })); // PR-35
 app.use(express.json());
 app.use(requestLog);
 app.use(healthRouter);

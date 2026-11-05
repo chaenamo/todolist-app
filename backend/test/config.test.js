@@ -27,3 +27,19 @@ test('PR-37: JWT_ACCESS_SECRET이 48바이트 미만이면 0이 아닌 코드로
   assert.notEqual(result.status, 0);
   assert.equal(result.signal, null);
 });
+
+const SECRET = 'a'.repeat(48);
+
+test('PR-35: CORS_ORIGIN 없이 실행하면 0이 아닌 코드로 종료', () => {
+  const result = startServer({ JWT_ACCESS_SECRET: SECRET });
+  assert.notEqual(result.status, 0);
+  assert.equal(result.signal, null);
+  assert.match(result.stderr, /CORS_ORIGIN/);
+});
+
+test("PR-35: CORS_ORIGIN에 '*'가 있으면 0이 아닌 코드로 종료", () => {
+  const result = startServer({ JWT_ACCESS_SECRET: SECRET, CORS_ORIGIN: 'http://localhost:5173,*' });
+  assert.notEqual(result.status, 0);
+  assert.equal(result.signal, null);
+  assert.match(result.stderr, /CORS_ORIGIN/);
+});

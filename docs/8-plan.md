@@ -11,11 +11,13 @@
 | v0.5 | 2026-11-04 | chaenamo | 초안 | U-08 결정 반영 |
 | v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트(QA-02)·배포(OPS-01) 범위 제외 |
 | v0.7 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
+| v0.8 | 2026-11-05 | chaenamo | 초안 | 개발 환경도 CORS 방식으로 변경 |
 
 ## 변경 이력
 
 | 버전 | 일자 | 변경 섹션 | 변경 내용 | 변경자 |
 |------|------|-----------|-----------|--------|
+| v0.8 | 2026-11-05 | FE-01 | 개발 환경도 CORS 방식(원칙 v0.8 PR-35): FE-01 작업 3의 dev 프록시를 `frontend/.env.development`(`VITE_API_BASE_URL=http://localhost:3000`)로 교체. 체크박스 문장 변경 없음 | chaenamo |
 | v0.7 | 2026-11-05 | BE-01, BE-02, QA-01, 9 | 9장 BE-01 이월(swagger YAML 검증)을 개발 환경 Swagger UI 추가와 `test/apiDocs.test.js`로 처리 완료. 사용자 요청으로 `GET /health` 응답에 DB 연결 상태 `db` 추가. 0.2 규칙에 따라 BE-02 체크박스 문장 변경(200 본문에 `db: "connected"`, 503 본문 명시). 코드·테스트 반영 후 재확인해 체크 유지 | chaenamo |
 | v0.6 | 2026-11-05 | 기준 문서, 0.1, 1, 2, DB-03, 6, 7(U-01, EQ-02), 8.3, 9 | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로 QA-02(k6 부하 테스트·튜닝)·OPS-01(배포) Task를 삭제(ID 재사용 금지). 요약표·의존성 그래프·크리티컬 패스(약 13h → 11.5h)·Must 합계(41.5h → 38.5h)에서 제거. U-01은 범위 밖, NFR-01~04는 미검증으로 표기. QA-02로 이월된 2건(IX-02 Sort, 목록 total 불일치)은 "제외"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6, ERD v0.4 | chaenamo |
 | v0.1 | 2026-11-04 | 전체 | 도메인 정의서~ERD·schema.sql 기반 DB/BE/FE/QA/OPS Task 분해, 의존성·크리티컬 패스, 착수 전 결정 목록, UC·AC 추적 표 최초 작성 | chaenamo |
@@ -581,7 +583,7 @@ flowchart LR
 - **수행 작업**:
   1. `frontend/` Vite React TS 생성, `tsconfig` `strict: true`, `package.json` scripts `dev`, `build`, `test`, `test:coverage`, `lint`. 런타임 `react`, `react-dom`, `react-router`, `@tanstack/react-query`, `zustand`.
   2. 개발 의존성 `vitest`, `@vitest/coverage-v8`, `jsdom`, `@testing-library/react`(PQ-01, 커밋 메시지에 사유).
-  3. `vite.config.ts`: dev 프록시 `/api`, `/health` → `http://localhost:3000`, vitest `environment: jsdom`. `.env.example`(`VITE_API_BASE_URL`).
+  3. `vite.config.ts`: vitest `environment: jsdom`(프록시 없음, PR-35). `.env.example`(`VITE_API_BASE_URL`), 개발 값 `.env.development`(`VITE_API_BASE_URL=http://localhost:3000`).
   4. `src/styles/tokens.css`(색: 상태 4종·오류·성공, 간격, 폰트, 브레이크포인트 360/768/1024 주석), `global.css`.
   5. `src/main.tsx`(QueryClientProvider, 기본 `staleTime` 상수), `src/App.tsx`(라우트 자리 + `*` → `NotFoundPage` 임시).
 - **선결 결정**: PQ-01 테스트 개발 의존성 추가. U-07 스타일 가이드 = `tokens.css`.

@@ -10,6 +10,7 @@
 | v0.4 | 2026-11-04 | chaenamo | 초안 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영 |
 | v0.5 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 | v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
+| v0.7 | 2026-11-05 | chaenamo | 초안 | 개발 환경도 CORS 방식으로 변경 |
 
 ## 변경 이력
 
@@ -21,6 +22,7 @@
 | v0.4 | 2026-11-04 | 기준 문서, 0, AD-01~04, AD-06, AD-07, AD-13(신규), 3, 4 | 인증: JWT HS384 + refresh token(localStorage, 14일, 회전 없음) 반영. AD-03 HS256 → HS384(`algorithms` 명시), AD-02 authStore access 메모리·refresh localStorage·single-flight refresh, AD-06 가입 트랜잭션에 refresh_tokens INSERT 포함, AD-07 시퀀스 재작성(토큰 쌍 발급·refresh 재시도·로그아웃 서버 폐기), AD-13 앱 진입 refresh 추가, AQ-11을 AD-13 흐름으로 대체 | chaenamo |
 | v0.5 | 2026-11-04 | 기준 문서, AD-11, AD-12, 4.1(AQ-01, AQ-08, AQ-12) | 문서 간 정합성 검토 반영: 기준 시나리오·와이어프레임 v0.5, 원칙 v0.4로 갱신. AD-11 repository 함수명을 AD-09·실행 계획 BE-06/BE-12와 같게(`findCategoryById`, `findDefaultCategory`, `deleteCategory`), AD-12 정렬에 `id` 추가(실행 계획 BE-10과 일치). AQ-01에 refresh·logout까지 확장된 범위(PR-16) 표기, 결정된 AQ-08·AQ-12의 기존 질문 문구를 "(원 내용)"으로 구분 | chaenamo |
 | v0.6 | 2026-11-05 | 기준 문서, 0, AD-01, AD-05 | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로: AD-01에서 k6 노드·연결 삭제, AD-05를 "범위 밖"으로 바꾸고 후보 A·B는 코드 전제 참고용으로 유지. 기준 PRD v0.5, 원칙 v0.6 | chaenamo |
+| v0.7 | 2026-11-05 | 0 | 개발 환경도 Vite 프록시 대신 CORS: FE(5173)가 `VITE_API_BASE_URL`로 BE(3000)를 직접 호출, BE는 `CORS_ORIGIN`만 허용(원칙 v0.8 PR-35) | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U)는 **참조만** 하며 재정의하지 않는다. 구조 결정은 `5-project-principle.md`를 따른다.
@@ -66,7 +68,7 @@ flowchart LR
     ENV -.->|"기동 시 1회 로딩"| API
 ```
 
-- 개발 환경: Vite dev 서버 프록시 `/api` → BE로 CORS 없이 동작(PR-35). 운영은 FE·BE 분리 가정 + `CORS_ORIGIN` 화이트리스트(U-01 잠정).
+- 개발·운영 모두 CORS(PR-35): FE가 `VITE_API_BASE_URL`(개발 `http://localhost:3000`)로 BE를 직접 호출하고, BE는 필수 환경변수 `CORS_ORIGIN`(쉼표로 여러 개, `*` 금지, 개발 `http://localhost:5173`)에 지정한 출처만 허용한다. 프록시는 쓰지 않는다.
 - 별도 세션 저장소(Redis 등) 없음. 보호 요청은 access token 서명만 검증하고(무상태), refresh token의 유효·폐기 여부만 DB `refresh_tokens`로 확인한다(NFR-10, PR-37). 서버 시계로 '오늘'을 정하지 않는다(PR-05).
 
 ## AD-02 프론트엔드 내부 구조

@@ -11,6 +11,7 @@
 | v0.5 | 2026-11-04 | chaenamo | 초안 | U-08 결정 반영 |
 | v0.6 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 | v0.7 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
+| v0.8 | 2026-11-05 | chaenamo | 초안 | 개발 환경도 CORS 방식으로 변경(Vite 프록시 제거), `CORS_ORIGIN` 필수화 |
 
 ## 변경 이력
 
@@ -23,6 +24,7 @@
 | v0.5 | 2026-11-04 | 0, 7(U-08) | U-08 결정: 실행 계획 문서는 `docs/8-plan.md`, 두 개발 스킬 경로를 그에 맞게 수정 완료. 0장 스킬 관계 표의 번호 충돌 행을 해결로 갱신 | chaenamo |
 | v0.6 | 2026-11-05 | 기준 문서, PR-32, PR-45, 6.2, 6.4, 7(U-01) | 이번 범위에서 부하 테스트를 하지 않고 배포는 사용자가 직접 하므로: PR-32를 "부하 테스트 미실시, NFR-05~07 코드 리뷰 선적용"으로, PR-45 용도에서 배포·부하 테스트 제거, 디렉토리 트리·파일 위치 표에서 `backend/loadtest/` 삭제, U-01을 범위 밖으로 표기. 기준 PRD v0.5 | chaenamo |
 | v0.7 | 2026-11-05 | PR-45 | 헬스체크 응답에 DB 연결 상태 `db` 추가(200 `connected`, 503 `disconnected`) | chaenamo |
+| v0.8 | 2026-11-05 | PR-34, PR-35, 5, 6.3 | 개발·운영 모두 CORS 방식: Vite 프록시를 제거하고 FE가 `VITE_API_BASE_URL`로 BE를 직접 호출. 개발 값은 `frontend/.env.development`(커밋, 비밀 아님). `CORS_ORIGIN`을 필수 환경변수로(코드 기본값 제거), 쉼표로 여러 출처, `*`면 기동 종료 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP)는 **참조만** 하며 재정의하지 않는다. 규칙 본문은 원 문서를 따른다.
@@ -173,8 +175,8 @@
 | ID | 규칙 | 이유 (근거) |
 |----|------|-------------|
 | PR-33 | **환경변수**: 설정은 환경변수로만 주입한다. `.env`는 커밋하지 않고(`.gitignore`에 이미 있음), 키 목록과 더미 값을 담은 `.env.example`을 `backend/`·`frontend/`에 각각 커밋한다. BE는 `node --env-file=.env`로 읽는다. FE는 Vite 규칙상 `VITE_` 접두사 값만 번들에 들어가므로 **비밀을 넣지 않는다**(`VITE_API_BASE_URL`만). | NFR-14 |
-| PR-34 | **설정 로딩은 `backend/src/config.js` 한 곳.** 다른 파일은 `process.env`를 직접 읽지 않는다. 필수 값(`DATABASE_URL`, `JWT_ACCESS_SECRET`)이 없으면 기동 시 즉시 종료한다. `JWT_ACCESS_SECRET`이 48바이트 미만이어도 종료한다(HS384, PR-37). | NFR-14, PR-22 |
-| PR-35 | **CORS**: `cors` 미들웨어로 `CORS_ORIGIN`에 지정한 출처만 허용한다(`*` 금지). 개발 중에는 Vite 프록시(`/api` → BE)를 써서 CORS 없이도 동작하게 한다. | NFR-14 |
+| PR-34 | **설정 로딩은 `backend/src/config.js` 한 곳.** 다른 파일은 `process.env`를 직접 읽지 않는다. 필수 값(`DATABASE_URL`, `JWT_ACCESS_SECRET`, `CORS_ORIGIN`)이 없으면 기동 시 즉시 종료한다. `JWT_ACCESS_SECRET`이 48바이트 미만이어도 종료한다(HS384, PR-37). | NFR-14, PR-22 |
+| PR-35 | **CORS**: `cors` 미들웨어로 환경변수 `CORS_ORIGIN`에 지정한 출처만 허용한다. 코드에 기본값을 두지 않고, 쉼표로 여러 출처를 지정할 수 있으며, `*`가 들어 있으면 기동 시 종료한다. 개발·운영 모두 FE가 `VITE_API_BASE_URL`로 BE를 직접 호출한다(프록시 없음). 개발 값 `http://localhost:3000`은 `frontend/.env.development`에 둔다. | NFR-14 |
 | PR-36 | **비밀번호**: `bcrypt` cost `BCRYPT_COST`(기본 10)로 해시만 저장한다. 비교는 `bcrypt.compare`. 응답·로그에 해시도 내보내지 않는다(repository가 `password_hash`를 select하는 함수는 로그인용·비밀번호 변경용 각 1개뿐). | NFR-09, BR-04 |
 | PR-37 | **JWT + refresh token**: ① Access token은 `jsonwebtoken` **HS384**, 비밀키 `JWT_ACCESS_SECRET`(48바이트 이상 무작위), claims는 `sub`(userId)·`iat`·`exp`만, 만료 `ACCESS_TOKEN_TTL`(기본 15m), `Authorization: Bearer`로 전달. `middleware/auth.js`는 `jwt.verify(token, secret, { algorithms: ['HS384'] })`로 **알고리즘을 명시**해 검증하고(알고리즘 혼동 공격 방지) `req.userId`만 설정한다. FE는 access token을 메모리(Zustand, persist 안 함)에만 둔다. ② Refresh token은 JWT가 아닌 불투명 무작위 문자열(`crypto.randomBytes(32)` base64url)이다. 서버가 DB로 폐기 여부를 확인해야 하므로 JWT로 만들 이점이 없다. DB `refresh_tokens`에는 **SHA-256 해시만** 저장하고, 만료 `REFRESH_TOKEN_TTL_DAYS`(기본 14일), **회전 없음**(만료까지 같은 토큰 재사용). FE는 localStorage에 저장한다(R-05 감수). ③ API: 가입·로그인 응답 `{ accessToken, refreshToken, user }`(로그인 시 그 사용자의 만료된 refresh token 행 삭제), `POST /api/auth/refresh` body `{ refreshToken }` → 200 `{ accessToken }`(해시 조회 실패·만료 → 401 `UNAUTHORIZED`), `POST /api/auth/logout` body `{ refreshToken }` → 204(해당 행 삭제, 없어도 204, 멱등). refresh·logout은 공개 경로(PR-07). ④ 비밀번호 변경 성공 시 그 사용자의 모든 refresh token을 삭제하고 현재 세션용 새 refresh token을 발급해 응답한다(`{ refreshToken }`). 다른 기기는 access token 만료(최대 15분) 후 로그아웃된다(G-06). | NFR-10, R-05, A-14, G-06 |
 | PR-38 | **SQL**: 모든 쿼리는 `$n` 파라미터화. 동적 조건(필터·정렬)은 **화이트리스트 조각**을 조립하고 값은 항상 파라미터로 넘긴다. 사용자 입력을 SQL 문자열에 넣지 않는다. | NFR-11, BR-15 |
@@ -198,6 +200,7 @@ JWT_ACCESS_SECRET=change-me-to-48-plus-random-bytes
 ACCESS_TOKEN_TTL=15m
 REFRESH_TOKEN_TTL_DAYS=14
 BCRYPT_COST=10
+# 허용할 FE 출처. 쉼표로 여러 개 지정, '*' 금지 (PR-35)
 CORS_ORIGIN=http://localhost:5173
 ```
 
@@ -295,7 +298,7 @@ backend/
 frontend/
 ├── package.json            # scripts: dev, build, test, lint
 ├── .env.example            # VITE_API_BASE_URL (PR-33)
-├── vite.config.ts          # dev 프록시 /api → backend (PR-35)
+├── vite.config.ts          # react 플러그인, vitest 설정 (프록시 없음, PR-35)
 ├── index.html
 └── src/
     ├── main.tsx            # QueryClientProvider, Router 마운트
