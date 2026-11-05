@@ -540,19 +540,19 @@ flowchart LR
   2. `userRepository`: `updateUserName`, `findPasswordHashById`, `updatePasswordHash`.
   3. `src/services/userService.js`: 비밀번호 변경 = 현재 비밀번호 확인 → `withTransaction`(해시 갱신 + `refreshTokenRepository.deleteAllByUser` + 현재 세션용 새 refresh token 해시 INSERT) → 200 `{ refreshToken }`(PR-11, PR-37). `src/routes/users.js`(`GET/PATCH /api/users/me`, `PUT /api/users/me/password`).
 - **선결 결정**: PQ-02 현재 비밀번호 불일치 응답 = 400 `fields.currentPassword`(401이면 FE 공통 401 처리로 refresh 시도·로그아웃 흐름에 들어감). G-06 결정 = 그 사용자의 모든 refresh token 폐기 + 현재 세션용 새 발급, 다른 기기는 access 만료(최대 15분) 후 로그아웃.
-- **이월 사항** (9장): BE-05 수행 작업 2의 `userRepository.findUserById`와 `refreshTokenRepository.deleteAllByUser`는 BE-05에서 쓰는 곳이 없어 이 Task에서 만든다(`GET /api/users/me`, 비밀번호 변경 시 전체 폐기).
+- **이월 사항** (9장, 처리 완료): BE-05 수행 작업 2의 `userRepository.findUserById`와 `refreshTokenRepository.deleteAllByUser`는 BE-05에서 쓰는 곳이 없어 이 Task에서 만든다(`GET /api/users/me`, 비밀번호 변경 시 전체 폐기).
 - **완료 조건**:
-  - [ ] `GET /api/users/me` → 200 `{id, email, name, createdAt}`, 해시 없음 (PR-36)
-  - [ ] `PATCH {name: "  새이름 "}` → 200, 이름 `"새이름"`. 공백 이름 → 400 `fields.name` (SC-10-E2)
-  - [ ] `PATCH`에 `email`이 있어도 이메일이 바뀌지 않는다(무시 또는 400, 계약대로) (A-06, SC-10-E3)
-  - [ ] 현재 비밀번호 불일치 → 400 `fields.currentPassword`, 해시 불변 (BR-04, SC-10-E1, PQ-02)
-  - [ ] 변경 성공 200 `{ refreshToken }` 후 새 비밀번호로 로그인 200, 옛 비밀번호 401 (BR-04)
-  - [ ] 변경 전 발급된 그 사용자의 모든 refresh token(다른 기기 포함)으로 refresh → 401, 응답의 새 refresh token으로 refresh → 200 (G-06)
-  - [ ] 변경 직후 기존 access token으로 `GET /api/users/me`는 200이다(만료까지 최대 15분 유효, G-06)
-  - [ ] 다른 사용자의 refresh token은 비밀번호 변경의 영향을 받지 않는다 (BR-02)
-  - [ ] 현재 비밀번호 불일치(400)면 refresh token 행이 하나도 삭제되지 않는다 (PR-11)
-  - [ ] 새 비밀번호 규칙 위반 → 400 `fields.newPassword` (G-05)
-  - [ ] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
+  - [x] `GET /api/users/me` → 200 `{id, email, name, createdAt}`, 해시 없음 (PR-36)
+  - [x] `PATCH {name: "  새이름 "}` → 200, 이름 `"새이름"`. 공백 이름 → 400 `fields.name` (SC-10-E2)
+  - [x] `PATCH`에 `email`이 있어도 이메일이 바뀌지 않는다(무시 또는 400, 계약대로) (A-06, SC-10-E3)
+  - [x] 현재 비밀번호 불일치 → 400 `fields.currentPassword`, 해시 불변 (BR-04, SC-10-E1, PQ-02)
+  - [x] 변경 성공 200 `{ refreshToken }` 후 새 비밀번호로 로그인 200, 옛 비밀번호 401 (BR-04)
+  - [x] 변경 전 발급된 그 사용자의 모든 refresh token(다른 기기 포함)으로 refresh → 401, 응답의 새 refresh token으로 refresh → 200 (G-06)
+  - [x] 변경 직후 기존 access token으로 `GET /api/users/me`는 200이다(만료까지 최대 15분 유효, G-06)
+  - [x] 다른 사용자의 refresh token은 비밀번호 변경의 영향을 받지 않는다 (BR-02)
+  - [x] 현재 비밀번호 불일치(400)면 refresh token 행이 하나도 삭제되지 않는다 (PR-11)
+  - [x] 새 비밀번호 규칙 위반 → 400 `fields.newPassword` (G-05)
+  - [x] `npm run lint` 경고 0, PR-30 대상 커버리지 ≥ 90%
 
 ### BE-12 카테고리 이름 변경·삭제 API
 
@@ -999,7 +999,7 @@ Task 수행 중 미룬 작업의 추적 표(0.2 이월 규칙). 대상 Task 절�
 
 | 출처 | 내용 | 대상 | 상태 |
 |------|------|------|------|
-| BE-05 | `userRepository.findUserById`, `refreshTokenRepository.deleteAllByUser` 미작성(쓰는 곳 없음) | BE-11 | 대기 |
+| BE-05 | `userRepository.findUserById`, `refreshTokenRepository.deleteAllByUser` 미작성(쓰는 곳 없음) | BE-11 | 완료 |
 | BE-06 | `categoryRepository.findCategoryById`, `findDefaultCategory` 미작성(쓰는 곳 없음) | BE-07 | 완료 |
 | BE-04 | `COMPLETED` 조각은 today를 쓰지 않음 → today 파라미터는 필요할 때만 추가(08P01 방지) | BE-08 | 완료 |
 | DB-03 | IX-02 쿼리 EXPLAIN에 Sort 노드 잔존 → 데이터를 늘려 재확인 | QA-02 | 대기 |

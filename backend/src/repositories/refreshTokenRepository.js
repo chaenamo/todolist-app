@@ -24,3 +24,8 @@ export async function deleteByHash(db, tokenHash) {
 export async function deleteExpiredByUser(db, userId) {
   await db.query('DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at <= now()', [userId]);
 }
+
+// G-06: 비밀번호 변경 시 그 사용자의 모든 기기 세션 폐기
+export async function deleteAllByUser(db, userId) {
+  await db.query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
+}

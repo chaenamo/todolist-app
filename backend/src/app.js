@@ -8,6 +8,7 @@ import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { categoriesRouter } from './routes/categories.js';
 import { todosRouter } from './routes/todos.js';
+import { usersRouter } from './routes/users.js';
 
 export const app = express();
 
@@ -20,5 +21,6 @@ app.use('/api/auth', authRouter);
 app.use('/api', requireAuth);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/todos', todosRouter);
+app.use('/api/users', usersRouter);
 app.use(notFound);
 app.use(errorHandler);

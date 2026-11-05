@@ -29,7 +29,7 @@ export function hashToken(token) {
 }
 
 // PR-37: JWT가 아닌 불투명 무작위 문자열, DB에는 해시만
-function newRefreshToken() {
+export function newRefreshToken() {
   const token = randomBytes(32).toString('base64url');
   const expiresAt = new Date(Date.now() + config.refreshTokenTtlDays * DAY_MS);
   return { token, hash: hashToken(token), expiresAt };
