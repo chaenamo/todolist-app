@@ -11,7 +11,7 @@ export function useCalendarTodos(range: DateRange | null) {
   return useQuery({
     queryKey: [...TODOS_KEY, 'calendar', { from: range?.from, to: range?.to, today }],
     queryFn: () => {
-      if (!range) throw new Error('조회 범위가 없습니다');
+      if (!range) throw new Error('range is required');
       return listCalendarTodos({ from: range.from, to: range.to, today });
     },
     enabled: range !== null && diffDays(range.from, range.to) + 1 <= CALENDAR_MAX_DAYS,

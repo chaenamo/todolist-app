@@ -1,37 +1,32 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { ApiError } from '../api/client';
+import { LanguageSelect } from '../components/LanguageSelect';
 import { useSignup } from '../hooks/useAuth';
+import { useT } from '../i18n';
 import styles from './AuthPage.module.css';
 
 type FieldName = 'email' | 'password' | 'name';
 
-const FIELDS: {
-  name: FieldName;
-  label: string;
-  type: string;
-  autoComplete: string;
-  empty: string;
-}[] = [
-  {
-    name: 'email',
-    label: '이메일',
-    type: 'email',
-    autoComplete: 'email',
-    empty: '이메일을 입력하세요',
-  },
-  {
-    name: 'password',
-    label: '비밀번호',
-    type: 'password',
-    autoComplete: 'new-password',
-    empty: '비밀번호를 입력하세요',
-  },
-  { name: 'name', label: '이름', type: 'text', autoComplete: 'name', empty: '이름을 입력하세요' },
+const FIELDS: { name: FieldName; type: string; autoComplete: string }[] = [
+  { name: 'email', type: 'email', autoComplete: 'email' },
+  { name: 'password', type: 'password', autoComplete: 'new-password' },
+  { name: 'name', type: 'text', autoComplete: 'name' },
 ];
 
 export function SignupPage() {
+  const t = useT();
   const mutation = useSignup();
+  const labels: Record<FieldName, string> = {
+    email: t.common.email,
+    password: t.common.password,
+    name: t.common.name,
+  };
+  const required: Record<FieldName, string> = {
+    email: t.auth.emailRequired,
+    password: t.auth.passwordRequired,
+    name: t.auth.nameRequired,
+  };
   const [values, setValues] = useState<Record<FieldName, string>>({
     email: '',
     password: '',
@@ -46,7 +41,7 @@ export function SignupPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const next: Partial<Record<FieldName, string>> = {};
-    for (const f of FIELDS) if (!values[f.name]) next[f.name] = f.empty;
+    for (const f of FIELDS) if (!values[f.name]) next[f.name] = required[f.name];
     setClientErrors(next);
     if (Object.keys(next).length > 0) return;
     mutation.mutate(values);
@@ -55,8 +50,11 @@ export function SignupPage() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <p className={styles.brand}>TodoList</p>
-        <h1 className={styles.title}>회원가입</h1>
+        <div className={styles.top}>
+          <p className={styles.brand}>TodoList</p>
+          <LanguageSelect />
+        </div>
+        <h1 className={styles.title}>{t.auth.signupTitle}</h1>
         <form noValidate onSubmit={handleSubmit}>
           {FIELDS.map((f) => {
             const error = clientErrors[f.name] ?? serverFields[f.name];
@@ -68,7 +66,7 @@ export function SignupPage() {
             return (
               <div key={f.name} className={styles.field}>
                 <label className={styles.label} htmlFor={id}>
-                  {f.label}
+                  {labels[f.name]}
                 </label>
                 <input
                   id={id}
@@ -82,7 +80,7 @@ export function SignupPage() {
                 />
                 {hint && (
                   <p id={`${id}-hint`} className={styles.hint}>
-                    8~72자로 입력하세요
+                    {t.common.passwordHint}
                   </p>
                 )}
                 {error && (
@@ -99,11 +97,11 @@ export function SignupPage() {
             </div>
           )}
           <button type="submit" className={styles.submit} disabled={mutation.isPending}>
-            가입하기
+            {t.auth.submitSignup}
           </button>
         </form>
         <p className={styles.switch}>
-          이미 계정이 있으신가요? <Link to="/login">로그인</Link>
+          {t.auth.haveAccount} <Link to="/login">{t.auth.loginTitle}</Link>
         </p>
       </div>
     </div>

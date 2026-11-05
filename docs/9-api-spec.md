@@ -7,6 +7,7 @@
 | v0.1 | 2026-11-04 | chaenamo | 초안 | 최초 작성 |
 | v0.2 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
 | v0.3 | 2026-11-05 | chaenamo | 초안 | 구현 완료 현황 추가 |
+| v0.4 | 2026-11-05 | chaenamo | 초안 | 에러 문구 다국어(`Accept-Language`, BE-13) |
 
 ## 변경 이력
 
@@ -15,6 +16,7 @@
 | v0.1 | 2026-11-04 | 전체 | `8-plan.md` BE-01 잠정 표와 `backend/swagger.yaml` v0.2 기준으로 엔드포인트 19개, 인증, 공통 형식, 결정 사항 최초 작성 | chaenamo |
 | v0.2 | 2026-11-05 | 3.1, 4 | `GET /health` 응답에 DB 연결 상태 필드 `db` 추가: 200 `{ status: "ok", db: "connected" }`, 503 `{ status: "unavailable", db: "disconnected" }` | chaenamo |
 | v0.3 | 2026-11-05 | 5(신규) | BE-01~12 완료에 맞춰 5장 "구현 현황" 추가: 19개 구현 완료, 검증 테스트, Swagger UI, CORS 출처 규칙. 계약 변경 없음 | chaenamo |
+| v0.4 | 2026-11-05 | 1.1 | 에러 `message`·`fields` 값이 `Accept-Language`(ko/ja/en, 기본 ko)를 따른다(BE-13). `code`·상태·필드 키 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/8-plan.md` (v0.3), `backend/swagger.yaml` (v0.4).
 > 기준 문서 ID(BR, AC, PR, AQ, EQ, G, U, PQ 등)는 **참조만** 하며 재정의하지 않는다. 이 문서는 새 ID를 만들지 않는다.
@@ -52,7 +54,9 @@
 }
 ```
 
-`message`는 화면에 그대로 보여 줄 한국어 문구(PR-21). `fields`의 키는 요청 필드명이다.
+`message`는 화면에 그대로 보여 줄 문구(PR-21). `fields`의 키는 요청 필드명이다.
+
+**언어(BE-13)**: `message`와 `fields`의 값은 요청 헤더 `Accept-Language`에 따라 한국어(`ko`)·일본어(`ja`)·영어(`en`)로 내려간다. q 값이 가장 큰 지원 언어를 쓰고, 헤더가 없거나 지원 언어가 없으면 한국어. `code`·HTTP 상태·`fields`의 키는 언어와 무관하다. 번역 표는 `backend/src/i18n.js` 한 곳.
 
 ### 1.2 엔터티 JSON
 

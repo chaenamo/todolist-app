@@ -5,25 +5,25 @@ import { DayTodoList } from '../components/calendar/DayTodoList';
 import { useCalendarTodos } from '../hooks/useCalendarTodos';
 import { useCategories } from '../hooks/useCategories';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { categoryName, useT } from '../i18n';
 import {
   addDays,
-  dayOfWeek,
+  formatDayTitle,
+  formatMonthTitle,
   monthRange,
   todayString,
   weekRange,
   type DateRange,
 } from '../lib/date';
+import { useLocaleStore } from '../stores/localeStore';
 import { useUiStore, type CalendarView as ViewType } from '../stores/uiStore';
 import styles from './CalendarPage.module.css';
 
-const UNIT: Record<ViewType, string> = { month: '달', week: '주', day: '날' };
-const SEGMENTS: [ViewType, string][] = [
-  ['month', '월'],
-  ['week', '주'],
-  ['day', '일'],
-];
+const SEGMENTS: ViewType[] = ['month', 'week', 'day'];
 
 export function CalendarPage() {
+  const t = useT();
+  const locale = useLocaleStore((s) => s.locale);
   const navigate = useNavigate();
   const calendarView = useUiStore((s) => s.calendarView);
   const calendarDate = useUiStore((s) => s.calendarDate);
@@ -37,8 +37,8 @@ export function CalendarPage() {
   const { data, error } = useCalendarTodos(range);
   const { data: categories } = useCategories();
   const categoryNames = useMemo(
-    () => new Map((categories ?? []).map((c) => [c.id, c.name])),
-    [categories],
+    () => new Map((categories ?? []).map((c) => [c.id, categoryName(c, t)])),
+    [categories, t],
   );
 
   // 같은 범위로 다시 호출돼도 state가 바뀌지 않게 해 datesSet 루프를 막는다
@@ -59,14 +59,13 @@ export function CalendarPage() {
     }
   };
 
-  const [y, m, d] = date.split('-').map(Number);
   const week = weekRange(date);
   const title =
     calendarView === 'month'
-      ? `${y}년 ${m}월`
+      ? formatMonthTitle(date, locale)
       : calendarView === 'week'
         ? `${week.from.replaceAll('-', '.')} ~ ${week.to.slice(5).replace('-', '.')}`
-        : `${y}년 ${m}월 ${d}일 (${'일월화수목금토'[dayOfWeek(date)]})`;
+        : formatDayTitle(date, locale);
 
   return (
     <section>
@@ -75,26 +74,26 @@ export function CalendarPage() {
           <button
             type="button"
             className={styles.btn}
-            aria-label={`이전 ${UNIT[calendarView]}`}
+            aria-label={t.calendar.prev[calendarView]}
             onClick={() => move(-1)}
           >
             ‹
           </button>
           <button type="button" className={styles.btn} onClick={() => setCalendarDate(null)}>
-            오늘
+            {t.calendar.today}
           </button>
           <button
             type="button"
             className={styles.btn}
-            aria-label={`다음 ${UNIT[calendarView]}`}
+            aria-label={t.calendar.next[calendarView]}
             onClick={() => move(1)}
           >
             ›
           </button>
         </div>
         <h1 className={styles.title}>{title}</h1>
-        <div role="group" aria-label="보기" className={styles.segment}>
-          {SEGMENTS.map(([v, label]) => (
+        <div role="group" aria-label={t.calendar.view} className={styles.segment}>
+          {SEGMENTS.map((v) => (
             <button
               key={v}
               type="button"
@@ -102,7 +101,7 @@ export function CalendarPage() {
               aria-pressed={calendarView === v}
               onClick={() => setCalendarView(v)}
             >
-              {label}
+              {t.calendar[v]}
             </button>
           ))}
         </div>

@@ -1,17 +1,20 @@
 import { useId, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router';
+import { useT } from '../i18n';
+import { LanguageSelect } from './LanguageSelect';
 import styles from './Layout.module.css';
 
 const NAV_ITEMS = [
-  { to: '/todos', label: '목록' },
-  { to: '/calendar', label: '캘린더' },
-  { to: '/categories', label: '카테고리' },
-  { to: '/me', label: '내 정보' },
-];
+  { to: '/todos', key: 'todos' },
+  { to: '/calendar', key: 'calendar' },
+  { to: '/categories', key: 'categories' },
+  { to: '/me', key: 'me' },
+] as const;
 
 export function Layout({ onLogout }: { onLogout: () => void }) {
   const [open, setOpen] = useState(false);
   const navId = useId();
+  const t = useT();
 
   return (
     <>
@@ -23,14 +26,14 @@ export function Layout({ onLogout }: { onLogout: () => void }) {
           <button
             type="button"
             className={styles.hamburger}
-            aria-label={open ? '메뉴 닫기' : '메뉴 열기'}
+            aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
             aria-expanded={open}
             aria-controls={navId}
             onClick={() => setOpen((v) => !v)}
           >
             {open ? '×' : '☰'}
           </button>
-          <nav id={navId} aria-label="주 메뉴" className={styles.nav} data-open={open}>
+          <nav id={navId} aria-label={t.nav.label} className={styles.nav} data-open={open}>
             <ul className={styles.list}>
               {NAV_ITEMS.map((item) => (
                 <li key={item.to}>
@@ -39,17 +42,20 @@ export function Layout({ onLogout }: { onLogout: () => void }) {
                     className={({ isActive }) => `${styles.link} ${isActive ? styles.active : ''}`}
                     onClick={() => setOpen(false)}
                   >
-                    {item.label}
+                    {t.nav[item.key]}
                   </NavLink>
                 </li>
               ))}
+              <li className={styles.langItem}>
+                <LanguageSelect />
+              </li>
               <li className={styles.logoutItem}>
                 <button
                   type="button"
                   className={`${styles.link} ${styles.logout}`}
                   onClick={onLogout}
                 >
-                  로그아웃
+                  {t.nav.logout}
                 </button>
               </li>
             </ul>

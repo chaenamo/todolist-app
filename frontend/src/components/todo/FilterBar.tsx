@@ -1,4 +1,4 @@
-import { STATUS_LABEL } from '../StatusBadge';
+import { categoryName, useT } from '../../i18n';
 import type { Category, TodoStatus } from '../../api/types';
 import styles from './FilterBar.module.css';
 
@@ -21,6 +21,7 @@ export function FilterBar({
   onStatusesChange,
   onReset,
 }: Props) {
+  const t = useT();
   function toggle(s: TodoStatus, checked: boolean) {
     // 선택 순서와 무관하게 고정 순서로 서버에 보낸다
     onStatusesChange(STATUS_ORDER.filter((x) => (x === s ? checked : statuses.includes(x))));
@@ -31,7 +32,7 @@ export function FilterBar({
       <div className={styles.controls}>
         <div className={styles.field}>
           <label htmlFor="filter-category" className={styles.label}>
-            카테고리
+            {t.common.category}
           </label>
           <select
             id="filter-category"
@@ -41,16 +42,16 @@ export function FilterBar({
               onCategoryChange(e.target.value === '' ? null : Number(e.target.value))
             }
           >
-            <option value="">전체</option>
+            <option value="">{t.common.all}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name}
+                {categoryName(c, t)}
               </option>
             ))}
           </select>
         </div>
         <fieldset className={styles.statuses}>
-          <legend className={styles.label}>상태</legend>
+          <legend className={styles.label}>{t.filter.status}</legend>
           <div className={styles.checks}>
             {STATUS_ORDER.map((s) => (
               <label key={s} className={styles.check}>
@@ -59,16 +60,16 @@ export function FilterBar({
                   checked={statuses.includes(s)}
                   onChange={(e) => toggle(s, e.target.checked)}
                 />
-                {STATUS_LABEL[s]}
+                {t.status[s]}
               </label>
             ))}
           </div>
         </fieldset>
         <button type="button" className={styles.reset} onClick={onReset}>
-          필터 초기화
+          {t.filter.reset}
         </button>
       </div>
-      <small className={styles.sort}>정렬: 종료일자 오름차순</small>
+      <small className={styles.sort}>{t.filter.sort}</small>
     </div>
   );
 }

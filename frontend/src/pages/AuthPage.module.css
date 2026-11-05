@@ -9,8 +9,15 @@
   max-width: var(--form-max-width);
 }
 
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
 .brand {
-  margin: 0 0 var(--space-4);
+  margin: 0;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--color-text);

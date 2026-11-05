@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import type { TodoWithStatus } from '../../api/types';
+import { useT } from '../../i18n';
 import { formatMonthDay } from '../../lib/date';
 import { StatusBadge } from '../StatusBadge';
 import styles from './TodoRow.module.css';
@@ -13,12 +14,13 @@ interface TodoRowProps {
 }
 
 export function TodoRow({ todo, categoryName, toggling, onToggle, onDelete }: TodoRowProps) {
+  const t = useT();
   return (
     <li className={styles.row}>
       <input
         type="checkbox"
         className={styles.check}
-        aria-label={`${todo.title} 완료`}
+        aria-label={t.todo.completeLabel(todo.title)}
         checked={todo.isCompleted}
         disabled={toggling}
         onChange={(e) => onToggle(e.target.checked)}
@@ -46,17 +48,17 @@ export function TodoRow({ todo, categoryName, toggling, onToggle, onDelete }: To
         to={`/todos/${todo.id}/edit`}
         state={{ from: '/todos' }}
         className={`${styles.btn} ${styles.edit}`}
-        aria-label={`${todo.title} 수정`}
+        aria-label={t.todo.editLabel(todo.title)}
       >
-        수정
+        {t.common.edit}
       </Link>
       <button
         type="button"
         className={`${styles.btn} ${styles.delete}`}
-        aria-label={`${todo.title} 삭제`}
+        aria-label={t.todo.deleteLabel(todo.title)}
         onClick={onDelete}
       >
-        삭제
+        {t.common.delete}
       </button>
     </li>
   );

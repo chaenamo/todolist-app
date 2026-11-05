@@ -1,3 +1,5 @@
+import type { Locale } from '../stores/localeStore';
+
 export interface DateRange {
   from: string;
   to: string;
@@ -59,4 +61,19 @@ export function monthGridRange(date: string): DateRange {
 export function formatMonthDay(date: string): string {
   const [, m, d] = date.split('-');
   return `${Number(m)}/${Number(d)}`;
+}
+
+const intl = (locale: Locale, options: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat(locale, { timeZone: 'UTC', ...options });
+
+// 'YYYY-MM-DD' → '2026년 11월' / 'November 2026' / '2026年11月'
+export function formatMonthTitle(date: string, locale: Locale): string {
+  return intl(locale, { year: 'numeric', month: 'long' }).format(parse(date));
+}
+
+// 'YYYY-MM-DD' → '2026년 11월 11일 (수)' / 'November 11, 2026 (Wed)' / '2026年11月11日 (水)'
+export function formatDayTitle(date: string, locale: Locale): string {
+  const d = parse(date);
+  const day = intl(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(d);
+  return `${day} (${intl(locale, { weekday: 'short' }).format(d)})`;
 }

@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { TodoStatus } from '../../api/types';
+import { useLocaleStore } from '../../stores/localeStore';
 import { FilterBar } from './FilterBar';
 
 const categories = [
@@ -65,4 +66,15 @@ test('[G-09] 필터 초기화 버튼은 onReset을 호출한다', () => {
   const props = renderBar(2, ['COMPLETED']);
   fireEvent.click(screen.getByRole('button', { name: '필터 초기화' }));
   expect(props.onReset).toHaveBeenCalledTimes(1);
+});
+
+test('[PQ-07] 영어에서 기본 카테고리는 Default, 사용자 카테고리는 저장된 이름으로 표시된다', () => {
+  useLocaleStore.getState().setLocale('en');
+  renderBar();
+  expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual([
+    'All',
+    'Default',
+    '업무',
+  ]);
+  expect(screen.getByText('In progress')).toBeTruthy();
 });

@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { queryClient } from '../queryClient';
+import en from '../i18n/en';
+import ja from '../i18n/ja';
 import { useAuthStore } from '../stores/authStore';
+import { useLocaleStore } from '../stores/localeStore';
 import { ApiError, request } from './client';
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -220,4 +223,31 @@ test('[SC-00-E2] 401인데 refreshToken이 없으면 refresh 요청 없이 세�
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(useAuthStore.getState().accessToken).toBeNull();
   expect(clearSpy).toHaveBeenCalled();
+});
+
+test('[FE-14] 모든 요청에 현재 언어의 Accept-Language 헤더가 실린다', async () => {
+  fetchMock.mockImplementation(() => Promise.resolve(json(200, {})));
+  await request('GET', '/api/todos');
+  useLocaleStore.getState().setLocale('ja');
+  await request('GET', '/api/todos');
+
+  const lang = (i: number) =>
+    new Headers(fetchMock.mock.calls[i][1]?.headers).get('Accept-Language');
+  expect(lang(0)).toBe('ko');
+  expect(lang(1)).toBe('ja');
+});
+
+test('[FE-14] 네트워크 오류·본문 없는 오류의 문구는 현재 언어 사전에서 온다', async () => {
+  useLocaleStore.getState().setLocale('en');
+  fetchMock.mockRejectedValueOnce(new TypeError('failed'));
+  expect((await catchError(request('GET', '/api/todos'))).message).toBe(en.error.network);
+
+  fetchMock.mockResolvedValueOnce(new Response('oops', { status: 500 }));
+  expect((await catchError(request('GET', '/api/todos'))).message).toBe(en.error.internal);
+});
+
+test('[FE-14] refresh token이 없을 때의 재로그인 문구도 현재 언어 사전에서 온다', async () => {
+  useLocaleStore.getState().setLocale('ja');
+  fetchMock.mockResolvedValueOnce(json(401, errorBody('UNAUTHORIZED', 'x')));
+  expect((await catchError(request('GET', '/api/todos'))).message).toBe(ja.error.relogin);
 });

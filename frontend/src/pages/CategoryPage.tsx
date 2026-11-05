@@ -8,10 +8,12 @@ import {
   useDeleteCategory,
   useRenameCategory,
 } from '../hooks/useCategories';
+import { categoryName, useT } from '../i18n';
 import { useToastStore } from '../stores/toastStore';
 import styles from './CategoryPage.module.css';
 
 export function CategoryPage() {
+  const t = useT();
   const { data, isPending, error: loadError } = useCategories();
   const create = useCreateCategory();
   const rename = useRenameCategory();
@@ -29,17 +31,17 @@ export function CategoryPage() {
     if (!deleteTarget) return;
     setDeleteTarget(null);
     deleteMutate(deleteTarget.id, {
-      onSuccess: () => showToast('success', '삭제했습니다.'),
+      onSuccess: () => showToast('success', t.common.deleted),
       onError: (err) => showToast('error', err.message),
     });
-  }, [deleteTarget, deleteMutate, showToast]);
+  }, [deleteTarget, deleteMutate, showToast, t]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const trimmed = name.trim();
     setError(null);
     if (!trimmed) {
-      setError('이름을 입력하세요');
+      setError(t.category.nameRequired);
       return;
     }
     create.mutate(trimmed, {
@@ -65,7 +67,7 @@ export function CategoryPage() {
     const trimmed = editName.trim();
     setEditError(null);
     if (!trimmed) {
-      setEditError('이름을 입력하세요');
+      setEditError(t.category.nameRequired);
       return;
     }
     rename.mutate(
@@ -73,7 +75,7 @@ export function CategoryPage() {
       {
         onSuccess: () => {
           cancelEdit();
-          showToast('success', '이름을 변경했습니다.');
+          showToast('success', t.category.renamed);
         },
         onError: (err) =>
           setEditError(err instanceof ApiError ? (err.fields?.name ?? err.message) : err.message),
@@ -83,11 +85,11 @@ export function CategoryPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>카테고리 관리</h1>
+      <h1 className={styles.title}>{t.category.title}</h1>
       <form noValidate className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="category-name">
-            새 카테고리
+            {t.category.newCategory}
           </label>
           <div className={styles.row}>
             <input
@@ -99,7 +101,7 @@ export function CategoryPage() {
               aria-describedby={error ? 'category-name-error' : undefined}
             />
             <button type="submit" className={styles.submit} disabled={create.isPending}>
-              등록
+              {t.category.add}
             </button>
           </div>
           {error && (
@@ -111,20 +113,20 @@ export function CategoryPage() {
       </form>
       {isPending ? (
         <p role="status" className={styles.status}>
-          불러오는 중…
+          {t.common.loading}
         </p>
       ) : loadError ? (
         <p role="alert" className={styles.loadError}>
           {loadError.message}
         </p>
       ) : (
-        <ul aria-label="카테고리 목록" className={styles.list}>
+        <ul aria-label={t.category.list} className={styles.list}>
           {data.map((c) => (
             <li key={c.id} className={styles.item}>
               {c.isDefault ? (
                 <>
-                  <span className={styles.name}>{c.name}</span>
-                  <span className={styles.muted}>(변경·삭제 불가)</span>
+                  <span className={styles.name}>{categoryName(c, t)}</span>
+                  <span className={styles.muted}>{t.category.locked}</span>
                 </>
               ) : editingId === c.id ? (
                 <form
@@ -134,7 +136,7 @@ export function CategoryPage() {
                 >
                   <input
                     className={styles.input}
-                    aria-label="새 이름"
+                    aria-label={t.category.newName}
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     aria-invalid={editError ? true : undefined}
@@ -146,14 +148,14 @@ export function CategoryPage() {
                       className={`${styles.button} ${styles.primary}`}
                       disabled={rename.isPending}
                     >
-                      저장
+                      {t.common.save}
                     </button>
                     <button
                       type="button"
                       className={`${styles.button} ${styles.secondary}`}
                       onClick={cancelEdit}
                     >
-                      취소
+                      {t.common.cancel}
                     </button>
                   </div>
                   {editError && (
@@ -169,18 +171,18 @@ export function CategoryPage() {
                     <button
                       type="button"
                       className={`${styles.button} ${styles.secondary}`}
-                      aria-label={`${c.name} 이름 변경`}
+                      aria-label={t.category.renameLabel(c.name)}
                       onClick={() => startEdit(c)}
                     >
-                      이름 변경
+                      {t.category.rename}
                     </button>
                     <button
                       type="button"
                       className={`${styles.button} ${styles.ghost}`}
-                      aria-label={`${c.name} 삭제`}
+                      aria-label={t.category.deleteLabel(c.name)}
                       onClick={() => setDeleteTarget(c)}
                     >
-                      삭제
+                      {t.common.delete}
                     </button>
                   </div>
                 </>
@@ -191,9 +193,9 @@ export function CategoryPage() {
       )}
       <ConfirmModal
         open={deleteTarget !== null}
-        title={`카테고리 '${deleteTarget?.name ?? ''}'를 삭제할까요?`}
-        message="소속 할일은 삭제되지 않고 '기본'으로 이동합니다."
-        confirmLabel="삭제"
+        title={t.category.deleteTitle(deleteTarget?.name ?? '')}
+        message={t.category.deleteMessage(t.common.defaultCategory)}
+        confirmLabel={t.common.delete}
         danger
         onCancel={onDeleteCancel}
         onConfirm={onDeleteConfirm}

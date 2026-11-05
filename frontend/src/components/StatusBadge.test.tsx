@@ -1,6 +1,7 @@
 import { afterEach, expect, test } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
-import { STATUS_LABEL, StatusBadge } from './StatusBadge';
+import ko from '../i18n/ko';
+import { StatusBadge } from './StatusBadge';
 
 afterEach(() => {
   cleanup();
@@ -17,7 +18,7 @@ test('[CMP-05] StatusBadge는 4개 코드를 각각 시작 전·진행 중·완�
   for (const [status, label] of cases) {
     render(<StatusBadge status={status} />);
     expect(screen.getByText(label)).toBeTruthy();
-    expect(STATUS_LABEL[status]).toBe(label);
+    expect(ko.status[status]).toBe(label);
     cleanup();
   }
 });

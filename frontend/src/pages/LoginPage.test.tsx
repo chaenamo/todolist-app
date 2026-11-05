@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { useAuthStore } from '../stores/authStore';
+import { useLocaleStore } from '../stores/localeStore';
 import { LoginPage } from './LoginPage';
 
 const fetchMock = vi.fn<typeof fetch>();
@@ -105,4 +106,17 @@ test('[SC-02-E1, G-04] 로그인 401 시 폼 상단에 서버 메시지가 표�
   expect(input('이메일').value).toBe('a@b.com');
   expect(input('비밀번호').value).toBe('wrongpass');
   expect(useAuthStore.getState().accessToken).toBeNull();
+});
+
+test('[FE-15] 영어로 바꾸면 로그인 화면 문구와 검증 메시지가 영어로 나온다', () => {
+  useLocaleStore.getState().setLocale('en');
+  renderPage();
+
+  expect(screen.getByRole('heading', { name: 'Log in' })).toBeTruthy();
+  expect(screen.getByLabelText('Email')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+  expect(screen.getByText('Enter your email')).toBeTruthy();
+  expect(screen.getByText('Enter your password')).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Sign up' })).toBeTruthy();
+  expect(screen.getByLabelText('Language')).toBeTruthy();
 });

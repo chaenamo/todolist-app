@@ -7,12 +7,14 @@ import { FilterBar } from '../components/todo/FilterBar';
 import { Pagination } from '../components/todo/Pagination';
 import { TodoRow } from '../components/todo/TodoRow';
 import { useCategories } from '../hooks/useCategories';
+import { categoryName, useT } from '../i18n';
 import { useDeleteTodo, useSetCompleted, useTodoList } from '../hooks/useTodos';
 import { useToastStore } from '../stores/toastStore';
 import { useUiStore } from '../stores/uiStore';
 import styles from './TodoListPage.module.css';
 
 export function TodoListPage() {
+  const t = useT();
   const { categoryId, statuses, page, setCategoryId, setStatuses, setPage, resetFilters } =
     useUiStore();
   const { data: categories } = useCategories();
@@ -28,25 +30,26 @@ export function TodoListPage() {
     if (!deleteTarget) return;
     setDeleteTarget(null);
     deleteMutate(deleteTarget.id, {
-      onSuccess: () => showToast('success', '삭제했습니다.'),
+      onSuccess: () => showToast('success', t.common.deleted),
       onError: (err) =>
         showToast(
           'error',
-          err instanceof ApiError && err.status === 404
-            ? '요청하신 항목을 찾을 수 없습니다.'
-            : err.message,
+          err instanceof ApiError && err.status === 404 ? t.common.notFound : err.message,
         ),
     });
-  }, [deleteTarget, deleteMutate, showToast]);
+  }, [deleteTarget, deleteMutate, showToast, t]);
 
-  const names = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c.name])), [categories]);
+  const names = useMemo(
+    () => new Map((categories ?? []).map((c) => [c.id, categoryName(c, t)])),
+    [categories, t],
+  );
   const unfiltered = categoryId === null && statuses.length === 0;
 
   let body;
   if (isPending) {
     body = (
       <p role="status" className={styles.status}>
-        불러오는 중…
+        {t.common.loading}
       </p>
     );
   } else if (error) {
@@ -58,23 +61,23 @@ export function TodoListPage() {
   } else if (data.total === 0) {
     body = unfiltered ? (
       <div className={styles.empty}>
-        <p className={styles.emptyText}>등록된 할일이 없습니다.</p>
+        <p className={styles.emptyText}>{t.todo.emptyAll}</p>
         <Link to="/todos/new" className={styles.secondary}>
-          + 첫 할일 등록
+          {t.todo.firstTodo}
         </Link>
       </div>
     ) : (
       <div className={styles.empty}>
-        <p className={styles.emptyText}>조건에 맞는 할일이 없습니다.</p>
+        <p className={styles.emptyText}>{t.todo.emptyFiltered}</p>
         <button type="button" className={styles.secondary} onClick={resetFilters}>
-          필터 초기화
+          {t.filter.reset}
         </button>
       </div>
     );
   } else {
     body = (
       <>
-        <ul aria-label="할일 목록" className={styles.list}>
+        <ul aria-label={t.todo.listLabel} className={styles.list}>
           {data.items.map((t) => (
             <TodoRow
               key={t.id}
@@ -99,9 +102,9 @@ export function TodoListPage() {
   return (
     <div>
       <div className={styles.titleRow}>
-        <h1 className={styles.title}>할일 목록</h1>
+        <h1 className={styles.title}>{t.todo.listTitle}</h1>
         <Link to="/todos/new" className={styles.primary}>
-          + 새 할일
+          {t.todo.newTodo}
         </Link>
       </div>
       <FilterBar
@@ -115,9 +118,9 @@ export function TodoListPage() {
       {body}
       <ConfirmModal
         open={deleteTarget !== null}
-        title="할일을 삭제할까요?"
-        message="삭제하면 복구할 수 없습니다."
-        confirmLabel="삭제"
+        title={t.todo.deleteTitle}
+        message={t.todo.deleteMessage}
+        confirmLabel={t.common.delete}
         danger
         onCancel={onCancel}
         onConfirm={onConfirm}

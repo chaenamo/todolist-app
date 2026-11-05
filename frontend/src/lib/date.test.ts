@@ -3,7 +3,9 @@ import {
   addDays,
   dayOfWeek,
   diffDays,
+  formatDayTitle,
   formatMonthDay,
+  formatMonthTitle,
   monthGridRange,
   monthRange,
   todayString,
@@ -104,4 +106,17 @@ test('[WF-05] dayOfWeek는 0=일요일 기준 요일을 반환한다', () => {
   expect(dayOfWeek('2026-11-08')).toBe(0);
   process.env.TZ = 'America/Los_Angeles';
   expect(dayOfWeek('2026-11-08')).toBe(0);
+});
+
+test('[FE-15] formatMonthTitle은 언어별 표기를 UTC 기준으로 만든다', () => {
+  expect(formatMonthTitle('2026-11-05', 'ko')).toBe('2026년 11월');
+  expect(formatMonthTitle('2026-11-05', 'ja')).toBe('2026年11月');
+  expect(formatMonthTitle('2026-11-05', 'en')).toBe('November 2026');
+  expect(formatMonthTitle('2026-12-01', 'en')).toBe('December 2026');
+});
+
+test('[FE-15] formatDayTitle은 날짜와 요일을 언어별로 만든다', () => {
+  expect(formatDayTitle('2026-11-11', 'ko')).toBe('2026년 11월 11일 (수)');
+  expect(formatDayTitle('2026-11-11', 'ja')).toBe('2026年11月11日 (水)');
+  expect(formatDayTitle('2026-11-11', 'en')).toBe('November 11, 2026 (Wed)');
 });

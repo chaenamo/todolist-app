@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
+import { useT } from '../i18n';
 import styles from './ConfirmModal.module.css';
 
 interface ConfirmModalProps {
@@ -17,11 +18,12 @@ export function ConfirmModal({
   title,
   message,
   confirmLabel,
-  cancelLabel = '취소',
+  cancelLabel,
   danger = false,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
+  const t = useT();
   const titleId = useId();
   const messageId = useId();
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -66,7 +68,7 @@ export function ConfirmModal({
             className={`${styles.button} ${styles.secondary}`}
             onClick={onCancel}
           >
-            {cancelLabel}
+            {cancelLabel ?? t.common.cancel}
           </button>
           <button
             type="button"

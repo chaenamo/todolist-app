@@ -5,6 +5,7 @@ import type { TodoInput } from '../api/types';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { TodoForm, type TodoFormValues } from '../components/todo/TodoForm';
 import { useCategories } from '../hooks/useCategories';
+import { useT } from '../i18n';
 import { useCreateTodo, useTodo, useUpdateTodo } from '../hooks/useTodos';
 import { useToastStore } from '../stores/toastStore';
 import { NotFoundPage } from './NotFoundPage';
@@ -12,6 +13,7 @@ import styles from './TodoEditPage.module.css';
 
 // WF-05: 등록·수정 공용. id 파라미터가 없으면 등록
 export function TodoEditPage() {
+  const t = useT();
   const { id: idParam } = useParams();
   const isEdit = idParam !== undefined;
   const idValid = !isEdit || /^[1-9]\d*$/.test(idParam);
@@ -37,7 +39,7 @@ export function TodoEditPage() {
       setFormError(undefined);
       const options = {
         onSuccess: () => {
-          showToast('success', '저장했습니다.');
+          showToast('success', t.common.saved);
           navigate(from);
         },
         onError: (err: Error) => {
@@ -49,7 +51,7 @@ export function TodoEditPage() {
       if (id === null) create.mutate(input, options);
       else update.mutate({ id, input }, options);
     },
-    [id, create, update, showToast, navigate, from],
+    [id, create, update, showToast, navigate, from, t],
   );
 
   const handleCancel = useCallback(
@@ -73,18 +75,18 @@ export function TodoEditPage() {
   } else if (categories.data === undefined || (isEdit && todo.data === undefined)) {
     body = (
       <p role="status" className={styles.status}>
-        불러오는 중…
+        {t.common.loading}
       </p>
     );
   } else {
-    const t = todo.data;
-    const initial: TodoFormValues = t
+    const loaded = todo.data;
+    const initial: TodoFormValues = loaded
       ? {
-          title: t.title,
-          description: t.description ?? '',
-          categoryId: t.categoryId,
-          startDate: t.startDate,
-          endDate: t.endDate,
+          title: loaded.title,
+          description: loaded.description ?? '',
+          categoryId: loaded.categoryId,
+          startDate: loaded.startDate,
+          endDate: loaded.endDate,
         }
       : {
           title: '',
@@ -109,14 +111,14 @@ export function TodoEditPage() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>{isEdit ? '할일 수정' : '할일 등록'}</h1>
+      <h1 className={styles.title}>{isEdit ? t.todo.editTitle : t.todo.createTitle}</h1>
       {body}
       <ConfirmModal
         open={leaveOpen}
-        title="저장하지 않은 변경 사항이 있습니다."
-        message="나가면 변경 내용이 사라집니다."
-        confirmLabel="나가기"
-        cancelLabel="계속 편집"
+        title={t.todo.leaveTitle}
+        message={t.todo.leaveMessage}
+        confirmLabel={t.todo.leave}
+        cancelLabel={t.todo.keepEditing}
         onConfirm={leave}
         onCancel={closeLeave}
       />

@@ -13,10 +13,12 @@ import { TodoListPage } from './pages/TodoListPage';
 import { TodoEditPage } from './pages/TodoEditPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { MyInfoPage } from './pages/MyInfoPage';
+import { useT } from './i18n';
 import styles from './App.module.css';
 
 // AD-13, AQ-11: access token이 없고 refresh token만 있으면 refresh를 먼저 끝낸 뒤 보호 화면을 렌더한다
 function RequireAuth() {
+  const t = useT();
   const accessToken = useAuthStore((s) => s.accessToken);
   const refreshToken = useAuthStore((s) => s.refreshToken);
   const [failed, setFailed] = useState(false);
@@ -34,7 +36,7 @@ function RequireAuth() {
   if (needsRefresh) {
     return (
       <p role="status" className={styles.checking}>
-        로그인 상태를 확인하는 중입니다
+        {t.auth.checking}
       </p>
     );
   }

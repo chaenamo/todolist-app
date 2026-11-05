@@ -1,6 +1,8 @@
 // HTTP 호출 한 곳. React를 import하지 않는다(PR-13)
+import { getMessages } from '../i18n';
 import { queryClient } from '../queryClient';
 import { useAuthStore } from '../stores/authStore';
+import { useLocaleStore } from '../stores/localeStore';
 import type { ApiErrorBody } from './types';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
@@ -34,15 +36,12 @@ async function toApiError(res: Response): Promise<ApiError> {
   if (isErrorBody(body)) {
     return new ApiError(res.status, body.error.code, body.error.message, body.error.fields);
   }
-  return new ApiError(
-    res.status,
-    'INTERNAL',
-    '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요',
-  );
+  return new ApiError(res.status, 'INTERNAL', getMessages().error.internal);
 }
 
 async function send(method: Method, path: string, body: unknown): Promise<Response> {
-  const headers: Record<string, string> = {};
+  // 서버가 이 헤더로 에러 메시지 언어를 고른다(CORS 안전 헤더)
+  const headers: Record<string, string> = { 'Accept-Language': useLocaleStore.getState().locale };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   const { accessToken } = useAuthStore.getState();
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
@@ -53,7 +52,7 @@ async function send(method: Method, path: string, body: unknown): Promise<Respon
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError(0, 'NETWORK_ERROR', '네트워크 연결을 확인해 주세요');
+    throw new ApiError(0, 'NETWORK_ERROR', getMessages().error.network);
   }
 }
 
@@ -76,7 +75,7 @@ export function refreshAccessToken(): Promise<string> {
     const { refreshToken } = useAuthStore.getState();
     if (!refreshToken) {
       discardSession();
-      throw new ApiError(401, 'UNAUTHORIZED', '다시 로그인해 주세요');
+      throw new ApiError(401, 'UNAUTHORIZED', getMessages().error.relogin);
     }
     const res = await send('POST', `${AUTH_PATH_PREFIX}refresh`, { refreshToken });
     if (res.status === 401) discardSession();

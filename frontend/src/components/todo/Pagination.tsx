@@ -1,3 +1,4 @@
+import { useT } from '../../i18n';
 import styles from './Pagination.module.css';
 
 interface Props {
@@ -8,17 +9,18 @@ interface Props {
 }
 
 export function Pagination({ page, total, limit, onChange }: Props) {
+  const t = useT();
   if (total <= limit) return null;
   const totalPages = Math.ceil(total / limit);
   return (
-    <nav aria-label="페이지" className={styles.nav}>
+    <nav aria-label={t.page.label} className={styles.nav}>
       <button
         type="button"
         className={styles.btn}
         disabled={page <= 1}
         onClick={() => onChange(page - 1)}
       >
-        이전
+        {t.page.prev}
       </button>
       {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
         <button
@@ -40,7 +42,7 @@ export function Pagination({ page, total, limit, onChange }: Props) {
         disabled={page >= totalPages}
         onClick={() => onChange(page + 1)}
       >
-        다음
+        {t.page.next}
       </button>
     </nav>
   );

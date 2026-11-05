@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import jaLocale from '@fullcalendar/core/locales/ja';
 import koLocale from '@fullcalendar/core/locales/ko';
 import type { TodoWithStatus } from '../../api/types';
 import type { DateRange } from '../../lib/date';
+import { useLocaleStore, type Locale } from '../../stores/localeStore';
 import { dayLabel, fromViewRange, toDateString, toEvents } from './adapter';
 import './calendar.css';
 
@@ -17,6 +19,8 @@ interface Props {
   onDateSelect: (date: string) => void;
 }
 
+// 영어는 FullCalendar 기본 로케일('en')
+const FC_LOCALE = { ko: koLocale, ja: jaLocale, en: 'en' } satisfies Record<Locale, unknown>;
 const VIEW_NAME = { month: 'dayGridMonth', week: 'dayGridWeek' } as const;
 
 export function CalendarView({
@@ -29,6 +33,7 @@ export function CalendarView({
   onDateSelect,
 }: Props) {
   const ref = useRef<FullCalendar>(null);
+  const locale = useLocaleStore((s) => s.locale);
 
   // initialView/initialDate는 최초 1회만 반영되므로 이후 변경은 API로 이동한다
   useEffect(() => {
@@ -45,7 +50,7 @@ export function CalendarView({
       firstDay={0}
       fixedWeekCount={view === 'month'}
       height="auto"
-      locale={koLocale}
+      locale={FC_LOCALE[locale]}
       dayMaxEventRows={compact ? 2 : false}
       moreLinkContent={(arg) => `+${arg.num}`}
       // 핸들러가 void를 반환하면 팝오버·뷰 전환 없이 끝난다

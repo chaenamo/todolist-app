@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { ApiError } from '../api/client';
 import { useChangePassword, useMe, useUpdateName } from '../hooks/useMe';
+import { useT } from '../i18n';
 import { useToastStore } from '../stores/toastStore';
 import styles from './MyInfoPage.module.css';
 
@@ -58,6 +59,7 @@ function Field({
 }
 
 export function MyInfoPage() {
+  const t = useT();
   const { data: me, isPending, error: loadError } = useMe();
   const updateName = useUpdateName();
   const changePassword = useChangePassword();
@@ -69,7 +71,7 @@ export function MyInfoPage() {
   const [newPassword, setNewPassword] = useState('');
   const [pwErrors, setPwErrors] = useState<{ currentPassword?: string; newPassword?: string }>({});
 
-  if (isPending) return <p role="status">불러오는 중…</p>;
+  if (isPending) return <p role="status">{t.common.loading}</p>;
   if (loadError) return <p role="alert">{loadError.message}</p>;
 
   // 사용자가 입력하기 전에는 서버 값을 그대로 보여준다
@@ -80,11 +82,11 @@ export function MyInfoPage() {
     setNameError(undefined);
     const trimmed = name.trim();
     if (!trimmed) {
-      setNameError('이름을 입력하세요');
+      setNameError(t.me.nameRequired);
       return;
     }
     updateName.mutate(trimmed, {
-      onSuccess: () => showToast('success', '이름을 저장했습니다.'),
+      onSuccess: () => showToast('success', t.me.nameSaved),
       onError: (err) => {
         if (err instanceof ApiError && err.fields?.name) setNameError(err.fields.name);
         else showToast('error', err.message);
@@ -95,8 +97,8 @@ export function MyInfoPage() {
   function handlePassword(e: FormEvent) {
     e.preventDefault();
     const next: typeof pwErrors = {};
-    if (!currentPassword) next.currentPassword = '현재 비밀번호를 입력하세요';
-    if (!newPassword) next.newPassword = '새 비밀번호를 입력하세요';
+    if (!currentPassword) next.currentPassword = t.me.currentPasswordRequired;
+    if (!newPassword) next.newPassword = t.me.newPasswordRequired;
     setPwErrors(next);
     if (next.currentPassword || next.newPassword) return;
     changePassword.mutate(
@@ -105,7 +107,7 @@ export function MyInfoPage() {
         onSuccess: () => {
           setCurrentPassword('');
           setNewPassword('');
-          showToast('success', '비밀번호를 변경했습니다.');
+          showToast('success', t.me.passwordChanged);
         },
         onError: (err) => {
           const fields = err instanceof ApiError ? err.fields : undefined;
@@ -122,29 +124,35 @@ export function MyInfoPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>내 정보</h1>
+      <h1 className={styles.title}>{t.me.title}</h1>
       <dl className={styles.email}>
-        <dt className={styles.label}>이메일</dt>
+        <dt className={styles.label}>{t.common.email}</dt>
         <dd className={styles.readonly}>{me.email}</dd>
       </dl>
-      <form noValidate aria-label="이름 변경" className={styles.section} onSubmit={handleName}>
-        <Field id="me-name" label="이름" value={name} onChange={setNameEdit} error={nameError} />
+      <form noValidate aria-label={t.me.nameForm} className={styles.section} onSubmit={handleName}>
+        <Field
+          id="me-name"
+          label={t.common.name}
+          value={name}
+          onChange={setNameEdit}
+          error={nameError}
+        />
         <div className={styles.actions}>
           <button type="submit" className={styles.submit} disabled={updateName.isPending}>
-            이름 저장
+            {t.me.saveName}
           </button>
         </div>
       </form>
       <form
         noValidate
-        aria-label="비밀번호 변경"
+        aria-label={t.me.passwordForm}
         className={`${styles.section} ${styles.divided}`}
         onSubmit={handlePassword}
       >
-        <h2 className={styles.subtitle}>비밀번호 변경</h2>
+        <h2 className={styles.subtitle}>{t.me.passwordForm}</h2>
         <Field
           id="me-current-password"
-          label="현재 비밀번호"
+          label={t.me.currentPassword}
           type="password"
           autoComplete="current-password"
           value={currentPassword}
@@ -153,17 +161,17 @@ export function MyInfoPage() {
         />
         <Field
           id="me-new-password"
-          label="새 비밀번호"
+          label={t.me.newPassword}
           type="password"
           autoComplete="new-password"
           value={newPassword}
           onChange={setNewPassword}
           error={pwErrors.newPassword}
-          hint="8~72자로 입력하세요"
+          hint={t.common.passwordHint}
         />
         <div className={styles.actions}>
           <button type="submit" className={styles.submit} disabled={changePassword.isPending}>
-            비밀번호 변경
+            {t.me.passwordForm}
           </button>
         </div>
       </form>

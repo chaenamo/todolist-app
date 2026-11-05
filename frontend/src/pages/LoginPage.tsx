@@ -1,10 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { ApiError } from '../api/client';
+import { LanguageSelect } from '../components/LanguageSelect';
 import { useLogin } from '../hooks/useAuth';
+import { useT } from '../i18n';
 import styles from './AuthPage.module.css';
 
 export function LoginPage() {
+  const t = useT();
   const mutation = useLogin();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,8 +17,8 @@ export function LoginPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const next = {
-      email: email ? undefined : '이메일을 입력하세요',
-      password: password ? undefined : '비밀번호를 입력하세요',
+      email: email ? undefined : t.auth.emailRequired,
+      password: password ? undefined : t.auth.passwordRequired,
     };
     setErrors(next);
     if (next.email || next.password) return;
@@ -25,12 +28,15 @@ export function LoginPage() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <p className={styles.brand}>TodoList</p>
-        <h1 className={styles.title}>로그인</h1>
+        <div className={styles.top}>
+          <p className={styles.brand}>TodoList</p>
+          <LanguageSelect />
+        </div>
+        <h1 className={styles.title}>{t.auth.loginTitle}</h1>
         <form noValidate onSubmit={handleSubmit}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="login-email">
-              이메일
+              {t.common.email}
             </label>
             <input
               id="login-email"
@@ -50,7 +56,7 @@ export function LoginPage() {
           </div>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="login-password">
-              비밀번호
+              {t.common.password}
             </label>
             <input
               id="login-password"
@@ -74,11 +80,11 @@ export function LoginPage() {
             </div>
           )}
           <button type="submit" className={styles.submit} disabled={mutation.isPending}>
-            로그인
+            {t.auth.loginTitle}
           </button>
         </form>
         <p className={styles.switch}>
-          계정이 없으신가요? <Link to="/signup">회원가입</Link>
+          {t.auth.noAccount} <Link to="/signup">{t.auth.signupTitle}</Link>
         </p>
       </div>
     </div>

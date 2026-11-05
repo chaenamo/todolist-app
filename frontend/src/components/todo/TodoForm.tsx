@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import type { Category, TodoInput } from '../../api/types';
+import { categoryName, useT } from '../../i18n';
 import styles from './TodoForm.module.css';
 
 export interface TodoFormValues {
@@ -32,6 +33,7 @@ export function TodoForm({
   onSubmit,
   onCancel,
 }: TodoFormProps) {
+  const t = useT();
   const [values, setValues] = useState(initial);
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const set = <K extends Field>(key: K, value: TodoFormValues[K]) =>
@@ -41,11 +43,11 @@ export function TodoForm({
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const next: Partial<Record<Field, string>> = {};
-    if (values.title.trim() === '') next.title = '제목을 입력하세요';
-    if (!values.startDate) next.startDate = '시작일자를 선택하세요';
-    if (!values.endDate) next.endDate = '종료일자를 선택하세요';
+    if (values.title.trim() === '') next.title = t.todo.titleRequired;
+    if (!values.startDate) next.startDate = t.todo.startRequired;
+    if (!values.endDate) next.endDate = t.todo.endRequired;
     else if (values.startDate && values.endDate < values.startDate)
-      next.endDate = '종료일자는 시작일자 이후여야 합니다';
+      next.endDate = t.todo.endBeforeStart;
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     onSubmit({
@@ -73,7 +75,8 @@ export function TodoForm({
     <form noValidate onSubmit={handleSubmit}>
       <div className={styles.field}>
         <label className={styles.label} htmlFor="todo-title">
-          제목<span className={styles.required}> *</span>
+          {t.todo.titleField}
+          <span className={styles.required}> *</span>
         </label>
         <input
           {...aria('title', 'todo-title')}
@@ -86,7 +89,7 @@ export function TodoForm({
       </div>
       <div className={styles.field}>
         <label className={styles.label} htmlFor="todo-description">
-          설명
+          {t.todo.description}
         </label>
         <textarea
           {...aria('description', 'todo-description')}
@@ -99,7 +102,7 @@ export function TodoForm({
       </div>
       <div className={styles.field}>
         <label className={styles.label} htmlFor="todo-category">
-          카테고리
+          {t.common.category}
         </label>
         <select
           {...aria('categoryId', 'todo-category')}
@@ -109,7 +112,7 @@ export function TodoForm({
         >
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.name}
+              {categoryName(c, t)}
             </option>
           ))}
         </select>
@@ -118,7 +121,8 @@ export function TodoForm({
       <div className={styles.dates}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="todo-start">
-            시작일자<span className={styles.required}> *</span>
+            {t.todo.startDate}
+            <span className={styles.required}> *</span>
           </label>
           <input
             {...aria('startDate', 'todo-start')}
@@ -131,7 +135,8 @@ export function TodoForm({
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="todo-end">
-            종료일자<span className={styles.required}> *</span>
+            {t.todo.endDate}
+            <span className={styles.required}> *</span>
           </label>
           <input
             {...aria('endDate', 'todo-end')}
@@ -154,14 +159,14 @@ export function TodoForm({
           className={`${styles.button} ${styles.secondary}`}
           onClick={() => onCancel(JSON.stringify(values) !== JSON.stringify(initial))}
         >
-          취소
+          {t.common.cancel}
         </button>
         <button
           type="submit"
           className={`${styles.button} ${styles.primary}`}
           disabled={submitting}
         >
-          저장
+          {t.common.save}
         </button>
       </div>
     </form>

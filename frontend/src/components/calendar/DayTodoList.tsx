@@ -1,4 +1,5 @@
 import type { TodoWithStatus } from '../../api/types';
+import { useT } from '../../i18n';
 import { formatMonthDay } from '../../lib/date';
 import { StatusBadge } from '../StatusBadge';
 import styles from './DayTodoList.module.css';
@@ -10,9 +11,10 @@ interface Props {
 }
 
 export function DayTodoList({ items, categoryNames, onSelect }: Props) {
-  if (items.length === 0) return <p className={styles.empty}>이 날 할일이 없습니다</p>;
+  const t = useT();
+  if (items.length === 0) return <p className={styles.empty}>{t.calendar.dayEmpty}</p>;
   return (
-    <ul className={styles.list} aria-label="일간 할일 목록">
+    <ul className={styles.list} aria-label={t.calendar.dayList}>
       {items.map((t) => (
         <li key={t.id} className={styles.item}>
           <button
