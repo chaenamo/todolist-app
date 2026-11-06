@@ -9,6 +9,7 @@
 # | v0.2 | 2026-11-04 | chaenamo | 초안 | docs/9-api-spec.md 결정 반영 |
 # | v0.3 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
 # | v0.4 | 2026-11-05 | chaenamo | 초안 | 구현(BE-02~BE-12) 기준 동기화, 개발 환경 Swagger UI |
+# | v0.5 | 2026-11-06 | chaenamo | 초안 | 에러 문구 다국어(`Accept-Language`, BE-13) 반영, 구현 대조 보정 |
 #
 # 변경 이력
 # | 버전 | 일자       | 변경 범위 | 변경 내용                                                                                          | 변경자   |
@@ -17,9 +18,10 @@
 # | v0.2 | 2026-11-04 | updateMe, getHealth | PATCH /api/users/me의 name 외 필드 → 400 확정, /health 503 본문 `{ status: unavailable }` 확정 (docs/9-api-spec.md) | chaenamo |
 # | v0.3 | 2026-11-05 | getHealth, HealthResponse | 200·503 본문에 DB 연결 상태 `db`(connected/disconnected) 추가 (docs/9-api-spec.md v0.2) | chaenamo |
 # | v0.4 | 2026-11-05 | 전체 | 구현 기준 동기화: 결정된 항목의 "잠정" 표기 제거(docs/9-api-spec.md 4장), 예시 문구를 실제 응답 문구로(currentPassword·blankName), status 빈 값·반복 키 규칙, 캘린더·PATCH /me·잘못된 JSON 400 설명 추가, 기준 문서 버전 갱신. 개발 환경(`npm run dev`)에서 `/api-docs`로 Swagger UI 제공 | chaenamo |
+# | v0.5 | 2026-11-06 | info, Error, IdPath, listTodos | 구현 대조: 에러 `message`·`fields` 값이 `Accept-Language`(ko/ja/en, 기본 ko)를 따른다는 설명 추가(BE-13, 기존 "한국어 문구" 표기 수정), `:id` 400 조건을 "양의 정수 아님"으로, 목록 `categoryId` 형식 오류 400 명시 | chaenamo |
 #
-# 기준 문서: docs/9-api-spec.md (v0.2, API 계약), docs/5-project-principle.md (v0.7), docs/6-arch-diagram.md (v0.6),
-#            docs/7-erd.md (v0.4), docs/8-plan.md (v0.7), 구현 backend/src (BE-02~BE-12)
+# 기준 문서: docs/9-api-spec.md (v0.5, API 계약), docs/5-project-principle.md (v0.7), docs/6-arch-diagram.md (v0.6),
+#            docs/7-erd.md (v0.4), docs/8-plan.md (v0.7), 구현 backend/src (BE-02~BE-13)
 # 문서 간 판단 우선순위: docs/9-api-spec.md > 8-plan 7장 > 6-arch-diagram > 5-project-principle.
 # 화면: 개발 환경(npm run dev, NODE_ENV=development)에서만 http://localhost:3000/api-docs 로 Swagger UI 제공.
 # 갱신 규칙:
@@ -31,7 +33,7 @@ openapi: 3.0.3
 
 info:
   title: TodoList API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     개인별 할일·카테고리·캘린더 관리 API (MVP). 계약 근거는 `docs/9-api-spec.md`(BE-01), 구현은 BE-02~BE-12.
 
@@ -42,9 +44,11 @@ info:
     - 클라이언트 규칙(PR-16): 보호 요청 401 → refresh 1회(single-flight) → 원 요청 1회 재시도. 인증 엔드포인트의 401은 이 처리에서 제외.
 
     **에러 형식 (PR-20, PR-46)**
-    `{ "error": { "code", "message", "fields"? } }`. `fields`는 필드 오류일 때만(키 = 요청 필드명, 값 = 한국어 문구).
+    `{ "error": { "code", "message", "fields"? } }`. `fields`는 필드 오류일 때만(키 = 요청 필드명, 값 = 문구).
     코드↔상태: `VALIDATION_ERROR` 400, `FORBIDDEN_OPERATION` 400, `UNAUTHORIZED` 401, `NOT_FOUND` 404, `CONFLICT` 409, `INTERNAL` 500.
-    `message`는 사용자에게 그대로 보여 줄 한국어 문구(PR-21). 500은 내부 정보 없이 일반 문구.
+    `message`는 사용자에게 그대로 보여 줄 문구(PR-21). 500은 내부 정보 없이 일반 문구.
+    **언어(BE-13)**: 모든 operation에서 요청 헤더 `Accept-Language`(선택)에 따라 `message`·`fields` 값이 한국어(`ko`)·일본어(`ja`)·영어(`en`)로 내려간다.
+    q 값이 가장 큰 지원 언어를 쓰고, 헤더가 없거나 지원 언어가 없으면 한국어. `code`·HTTP 상태·`fields` 키는 언어와 무관하다. 이 문서의 예시 문구는 한국어(기본).
     본문이 올바른 JSON이 아니면 400 `VALIDATION_ERROR`("요청 본문이 올바른 JSON이 아닙니다"). 미등록 경로는 404 `NOT_FOUND`(단, `/api/*` 아래는 인증이 먼저라 토큰이 없으면 401).
 
     **소유권 (NFR-12, PR-10)**: 타인 소유 할일·카테고리는 존재 여부를 숨기고 404로 응답한다.
@@ -502,7 +506,7 @@ paths:
         - name: categoryId
           in: query
           required: false
-          description: 카테고리 필터(단일). 양의 정수.
+          description: 카테고리 필터(단일). 양의 정수가 아니면 400 `fields.categoryId`.
           schema:
             type: integer
             format: int64
@@ -782,7 +786,7 @@ components:
       name: id
       in: path
       required: true
-      description: 리소스 id(양의 정수). 숫자가 아니면 400. 타인 리소스 id는 404(NFR-12).
+      description: 리소스 id(양의 정수). 양의 정수가 아니면 400 `fields.id`. 타인 리소스 id는 404(NFR-12).
       schema:
         type: integer
         format: int64
@@ -932,10 +936,10 @@ components:
           $ref: '#/components/schemas/ErrorCode'
         message:
           type: string
-          description: 사용자에게 그대로 표시할 한국어 문구(PR-21)
+          description: 사용자에게 그대로 표시할 문구(PR-21). `Accept-Language`에 따라 ko/ja/en(기본 ko, BE-13).
         fields:
           type: object
-          description: 필드 오류일 때만. 키 = 요청 필드명(camelCase), 값 = 한국어 문구.
+          description: 필드 오류일 때만. 키 = 요청 필드명(camelCase), 값 = `Accept-Language`에 따른 문구(기본 한국어, BE-13).
           additionalProperties:
             type: string
     ErrorResponse:

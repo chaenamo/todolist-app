@@ -8,6 +8,7 @@
 | v0.2 | 2026-11-05 | chaenamo | 초안 | 헬스체크 응답에 DB 연결 상태(`db`) 추가 |
 | v0.3 | 2026-11-05 | chaenamo | 초안 | 구현 완료 현황 추가 |
 | v0.4 | 2026-11-05 | chaenamo | 초안 | 에러 문구 다국어(`Accept-Language`, BE-13) |
+| v0.5 | 2026-11-06 | chaenamo | 초안 | 구현 대조 보정(목록 `categoryId` 형식 오류 400, swagger v0.5 동기화) |
 
 ## 변경 이력
 
@@ -17,8 +18,9 @@
 | v0.2 | 2026-11-05 | 3.1, 4 | `GET /health` 응답에 DB 연결 상태 필드 `db` 추가: 200 `{ status: "ok", db: "connected" }`, 503 `{ status: "unavailable", db: "disconnected" }` | chaenamo |
 | v0.3 | 2026-11-05 | 5(신규) | BE-01~12 완료에 맞춰 5장 "구현 현황" 추가: 19개 구현 완료, 검증 테스트, Swagger UI, CORS 출처 규칙. 계약 변경 없음 | chaenamo |
 | v0.4 | 2026-11-05 | 1.1 | 에러 `message`·`fields` 값이 `Accept-Language`(ko/ja/en, 기본 ko)를 따른다(BE-13). `code`·상태·필드 키 변경 없음 | chaenamo |
+| v0.5 | 2026-11-06 | 3.5, 5, 기준 문서 | 구현 대조: `GET /api/todos` 오류에 `categoryId` 양의 정수 아님 → 400 `fields.categoryId` 추가. `backend/swagger.yaml` v0.5(에러 문구 다국어 설명 반영) 기준으로 참조 버전 갱신. 계약 변경 없음 | chaenamo |
 
-> 기준 문서: `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/8-plan.md` (v0.3), `backend/swagger.yaml` (v0.4).
+> 기준 문서: `docs/5-project-principle.md` (v0.4), `docs/6-arch-diagram.md` (v0.5), `docs/7-erd.md` (v0.3), `docs/8-plan.md` (v0.3), `backend/swagger.yaml` (v0.5).
 > 기준 문서 ID(BR, AC, PR, AQ, EQ, G, U, PQ 등)는 **참조만** 하며 재정의하지 않는다. 이 문서는 새 ID를 만들지 않는다.
 > 스키마 세부(필드 제약·예시 전체)는 `backend/swagger.yaml`이 기계 판독용 원본이다. 개발 환경(`npm run dev`)에서는 `http://localhost:3000/api-docs`에서 Swagger UI로 볼 수 있다(운영 환경에는 열지 않음). 이 문서와 swagger가 다르면 둘을 함께 고친다.
 
@@ -167,7 +169,7 @@ Todo (쓰기·단건 조회 응답, `status` 없음 — AQ-09)
 
 | # | 메서드·경로 | 요청 | 성공 | 오류 |
 |---|-------------|------|------|------|
-| 13 | `GET /api/todos` | 쿼리 `today`(필수), `categoryId`, `status`(쉼표 구분), `page`, `limit` | 200 `{ items(+status), page, limit, total }` 정렬 `endDate → createdAt → id` | 400(`today` 누락·형식, 목록 밖 `status`, `page`·`limit` 0·음수·숫자 아님), 401 |
+| 13 | `GET /api/todos` | 쿼리 `today`(필수), `categoryId`, `status`(쉼표 구분), `page`, `limit` | 200 `{ items(+status), page, limit, total }` 정렬 `endDate → createdAt → id` | 400(`today` 누락·형식, `categoryId` 양의 정수 아님, 목록 밖 `status`, `page`·`limit` 0·음수·숫자 아님), 401 |
 | 14 | `GET /api/todos/calendar` | 쿼리 `from`, `to`, `today`(모두 필수) | 200 `{ items(+status) }` 정렬 `startDate → id` | 400(`from > to`, 43일 이상, 누락·형식), 401 |
 | 15 | `GET /api/todos/:id` | - | 200 `Todo` (`status` 없음) | 400(id), 401, 404 |
 | 16 | `POST /api/todos` | `{ title, description?, categoryId?, startDate, endDate }` | 201 `Todo` | 400 `fields.title`·`startDate`·`endDate`·`categoryId`·`description`, 400 정의되지 않은 필드, 401, 409(경합) |
@@ -208,7 +210,7 @@ Todo (쓰기·단건 조회 응답, `status` 없음 — AQ-09)
 
 ## 5. 구현 현황
 
-19개 엔드포인트를 모두 구현했다(BE-02, BE-05~BE-12, 2026-11-05). 이 문서와 `backend/swagger.yaml`(v0.4)이 구현과 일치한다.
+19개 엔드포인트를 모두 구현했다(BE-02, BE-05~BE-12, 2026-11-05). 이 문서와 `backend/swagger.yaml`(v0.5)이 구현과 일치한다.
 
 | 확인 수단 | 내용 |
 |-----------|------|

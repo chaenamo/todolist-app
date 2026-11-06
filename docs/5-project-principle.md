@@ -16,6 +16,7 @@
 | v1.0 | 2026-11-05 | chaenamo | 초안 | 백엔드 구현 완료에 맞춰 미결·PR 확정 |
 | v1.1 | 2026-11-05 | chaenamo | 초안 | U-03·U-06 결정 |
 | v1.2 | 2026-11-05 | chaenamo | 초안 | FE 구현 결과에 맞춰 디렉토리 트리 보강 |
+| v1.3 | 2026-11-06 | chaenamo | 초안 | 구현 코드와 대조해 사실 불일치 수정(다국어·화면 설정·개발 로깅·패키지·디렉토리 트리) |
 
 ## 변경 이력
 
@@ -33,6 +34,7 @@
 | v1.0 | 2026-11-05 | PR-45, PR-46, 7(U-04, U-05, U-09) | BE-01~12 완료 반영: PR-45에 `checkConnection()` 헬퍼 사용(AQ-07), PR-46에 23503 → 409 매핑(EQ-01) 명시. U-04·U-05·U-09를 구현 값으로 결정 처리 | chaenamo |
 | v1.1 | 2026-11-05 | 7(U-03, U-06) | FE 구현으로 U-03(FullCalendar 6.1.22)·U-06(네이티브 날짜 입력) 결정 | chaenamo |
 | v1.2 | 2026-11-05 | 6.3 | FE-01~13 구현 결과 반영: 트리에 `.env.development`, `queryClient.ts`, `hooks/useMediaQuery.ts`, `stores/toastStore.ts` 추가 | chaenamo |
+| v1.3 | 2026-11-06 | PR-08, PR-14, PR-21, PR-40, 2.3 허용 패키지, 6.2, 6.3 | 구현 코드와 대조: PR-08 금지 목록의 "i18n"을 "i18n 라이브러리"로(다국어는 FE `i18n/` 사전·BE `i18n.js` 직접 구현, BE-13·FE-14·FE-15). PR-14 Zustand에 화면 설정(`localeStore`, `themeStore`, localStorage) 추가. PR-21 서버 문구를 `Accept-Language`(ko·ja·en)로 번역해 응답. PR-40에 FE `lib/logger.ts`(개발 모드 전용 콘솔 로그) 추가. 허용 패키지에 BE `swagger-ui-express`·`yaml`, FE 개발 `@vitest/coverage-v8`·`@testing-library/react`·`jsdom` 추가. 6.2 트리: scripts(`test:coverage`, `migrate:test`), `dev.env`, `swagger.yaml`, `apiDocs.js`, `i18n.js`, `validators/user.js`, `test/test.env`·기타 테스트 파일. 6.3 트리: scripts(`preview`, `test:coverage`), `test-setup.ts`, `i18n/`, `stores/localeStore.ts`·`themeStore.ts`, `lib/logger.ts`, `components/LanguageSelect`·`ThemeSelect`·`FontSizeSelect` | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP)는 **참조만** 하며 재정의하지 않는다. 규칙 본문은 원 문서를 따른다.
@@ -63,7 +65,7 @@
 | PR-05 | **'오늘'은 브라우저 로컬 날짜.** FE가 로컬 날짜로 `today`를 만들어 상태 판정이 필요한 조회(목록·캘린더)에 전달하고, BE는 이 값으로 판정·필터한다. 서버 시계로 '오늘'을 정하지 않는다(파라미터 이름·형식은 API 문서). | A-01, PRD 3.2, R-03, AC-03 |
 | PR-06 | **서버가 최종 검증자.** 모든 입력은 서버에서 검증한다. FE 검증은 UX 보조이며 서버 검증을 대신하지 않는다. | NFR-13, SC-00-E4 |
 | PR-07 | **보안 기본값은 "막힘".** 인증 미들웨어는 기본 적용하고 공개 경로(회원가입·로그인·토큰 갱신 refresh·로그아웃·헬스체크)만 예외로 연다. refresh·로그아웃은 access token 대신 body의 refresh token으로 인증한다. 소유권은 쿼리 조건으로 강제하고, 타인 리소스는 존재 여부를 숨긴 404로 응답한다. | BR-01, BR-02, NFR-10, NFR-12, R-04 |
-| PR-08 | **하지 않는다.** 마이크로서비스, DI 컨테이너, 클린/헥사고날 아키텍처 풀세트, 모노레포 툴(nx·turbo·workspace 루트 `package.json`), ORM·쿼리 빌더(Prisma, Knex, Sequelize 등), GraphQL, SSR/Next.js, Redis 등 캐시 서버, 메시지 큐, i18n, 상태 저장 컬럼. | PR-01, TC-04, TC-05 |
+| PR-08 | **하지 않는다.** 마이크로서비스, DI 컨테이너, 클린/헥사고날 아키텍처 풀세트, 모노레포 툴(nx·turbo·workspace 루트 `package.json`), ORM·쿼리 빌더(Prisma, Knex, Sequelize 등), GraphQL, SSR/Next.js, Redis 등 캐시 서버, 메시지 큐, i18n 라이브러리(다국어는 FE `i18n/` 사전·BE `i18n.js`로 직접 구현), 상태 저장 컬럼. | PR-01, TC-04, TC-05 |
 
 ## 2. 의존성 / 레이어 원칙
 
@@ -90,7 +92,7 @@
 | ID | 규칙 | 이유 (근거) |
 |----|------|-------------|
 | PR-13 | FE는 `pages → hooks → api` 한 방향이다. 페이지·컴포넌트는 `fetch`를 직접 부르지 않고 `hooks/`의 TanStack Query 훅만 쓴다. `api/`는 HTTP 호출과 타입만 가지며 React를 import하지 않는다. `components/`는 props만 받는 표시용(데이터 조회 금지). | TC-02, TC-03, NFR-08 |
-| PR-14 | **Zustand와 TanStack Query 역할 분리.** 서버 데이터(할일·카테고리·내 정보)는 TanStack Query 캐시에만 둔다. Zustand에는 **인증 토큰**(access token은 메모리만, refresh token만 `persist`로 localStorage, PR-37)과 **UI 상태**(목록 필터·페이지, 캘린더 뷰·기준 날짜)만 둔다. 서버 응답을 Zustand에 복사하지 않는다. 쓰기 후에는 관련 쿼리를 `invalidateQueries`로 갱신한다. **낙관적 업데이트는 쓰지 않는다**: 요청 중 해당 컨트롤을 비활성화하고, 성공하면 즉시 재조회하며(필터와 안 맞게 된 항목은 바로 사라짐), 실패하면 캐시가 바뀌지 않았으므로 원 상태 그대로 오류만 표시한다(AQ-03 결정). | TC-03, NFR-08 |
+| PR-14 | **Zustand와 TanStack Query 역할 분리.** 서버 데이터(할일·카테고리·내 정보)는 TanStack Query 캐시에만 둔다. Zustand에는 **인증 토큰**(access token은 메모리만, refresh token만 `persist`로 localStorage, PR-37), **UI 상태**(목록 필터·페이지, 캘린더 뷰·기준 날짜), **화면 설정**(언어 `localeStore`, 화면 모드·글자 크기 `themeStore`, 각각 `persist`로 localStorage)만 둔다. 서버 응답을 Zustand에 복사하지 않는다. 쓰기 후에는 관련 쿼리를 `invalidateQueries`로 갱신한다. **낙관적 업데이트는 쓰지 않는다**: 요청 중 해당 컨트롤을 비활성화하고, 성공하면 즉시 재조회하며(필터와 안 맞게 된 항목은 바로 사라짐), 실패하면 캐시가 바뀌지 않았으므로 원 상태 그대로 오류만 표시한다(AQ-03 결정). | TC-03, NFR-08 |
 | PR-15 | 필터·캘린더 위치를 Zustand에 두는 이유: 다른 화면에서의 변경이 반영돼야 하고(카테고리 삭제 시 필터 해제 G-08), 편집 후 진입 화면 복귀 시 위치가 유지돼야 한다(G-12). 그 외 화면 한정 상태(모달 열림, 폼 입력값)는 컴포넌트 `useState`에 둔다. | G-08, G-12 |
 | PR-16 | **401은 api client 한 곳에서 처리한다**: 보호 API가 401이면 ① `POST /api/auth/refresh`를 **1회** 시도한다. 동시에 여러 요청이 401이면 refresh 요청은 하나만 보내고 나머지는 그 결과를 기다린다(single-flight, 진행 중 Promise 공유). ② 성공하면 새 access token으로 원 요청을 **1회만** 재시도한다(재시도의 401은 다시 refresh하지 않고 ③으로). ③ refresh도 401이면 토큰 둘 다 폐기 → `queryClient.clear()` → 로그인 화면 이동. 로그아웃은 `POST /api/auth/logout` 호출(실패해도 진행) 후 ③과 같은 폐기 함수를 쓴다(이전 사용자 데이터 캐시가 남지 않게). 앱 진입 시 메모리에 access token이 없고 refresh token이 있으면 refresh를 먼저 호출해 성공 시 보호 화면, 실패 시 로그인 화면(SC-02-A1). **단, 인증 엔드포인트(login, signup, refresh, logout)의 401은 이 공통 처리에서 제외**하고 호출한 쪽이 처리한다(로그인·가입은 폼 오류로 표시, 입력 유지, SC-02-E1, AQ-01 결정). | SC-00-E2, SC-02-A1, NFR-10, A-14 |
 
@@ -105,8 +107,8 @@
 
 | 영역 | 런타임 | 개발 |
 |------|--------|------|
-| BE | `express`(5), `pg`, `bcrypt`, `jsonwebtoken`, `cors` | `supertest`, `eslint`, `prettier` |
-| FE | `react`, `react-dom`, `react-router`, `@tanstack/react-query`, `zustand`, 캘린더 라이브러리 1개(PR-18) | `vite`, `typescript`, `vitest`, `eslint`, `prettier` |
+| BE | `express`(5), `pg`, `bcrypt`, `jsonwebtoken`, `cors`, `swagger-ui-express`·`yaml`(개발 환경 API 문서 `/api-docs`) | `supertest`, `eslint`, `prettier` |
+| FE | `react`, `react-dom`, `react-router`, `@tanstack/react-query`, `zustand`, 캘린더 라이브러리 1개(PR-18) | `vite`, `typescript`, `vitest`, `@vitest/coverage-v8`, `@testing-library/react`, `jsdom`, `eslint`, `prettier` |
 
 `dotenv`는 쓰지 않는다(Node `--env-file`, PR-33). 검증 라이브러리(zod 등)는 쓰지 않고 `validators/`에 직접 작성한다. `bcrypt`는 순수 JS `bcryptjs`보다 빠르므로 NFR-03 때문에 네이티브를 쓴다.
 
@@ -136,7 +138,7 @@
 |----|------|-------------|
 | PR-19 | **JS↔DB 케이스 변환은 repository 한 곳**, SQL 별칭으로 한다(`SELECT start_date AS "startDate"`). 변환 헬퍼·자동 변환 라이브러리를 두지 않는다. repository 밖으로 snake_case가 나가지 않는다. | PR-01, TC-05 |
 | PR-20 | **에러 응답 형식 통일**: `{ "error": { "code": "VALIDATION_ERROR", "message": "…", "fields": { "endDate": "…" } } }`. `fields`는 필드 오류일 때만. 코드↔상태: `VALIDATION_ERROR` 400, `UNAUTHORIZED` 401, `NOT_FOUND` 404, `CONFLICT` 409(이메일 중복 BR-03, 카테고리 이름 중복 BR-07. **`fields`에 충돌한 필드를 담는다**, 예: `{ "email": "이미 사용 중인 이메일입니다" }`, AQ-02 결정), `FORBIDDEN_OPERATION` 400('기본' 카테고리 변경 BR-06), `INTERNAL` 500. 성공 응답은 래핑 없이 데이터 그대로, 목록은 `{ items, page, limit, total }`. | NFR-13, CMP-03(필드 아래 오류 / 토스트 구분), SC-01-E1 |
-| PR-21 | 메시지는 사용자에게 보여 줄 한국어 문구로 서버가 만든다(CMP-03 "메시지 그대로 표시"). 500은 내부 정보 없이 일반 문구만. | CMP-03, NFR-14 |
+| PR-21 | 메시지는 사용자에게 보여 줄 문구로 서버가 만든다(CMP-03 "메시지 그대로 표시"). 코드에는 한국어 원문을 쓰고, 에러 미들웨어가 요청의 `Accept-Language`(ko·ja·en, 기본 ko)에 맞춰 `src/i18n.js`로 번역해 응답한다(BE-13). FE api client는 현재 언어를 `Accept-Language`로 보낸다. 500은 내부 정보 없이 일반 문구만. | CMP-03, NFR-14 |
 | PR-22 | **상수·매직넘버**: 페이지 크기(50/100), bcrypt cost(10), 토큰 만료(access 15m, refresh 14일), 풀 크기(20) 같은 **가정 수치**는 `config.js`(환경별로 바뀔 값) 또는 각 모듈 상단 상수로 한 번만 정의한다. 코드 중간에 숫자를 직접 쓰지 않는다. | NFR-05, NFR-06, NFR-09, NFR-10 (모두 "가정" 표기, 부하 테스트로 조정) |
 | PR-23 | **주석**: 코드로 드러나지 않는 "왜"만 한 줄로 쓰고, 규칙 구현에는 근거 ID를 단다(`// BR-11: 같은 날 허용`). 일부러 단순화한 곳은 `// shortcut: <한계>, <바꿀 시점>` 형식. 주석 처리된 죽은 코드는 남기지 않는다. | PR-02 |
 | PR-24 | **FE 타입·스타일**: `tsconfig` `strict: true`, `any` 금지. API 응답 타입은 `api/types.ts`에 손으로 쓴다(코드 생성 도구 없음). 스타일은 CSS Modules(Vite 기본 지원)와 `styles/tokens.css` 변수만 쓰며 CSS 프레임워크는 도입하지 않는다. `dangerouslySetInnerHTML`은 쓰지 않는다. | TC-02, R-05, 스킬 '스타일 가이드' |
@@ -189,7 +191,7 @@
 | PR-37 | **JWT + refresh token**: ① Access token은 `jsonwebtoken` **HS384**, 비밀키 `JWT_ACCESS_SECRET`(48바이트 이상 무작위), claims는 `sub`(userId)·`iat`·`exp`만, 만료 `ACCESS_TOKEN_TTL`(기본 15m), `Authorization: Bearer`로 전달. `middleware/auth.js`는 `jwt.verify(token, secret, { algorithms: ['HS384'] })`로 **알고리즘을 명시**해 검증하고(알고리즘 혼동 공격 방지) `req.userId`만 설정한다. FE는 access token을 메모리(Zustand, persist 안 함)에만 둔다. ② Refresh token은 JWT가 아닌 불투명 무작위 문자열(`crypto.randomBytes(32)` base64url)이다. 서버가 DB로 폐기 여부를 확인해야 하므로 JWT로 만들 이점이 없다. DB `refresh_tokens`에는 **SHA-256 해시만** 저장하고, 만료 `REFRESH_TOKEN_TTL_DAYS`(기본 14일), **회전 없음**(만료까지 같은 토큰 재사용). FE는 localStorage에 저장한다(R-05 감수). ③ API: 가입·로그인 응답 `{ accessToken, refreshToken, user }`(로그인 시 그 사용자의 만료된 refresh token 행 삭제), `POST /api/auth/refresh` body `{ refreshToken }` → 200 `{ accessToken }`(해시 조회 실패·만료 → 401 `UNAUTHORIZED`), `POST /api/auth/logout` body `{ refreshToken }` → 204(해당 행 삭제, 없어도 204, 멱등). refresh·logout은 공개 경로(PR-07). ④ 비밀번호 변경 성공 시 그 사용자의 모든 refresh token을 삭제하고 현재 세션용 새 refresh token을 발급해 응답한다(`{ refreshToken }`). 다른 기기는 access token 만료(최대 15분) 후 로그아웃된다(G-06). | NFR-10, R-05, A-14, G-06 |
 | PR-38 | **SQL**: 모든 쿼리는 `$n` 파라미터화. 동적 조건(필터·정렬)은 **화이트리스트 조각**을 조립하고 값은 항상 파라미터로 넘긴다. 사용자 입력을 SQL 문자열에 넣지 않는다. | NFR-11, BR-15 |
 | PR-39 | **입력 검증**: `validators/`가 타입·필수·`YYYY-MM-DD` 형식과 실제 날짜 여부·길이·페이지 범위를 검사하고 실패 시 `VALIDATION_ERROR` + `fields`를 던진다. 문자열 앞뒤 공백 정리(BR-07)도 여기서 한다. 길이 제한 값은 G-05 확정 전까지 상수 하나로 둔다. | NFR-13, BR-07, BR-10, BR-11, G-05 |
-| PR-40 | **로깅**: 요청 로그는 메서드·경로·상태·소요시간만 남긴다. 요청 본문, `Authorization` 헤더, 비밀번호, 토큰(access token, refresh token과 그 해시)은 절대 로그에 남기지 않는다. 500 에러는 스택을 서버 로그에만 남긴다. 로깅 라이브러리 없이 `console`을 쓴다. | NFR-09, NFR-14 |
+| PR-40 | **로깅**: 요청 로그는 메서드·경로·상태·소요시간만 남긴다. 요청 본문, `Authorization` 헤더, 비밀번호, 토큰(access token, refresh token과 그 해시)은 절대 로그에 남기지 않는다. 500 에러는 스택을 서버 로그에만 남긴다. 로깅 라이브러리 없이 `console`을 쓴다. FE는 `lib/logger.ts`로 **개발 모드에서만** 콘솔에 남기고(API 호출·인증·화면 이동·설정 변경, 운영·테스트에서는 무동작) 같은 금지 항목을 지킨다. | NFR-09, NFR-14 |
 | PR-41 | **DB 풀**: `pg.Pool`은 `db.js`에서 **한 번만** 생성해 공유한다(`max` = `DB_POOL_MAX`, 기본 20). 요청마다 `Client`를 만들지 않는다. | NFR-05, R-02 |
 | PR-42 | **DATE 타입 파서**: `db.js`에서 `pg.types.setTypeParser(1082, v => v)`로 `date` 컬럼을 문자열 그대로 받는다. 기본값(JS `Date` 변환)은 서버 타임존에 따라 하루가 밀린다. | PR-04, A-01, R-03 |
 | PR-43 | **페이지네이션 상한**: 목록 `limit` 기본 50, 최대 100으로 서버에서 자른다. 캘린더 조회는 반드시 기간(`from`, `to`)을 받고 기간 겹침(`start_date <= to AND end_date >= from`)으로 제한한다. 기간 없는 전체 조회 API는 두지 않는다. | NFR-06, BR-16 |
@@ -235,14 +237,18 @@ todolist-app/
 
 ```text
 backend/
-├── package.json            # "type": "module", scripts: dev, start, test, lint, migrate
+├── package.json            # "type": "module", scripts: dev, start, test, test:coverage, lint, migrate, migrate:test
 ├── .env.example            # 환경변수 키 목록 (PR-33)
+├── dev.env                 # npm run dev 전용 NODE_ENV=development (Swagger UI 활성)
+├── swagger.yaml            # OpenAPI 3.0.3 명세
 ├── src/
 │   ├── server.js           # 진입점: config 로드, app.listen
 │   ├── app.js              # express 앱 조립: cors, json, 요청 로그, 라우터, 404, 에러 미들웨어 (테스트가 import)
 │   ├── config.js           # 환경변수 로딩·검증 한 곳 (PR-34)
 │   ├── db.js               # pg.Pool 단일 인스턴스, DATE 파서, withTransaction (PR-11, PR-41, PR-42)
 │   ├── errors.js           # AppError, 에러 코드 상수 (PR-20)
+│   ├── i18n.js             # 에러 문구 번역 ko·ja·en, Accept-Language 선택 (PR-21, BE-13)
+│   ├── apiDocs.js          # 개발 환경 전용 Swagger UI /api-docs
 │   ├── middleware/
 │   │   ├── auth.js         # Bearer 검증 → req.userId (PR-37)
 │   │   ├── requestLog.js   # 메서드·경로·상태·시간만 (PR-40)
@@ -267,7 +273,8 @@ backend/
 │   │   ├── common.js       # 날짜 문자열, 길이, 페이지 파라미터
 │   │   ├── auth.js
 │   │   ├── category.js
-│   │   └── todo.js
+│   │   ├── todo.js
+│   │   └── user.js
 │   └── domain/
 │       └── todoStatus.js   # deriveStatus(todo, today), 상태별 SQL 조건 조각 (ST-01~04, PR-03)
 ├── db/
@@ -288,7 +295,10 @@ backend/
     ├── categories.test.js
     ├── todos.test.js       # AC-01~04, 입력 검증
     ├── calendar.test.js    # AC-05, AC-06
-    └── ownership.test.js   # 타 사용자 404 (NFR-12)
+    ├── ownership.test.js   # 타 사용자 404 (NFR-12)
+    ├── i18n.test.js        # 에러 문구 번역 누락 검사 (BE-13)
+    ├── test.env            # 테스트 실행용 환경변수 (npm test가 --env-file로 읽음)
+    └── …                   # 그 외 users, completion, todoList, scenarios, cors, config, db, migrate 등 *.test.js
 ```
 
 리소스 → 파일 매핑
@@ -304,7 +314,7 @@ backend/
 
 ```text
 frontend/
-├── package.json            # scripts: dev, build, test, lint
+├── package.json            # scripts: dev, build, preview, test, test:coverage, lint
 ├── .env.example            # VITE_API_BASE_URL (PR-33)
 ├── .env.development        # 개발용 VITE_API_BASE_URL=http://localhost:3000 (커밋, 비밀 아님, PR-35)
 ├── vite.config.ts          # react 플러그인, vitest 설정 (프록시 없음, PR-35)
@@ -313,6 +323,7 @@ frontend/
     ├── main.tsx            # QueryClientProvider, Router 마운트
     ├── App.tsx             # 라우트 정의, 인증 가드(SC-00-E1)
     ├── queryClient.ts      # QueryClient 1개(로그아웃 시 clear, PR-16)
+    ├── test-setup.ts       # vitest 공통 설정
     ├── api/
     │   ├── client.ts       # fetch 래퍼: Bearer 부착, 에러 형식 파싱, 401 → single-flight refresh → 재시도 (PR-16)
     │   ├── types.ts        # Todo, Category, User, ApiError 타입 (PR-24)
@@ -320,6 +331,7 @@ frontend/
     │   ├── users.ts
     │   ├── categories.ts
     │   └── todos.ts
+    ├── i18n/               # 다국어 사전(FE-14): ko.ts(원본, Messages 타입), ja.ts, en.ts, index.ts(useT, getMessages)
     ├── hooks/              # TanStack Query 훅, 쿼리 키는 각 파일에 상수로
     │   ├── useAuth.ts      # 로그인·가입·로그아웃(서버 폐기)
     │   ├── useMe.ts
@@ -330,7 +342,9 @@ frontend/
     ├── stores/
     │   ├── authStore.ts    # access token(메모리), refresh token(persist localStorage) (PR-37, U-02)
     │   ├── uiStore.ts      # 목록 필터·페이지, 캘린더 뷰·기준 날짜 (PR-15)
-    │   └── toastStore.ts   # 토스트 표시 상태 (CMP-03)
+    │   ├── toastStore.ts   # 토스트 표시 상태 (CMP-03)
+    │   ├── localeStore.ts  # 언어 ko·ja·en (persist localStorage, Accept-Language 값)
+    │   └── themeStore.ts   # 화면 모드·글자 크기 (persist localStorage, <html data-theme·data-font-size>)
     ├── pages/              # WF 화면 1:1
     │   ├── LoginPage.tsx
     │   ├── SignupPage.tsx
@@ -345,10 +359,14 @@ frontend/
     │   ├── ConfirmModal.tsx    # 삭제·이탈 확인 공용 (CMP-01, CMP-02)
     │   ├── Toast.tsx           # (CMP-03)
     │   ├── StatusBadge.tsx     # (CMP-05)
+    │   ├── LanguageSelect.tsx  # 언어 선택 (내비·로그인·가입 화면)
+    │   ├── ThemeSelect.tsx     # 화면 모드 선택 (내비·로그인·가입 화면)
+    │   ├── FontSizeSelect.tsx  # 글자 크기 선택 (내비·로그인·가입 화면)
     │   ├── todo/               # 목록 행, 필터 바, 페이지네이션, 편집 폼 (WF-04, WF-05)
     │   └── calendar/           # 캘린더 라이브러리 어댑터 + 일간 목록 (WF-06, PR-18)
     ├── lib/
     │   ├── date.ts         # todayString(로컬), 월/주(일요일 시작) 범위 (PR-04, A-12)
+    │   ├── logger.ts       # 개발 모드 전용 콘솔 로그 (PR-40)
     │   └── date.test.ts    # 테스트는 대상 옆에 *.test.ts (PR-28)
     └── styles/
         ├── tokens.css      # docs/style-guide.md 토큰의 구현 (PR-24, SG-01)

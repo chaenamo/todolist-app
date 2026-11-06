@@ -14,6 +14,7 @@
 | v0.8 | 2026-11-05 | chaenamo | 초안 | 백엔드 구현 완료에 맞춰 잠정 표기 정리 |
 | v0.9 | 2026-11-05 | chaenamo | 초안 | AQ-04 결정(FE-05) |
 | v1.0 | 2026-11-05 | chaenamo | 초안 | U-03 결정(FullCalendar 6.1.22) |
+| v1.1 | 2026-11-06 | chaenamo | 초안 | 구현 코드와 대조해 사실 불일치 수정(다국어·화면 설정 상태, 에러 미들웨어, 함수명) |
 
 ## 변경 이력
 
@@ -29,6 +30,7 @@
 | v0.8 | 2026-11-05 | 4.1(AQ-05~07, AQ-09, AQ-10), 4.2, AD-05, AD-06~12 시퀀스 | BE-01~12 완료 반영: AQ-05·06·07·08(total)·09·10을 구현 값으로 결정 표기, 시퀀스 다이어그램의 "경로·메서드·코드 잠정" 문구 제거, U-04·U-05·U-09 결정 표기 | chaenamo |
 | v0.9 | 2026-11-05 | 4.1(AQ-04) | FE-05 구현으로 AQ-04 결정: 날짜 산술은 `lib/date.ts` 안 UTC만, 어댑터도 이 함수 사용 | chaenamo |
 | v1.0 | 2026-11-05 | AD-02, AD-12, 4.2 | FE-10 구현으로 U-03 결정: FullCalendar 6.1.22 고정, "미정·가정" 표기 정리 | chaenamo |
+| v1.1 | 2026-11-06 | AD-02, AD-03, AD-07, AD-09, AD-13 | 구현 코드와 대조: AD-02 Zustand에 `localeStore`(언어, localStorage `todolist-locale`)·`themeStore`(화면 모드·글자 크기, localStorage `todolist-theme`) 추가, api client가 `Accept-Language`로 현재 언어 전송. AD-03 에러 미들웨어에 23503 → 409(EQ-01)·잘못된 JSON → 400·`i18n.js`로 문구 번역 추가, 헬스체크 화살표를 `checkConnection()`(AQ-07 결정)으로, 개발 환경 전용 Swagger UI(`/api-docs`) 명시. AD-07 만료 정리 조건 `expires_at <= now()`, AD-07·AD-13 service 함수명 `refreshAccessToken`, AD-09 `createTodo`·`updateTodo` | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/3-user-scenario.md` (v0.5), `docs/4-wireframe.md` (v0.5), `docs/5-project-principle.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U)는 **참조만** 하며 재정의하지 않는다. 구조 결정은 `5-project-principle.md`를 따른다.
@@ -79,7 +81,7 @@ flowchart LR
 
 ## AD-02 프론트엔드 내부 구조
 
-`pages → hooks → api` 단방향(PR-13). 서버 데이터는 TanStack Query 캐시에만, Zustand는 토큰(access 메모리, refresh localStorage)과 UI 상태만 가진다(PR-14, PR-37).
+`pages → hooks → api` 단방향(PR-13). 서버 데이터는 TanStack Query 캐시에만, Zustand는 토큰(access 메모리, refresh localStorage `todolist-auth`), UI 상태, 화면 설정(언어·화면 모드·글자 크기, localStorage)만 가진다(PR-14, PR-37).
 
 ```mermaid
 flowchart TB
@@ -100,12 +102,14 @@ flowchart TB
     subgraph STATE["상태"]
         AUTHS["stores/authStore<br/>access token 메모리만, persist 안 함<br/>refresh token만 localStorage persist U-02 결정"]
         UIS["stores/uiStore<br/>목록 필터·페이지, 캘린더 뷰·기준 날짜<br/>PR-15, G-08, G-12"]
+        LOCS["stores/localeStore<br/>언어 ko·ja·en, localStorage persist<br/>i18n/ 사전 선택, html lang 동기화"]
+        THS["stores/themeStore<br/>화면 모드·글자 크기, localStorage persist<br/>html data-theme·data-font-size 동기화"]
         QC[("QueryClient 캐시<br/>할일·카테고리·내 정보")]
     end
 
     HOOKS["hooks/ TanStack Query<br/>useAuth, useMe, useCategories<br/>useTodos, useCalendarTodos<br/>쓰기 후 invalidateQueries"]
     APIR["api/auth, users, categories, todos<br/>api/types.ts - React import 금지"]
-    CLIENT["api/client.ts<br/>fetch + Bearer 부착, PR-20 에러 파싱<br/>401: single-flight refresh 1회 → 원 요청 1회 재시도<br/>refresh 401: 토큰 둘 다 폐기 → queryClient.clear → /login PR-16"]
+    CLIENT["api/client.ts<br/>fetch + Bearer·Accept-Language 부착, PR-20 에러 파싱<br/>401: single-flight refresh 1회 → 원 요청 1회 재시도<br/>refresh 401: 토큰 둘 다 폐기 → queryClient.clear → /login PR-16"]
     BE["Express API AD-03"]
 
     APP --> LAYOUT --> PAGES
@@ -113,11 +117,14 @@ flowchart TB
     PAGES --> COMP
     PC --> CALAD
     PAGES <-->|"UI 상태"| UIS
+    PAGES <-->|"언어·화면 설정"| LOCS
+    PAGES <-->|"언어·화면 설정"| THS
     PAGES --> HOOKS
     HOOKS --> LIB
     HOOKS <--> QC
     HOOKS --> APIR --> CLIENT
     CLIENT -.->|"토큰 읽기·폐기"| AUTHS
+    CLIENT -.->|"언어 읽기"| LOCS
     CLIENT -.->|"401 시 clear"| QC
     CLIENT -->|"HTTPS"| BE
 ```
@@ -157,7 +164,7 @@ flowchart TB
     DBJS["db.js<br/>pg.Pool 단일 인스턴스 PR-41<br/>setTypeParser 1082 문자열 PR-42<br/>withTransaction PR-11"]
     PG[("PostgreSQL 17")]
     NF404["미등록 경로<br/>404 NOT_FOUND"]
-    ERR["middleware/error.js - 맨 뒤<br/>AppError → 해당 코드, 23505 → 409 CONFLICT<br/>그 외 500 INTERNAL, 스택은 서버 로그만 PR-46"]
+    ERR["middleware/error.js - 맨 뒤<br/>AppError → 해당 코드, 23505 → 409 CONFLICT<br/>23503 fk_todos_category_owner → 409 EQ-01, 잘못된 JSON → 400<br/>그 외 500 INTERNAL, 스택은 서버 로그만 PR-46<br/>문구는 Accept-Language로 i18n.js 번역 ko·ja·en"]
     CFG["config.js<br/>환경변수 단일 로딩, 필수값 없으면 기동 종료 PR-34"]
 
     REQ --> CORS --> JSON --> LOG
@@ -173,13 +180,15 @@ flowchart TB
     SVC --> REPO
     REPO -.->|"상태 필터 조각"| DOM
     REPO --> DBJS --> PG
-    HEALTH -.->|"SELECT 1, 경로 확인 필요 AQ-07"| DBJS
+    HEALTH -.->|"checkConnection SELECT 1, AQ-07 결정"| DBJS
     SVC -.->|"throw"| ERR
     AUTH -.->|"throw 401"| ERR
     CFG -.-> DBJS
     CFG -.-> AUTH
     CFG -.-> SVC
 ```
+
+- 개발 환경(`NODE_ENV=development`, `npm run dev`)에서만 `app.js`가 `/health` 다음에 Swagger UI(`/api-docs`, `apiDocs.js`가 `swagger.yaml` 로드)를 연결한다. 공개 경로다.
 
 | 레이어 | 금지 (PR-09 표) |
 |--------|-----------------|
@@ -312,7 +321,7 @@ sequenceDiagram
             H-->>P: 폼 상단 오류, 입력 유지 SC-02-E1
         else 일치
             S->>Repo: deleteExpiredByUser(db, userId)
-            Repo->>DB: DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at < now()
+            Repo->>DB: DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at <= now()
             S->>S: accessToken = jwt.sign sub=userId, HS384, ACCESS_TOKEN_TTL 15m
             S->>S: refreshToken = randomBytes 32 base64url, tokenHash = SHA-256
             S->>Repo: insertRefreshToken(db, userId, tokenHash, now + 14일)
@@ -349,7 +358,7 @@ sequenceDiagram
         Note over H: 동시에 401이 여러 개여도 refresh 요청은 1개 single-flight, 나머지는 결과 대기
         H->>ST: refresh token 읽기
         H->>R: POST /api/auth/refresh body refreshToken (공개)
-        R->>S: refresh(refreshToken)
+        R->>S: refreshAccessToken(refreshToken)
         S->>Repo: findValidByHash(db, SHA-256 해시)
         Repo->>DB: SELECT user_id ... WHERE token_hash = $1 AND expires_at > now()
         alt 유효한 행 있음
@@ -418,7 +427,7 @@ sequenceDiagram
             Note over APP: 판정 중 로딩 표시, 보호 화면 렌더 안 함
             APP->>H: refresh() - AD-07 3)과 같은 single-flight 함수
             H->>R: POST /api/auth/refresh body refreshToken
-            R->>S: refresh(refreshToken)
+            R->>S: refreshAccessToken(refreshToken)
             S->>Repo: findValidByHash(db, SHA-256 해시)
             Repo->>DB: SELECT user_id ... WHERE token_hash = $1 AND expires_at > now()
             alt 유효
@@ -530,7 +539,7 @@ sequenceDiagram
         R-->>H: 400 fields.endDate 등
         H-->>P: 해당 필드 아래 오류 AC-02, SC-04-E2
     else 통과 - 과거 날짜·같은 날 허용 BR-11, BR-12
-        R->>S: create(userId, input) 또는 update(userId, id, input)
+        R->>S: createTodo(userId, input) 또는 updateTodo(userId, id, input)
         alt categoryId 없음 BR-08
             S->>Repo: findDefaultCategory(db, userId)
             Repo->>DB: SELECT ... WHERE user_id = $1 AND is_default

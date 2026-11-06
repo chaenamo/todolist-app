@@ -9,6 +9,7 @@
 | v0.3 | 2026-11-04 | chaenamo | 초안 | 문서 간 정합성 검토 반영 |
 | v0.4 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 | v0.5 | 2026-11-05 | chaenamo | 초안 | 백엔드 구현 완료에 맞춰 결정 반영 |
+| v0.6 | 2026-11-06 | chaenamo | 초안 | 구현 코드와 대조해 사실 불일치 수정 |
 
 ## 변경 이력
 
@@ -19,6 +20,7 @@
 | v0.3 | 2026-11-04 | 기준 문서, 7.3(EQ-02) | 문서 간 정합성 검토 반영: 기준 원칙 v0.4, 아키텍처 v0.5로 갱신. EQ-02를 결정(잠정 기본값 채택: 테이블별 파일 001~004)으로 표기, 원칙 문서 6.2 트리 갱신 완료 | chaenamo |
 | v0.4 | 2026-11-05 | 기준 문서, 4 | 부하 테스트를 이번 범위에서 하지 않으므로 상태 필터 인덱스 가정의 확인 시점(M-04 부하 테스트) 문구를 "가정으로 남긴다"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6 | chaenamo |
 | v0.5 | 2026-11-05 | 1, CN-02, 3.1, 7.2, 7.3(EQ-01, EQ-03) | BE-01~12 완료 반영: G-05(길이 상수·이메일 대소문자 구분), AQ-05(42일), AQ-06, AQ-08(total 별도 COUNT), EQ-01(23503 → 409), EQ-03(제목 trim)을 결정으로 표기. 스키마 변경 없음 | chaenamo |
+| v0.6 | 2026-11-06 | 4(IX-04) | 구현 코드(`refreshTokenRepository.deleteExpiredByUser`)와 대조: 로그인 시 만료 정리 조건을 `expires_at < now()`에서 `expires_at <= now()`로 수정(조회 `findValidByHash`의 `expires_at > now()`와 경계가 맞물림). 마이그레이션·`schema.sql`과 DDL 차이 없음, 스키마 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/5-project-principle.md` (v0.6), `docs/6-arch-diagram.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ)는 **참조만** 하며 재정의하지 않는다. 도메인 4.2의 개념 ER은 개념 모델로 유지하고, 이 문서는 그 물리(PostgreSQL 17) 구현이다.
@@ -178,7 +180,7 @@ PK·UNIQUE가 만드는 인덱스(CN-01·02·04·06·07·08·10·16·18)는 별�
 | IX-01 | `ix_todos_user_id_end_date` | `todos (user_id, end_date, created_at, id)` | 목록(카테고리 필터 없음): `WHERE user_id = $1 [AND 상태 조각] ORDER BY end_date, created_at, id LIMIT/OFFSET` — 정렬을 인덱스 순서로 처리해 Sort 없음 | Q-05, AQ-08, NFR-06, NFR-07 |
 | IX-02 | `ix_todos_user_id_category_id` | `todos (user_id, category_id, end_date, created_at, id)` | 목록(카테고리 필터): `WHERE user_id = $1 AND category_id = $2 ... ORDER BY end_date, created_at, id`. 같은 인덱스로 BR-09 이동(`UPDATE ... WHERE user_id AND category_id`)과 CN-12 RESTRICT 검사(카테고리 삭제 시 참조 할일 탐색)도 처리 | BR-15, BR-09, NFR-07 |
 | IX-03 | `ix_todos_user_id_start_date` | `todos (user_id, start_date, end_date)` | 캘린더 기간 겹침: `WHERE user_id = $1 AND start_date <= $to AND end_date >= $from` — `start_date` 범위 스캔 + `end_date`는 인덱스 내 필터 | BR-16, PR-43, AQ-05 |
-| IX-04 | `ix_refresh_tokens_user_id` | `refresh_tokens (user_id)` | 비밀번호 변경 시 전체 폐기 `DELETE ... WHERE user_id = $1`, 로그인 시 만료 정리 `DELETE ... WHERE user_id = $1 AND expires_at < now()`, CN-17 CASCADE 검사 | NFR-10, PR-37, G-06 |
+| IX-04 | `ix_refresh_tokens_user_id` | `refresh_tokens (user_id)` | 비밀번호 변경 시 전체 폐기 `DELETE ... WHERE user_id = $1`, 로그인 시 만료 정리 `DELETE ... WHERE user_id = $1 AND expires_at <= now()`, CN-17 CASCADE 검사 | NFR-10, PR-37, G-06 |
 | (CN-02) | `uq_users_email` | `users (email)` | 로그인·가입 중복 확인 `WHERE email = $1` | BR-03, PR-36 |
 | (CN-06) | `uq_categories_user_id_name` | `categories (user_id, name)` | 카테고리 목록 `WHERE user_id = $1`, 소유 확인 | BR-02, PR-10 |
 | (CN-08) | `uq_categories_user_id_default` | `categories (user_id) WHERE is_default` | '기본' 조회 `WHERE user_id = $1 AND is_default` | BR-08, BR-09 |
