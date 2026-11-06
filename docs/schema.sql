@@ -1,6 +1,7 @@
 -- TodoList 데이터베이스 스키마 (PostgreSQL 17)
 -- 근거: docs/7-erd.md v0.1 (T-01~03, CN-01~15, IX-01~03)
 -- 추가: docs/7-erd.md v0.2 (T-04 refresh_tokens, CN-16~18, IX-04) - 인증 인프라 테이블, PR-37
+-- 확인: docs/7-erd.md v0.7 기준 DDL 차이 없음(v0.2 이후 스키마 변경 없음, backend/db/migrations 001~004와 동일)
 -- 실행: psql -d <db> -v ON_ERROR_STOP=1 -f docs/schema.sql
 -- 제약 이름은 error 미들웨어의 23505 → 필드 매핑(PR-46)에서 쓰이므로 바꾸지 않는다.
 -- 상태(ST-01~04)는 파생 값이므로 컬럼이 없다(PR-03).
@@ -15,7 +16,7 @@ CREATE TABLE users (
     name          text        NOT NULL,
     created_at    timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT pk_users                PRIMARY KEY (id),                    -- CN-01
-    CONSTRAINT uq_users_email          UNIQUE (email),                      -- CN-02, BR-03 (대소문자 구분: G-05 잠정)
+    CONSTRAINT uq_users_email          UNIQUE (email),                      -- CN-02, BR-03 (대소문자 구분: G-05 결정)
     CONSTRAINT ck_users_name_not_blank CHECK (btrim(name) <> '')            -- CN-03
 );
 

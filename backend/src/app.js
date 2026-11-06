@@ -26,3 +26,6 @@ app.use('/api/todos', todosRouter);
 app.use('/api/users', usersRouter);
 app.use(notFound);
 app.use(errorHandler);
+
+// Vercel은 default export된 Express 앱을 함수로 실행한다(로컬은 server.js가 listen)
+export default app;

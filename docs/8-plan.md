@@ -44,7 +44,7 @@
 | v0.4 | 2026-11-04 | 0.2, BE-07, BE-08, BE-11, QA-01, QA-02, 7(PQ-04, PQ-05), 9(신규) | DB-01~BE-06 수행 중 미룬 작업을 기록: 0.2에 이월 규칙 추가, 대상 Task 절에 **이월 사항** 줄 추가, 9장 이월 작업 표 신설. 결정 필요 항목 PQ-04(로그인 응답 시간 차이), PQ-05(JSON 파싱 실패 요청 로그) 추가. 체크박스 문장 변경 없음 | chaenamo |
 | v0.5 | 2026-11-04 | 0.1, 7(U-08) | U-08 결정: 두 개발 스킬의 계획 문서 경로를 `docs/8-plan.md`로 수정 완료. 0.1의 주의 문구를 결정 문구로 교체. 체크박스 문장 변경 없음 | chaenamo |
 
-> 기준 문서: `docs/1-domain-definition.md` (v0.4), `docs/2-PRD.md` (v0.6), `docs/3-user-scenario.md` (v0.7), `docs/4-wireframe.md` (v0.7), `docs/5-project-principle.md` (v1.3), `docs/6-arch-diagram.md` (v1.1), `docs/7-erd.md` (v0.6), `docs/schema.sql`.
+> 기준 문서: `docs/1-domain-definition.md` (v0.4), `docs/2-PRD.md` (v0.6), `docs/3-user-scenario.md` (v0.7), `docs/4-wireframe.md` (v0.7), `docs/5-project-principle.md` (v1.3), `docs/6-arch-diagram.md` (v1.1), `docs/7-erd.md` (v0.7), `docs/schema.sql`.
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ, T, CN, IX, EQ)는 **참조만** 하며 재정의하지 않는다.
 > 이 문서 고유 ID: Task `DB-xx`, `BE-xx`, `FE-xx`, `QA-xx`, `OPS-xx`, 확인 필요 `PQ-xx`. 삭제되어도 **재사용하거나 다시 매기지 않는다.** Task를 나누면 새 번호를 붙이고 원 Task는 "분할됨"으로 남긴다.
 

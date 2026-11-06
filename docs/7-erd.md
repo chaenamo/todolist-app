@@ -10,6 +10,7 @@
 | v0.4 | 2026-11-05 | chaenamo | 초안 | 부하 테스트·배포 범위 제외 반영 |
 | v0.5 | 2026-11-05 | chaenamo | 초안 | 백엔드 구현 완료에 맞춰 결정 반영 |
 | v0.6 | 2026-11-06 | chaenamo | 초안 | 구현 코드와 대조해 사실 불일치 수정 |
+| v0.7 | 2026-11-06 | chaenamo | 초안 | schema.sql·실제 DB와 정합성 검토 반영 |
 
 ## 변경 이력
 
@@ -21,6 +22,7 @@
 | v0.4 | 2026-11-05 | 기준 문서, 4 | 부하 테스트를 이번 범위에서 하지 않으므로 상태 필터 인덱스 가정의 확인 시점(M-04 부하 테스트) 문구를 "가정으로 남긴다"로 변경. 기준 PRD v0.5, 원칙 v0.6, 아키텍처 v0.6 | chaenamo |
 | v0.5 | 2026-11-05 | 1, CN-02, 3.1, 7.2, 7.3(EQ-01, EQ-03) | BE-01~12 완료 반영: G-05(길이 상수·이메일 대소문자 구분), AQ-05(42일), AQ-06, AQ-08(total 별도 COUNT), EQ-01(23503 → 409), EQ-03(제목 trim)을 결정으로 표기. 스키마 변경 없음 | chaenamo |
 | v0.6 | 2026-11-06 | 4(IX-04) | 구현 코드(`refreshTokenRepository.deleteExpiredByUser`)와 대조: 로그인 시 만료 정리 조건을 `expires_at < now()`에서 `expires_at <= now()`로 수정(조회 `findValidByHash`의 `expires_at > now()`와 경계가 맞물림). 마이그레이션·`schema.sql`과 DDL 차이 없음, 스키마 변경 없음 | chaenamo |
+| v0.7 | 2026-11-06 | 6 | `schema.sql`과 실제 개발·테스트 DB(테이블·컬럼·제약·인덱스)를 대조해 차이 없음 확인. 6장 004 행의 "001~003은 아직 적용 전" 문구를 작성 당시 사정으로 고치고 001~004 적용 완료를 명시. `schema.sql` 주석의 ERD 참조 버전과 CN-02의 G-05 표기(잠정 → 결정) 갱신. 스키마 변경 없음 | chaenamo |
 
 > 기준 문서: `docs/1-domain-definition.md` (v0.3), `docs/2-PRD.md` (v0.5), `docs/5-project-principle.md` (v0.6), `docs/6-arch-diagram.md` (v0.6).
 > 기준 문서 ID(P, FR, ST, BR, UC, AC, A, Q, NFR, TC, M, R, K, SC, G, WF, CMP, PR, U, AD, AQ)는 **참조만** 하며 재정의하지 않는다. 도메인 4.2의 개념 ER은 개념 모델로 유지하고, 이 문서는 그 물리(PostgreSQL 17) 구현이다.
@@ -206,7 +208,9 @@ PK·UNIQUE가 만드는 인덱스(CN-01·02·04·06·07·08·10·16·18)는 별�
 | `001_create_users.sql` | T-01, CN-01~03 |
 | `002_create_categories.sql` | T-02, CN-04~09 |
 | `003_create_todos.sql` | T-03, CN-10~15, IX-01~03 |
-| `004_create_refresh_tokens.sql` | T-04, CN-16~18, IX-04 (001~003은 아직 적용 전이지만 파일 분리 원칙을 지켜 새 파일로 추가) |
+| `004_create_refresh_tokens.sql` | T-04, CN-16~18, IX-04 (작성 당시 001~003은 적용 전이었지만 파일 분리 원칙을 지켜 새 파일로 추가) |
+
+001~004는 개발 DB와 테스트 DB에 모두 적용되어 있다(2026-11-06 확인).
 
 이후 변경(예: Q-01 탈퇴 시 ON DELETE 변경, G-05 대소문자 정책)은 `005_*.sql`부터 새 파일로 추가한다.
 
