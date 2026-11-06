@@ -9,15 +9,18 @@
   max-width: var(--form-max-width);
 }
 
+/* 카드 폭이 좁아 선택 3개가 브랜드와 겹치므로 브랜드 아래 줄에 둔다 */
 .top {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
